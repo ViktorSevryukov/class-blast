@@ -20,21 +20,20 @@ browser["username"] = USERNAME
 browser["password"] = PASSWORD
 resp = browser.submit_selected()
 
-# Uncomment to launch a web browser on the current page:
-# browser.launch_browser()
 
-# verify we are now logged in
 page = browser.get_current_page()
-print(page)
 
-# messages = page.find("div", class_="flash-messages")
-# if messages:
-#     print(messages.text)
-# assert page.select(".logout-form")
-#
-# print(page.title.text)
-#
-# # verify we remain logged in (thanks to cookies) as we browse the rest of
-# # the site
-# page3 = browser.open("https://github.com/MechanicalSoup/MechanicalSoup")
-# assert page3.soup.select(".logout-form")
+
+HIDDEN_PAGE = 'https://www.enrollware.com/admin/class-edit.aspx?ret=class-list.aspx&id=2019614'
+
+
+class_page = browser.open(HIDDEN_PAGE)
+class_page = browser.get_current_page()
+
+select_el = class_page.find("select", {'id':'mainContent_Course'})
+
+option = select_el.find('option', selected=True)
+
+print(option.text)
+
+# print(class_page.text)
