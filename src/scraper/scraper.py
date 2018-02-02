@@ -86,11 +86,11 @@ class ClassImporter:
         classes_urls = self.get_classes_urls()
 
         # TODO: uncomment when ready to work, now just parse one group
-        # for class_url in classes_urls:
-        class_url = classes_urls[0]  # just for test
-        self.browser.open(class_url)
-        self.class_page = self.browser.get_current_page()
-        print(self.get_fields())
+        for class_url in classes_urls:
+            # class_url = classes_urls[0]  # just for test
+            self.browser.open(class_url)
+            self.class_page = self.browser.get_current_page()
+            print(self.get_fields())
 
     def get_fields(self):
         return {
