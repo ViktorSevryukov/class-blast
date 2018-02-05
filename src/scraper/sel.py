@@ -1,4 +1,8 @@
 from selenium import webdriver
+import mechanicalsoup
+import cookiejar
+from http import cookies
+from http.cookiejar import Cookie, CookieJar
 
 SETTINGS = {
     'username': 'jason.j.boudreault@gmail.com',
@@ -35,8 +39,23 @@ class AHAImporter():
         login_form.find_element_by_class_name("gigya-input-submit").click()
         print("LOGIN SUCCESS")
 
-    
+    def get_course(self):
+        self.browser.get(self.URLS['add_course'])
+        fields_form = self.browser.find_element_by_id('courseId')
+        courses = fields_form.find_element_by_class_name('/org/heart/ecc/handler/CCClassFormHandler.courseId')
+        courses_list = {}
+        for cours in courses:
+            self.course_list.append(course)
+        return courses
+
+    def get_fields(self):
+        return {
+            'course': self.get_course(),
+        }
+
 if __name__ == '__main__':
     importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])
     importer.run()
+
+
 
