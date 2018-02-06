@@ -27,6 +27,10 @@ class AHAImporter():
     def login(self):
         self.selenium_browser.get(self.URLS['login'])
         self.selenium_browser.implicitly_wait(10)
+
+        #TODO: add wait for login form, or redirect right now to "add class URL'
+
+        # WebDriverWait(self.selenium_browser, 5).until(EC._find_element(By.ID, "userScreDiv"), True)
         login_form = self.selenium_browser.find_element_by_id('userScreDiv')
         username_form = login_form.find_element_by_class_name('gigya-input-text')
         password_form = login_form.find_element_by_class_name('gigya-input-password')
@@ -57,21 +61,24 @@ class AHAImporter():
             print(element.get_attribute('text'))
 
     def get_location(self):
-        # exclude "add new location"
+
+        #TODO: exclude "add new location"
+
         location_list = self.selenium_browser.find_element_by_id('locationId')
         options = [x for x in location_list.find_elements_by_tag_name('option')]
         for element in options:
             print(element.get_attribute('text'))
 
-
     def get_tc(self):
+
+        #TODO: search TC for each Course
 
         # self.selenium_browser.find_element_by_id('courseId').find_element_by_tag_name('option').click()
         self.selenium_browser.find_element_by_xpath("//select[@id='courseId']/option[text()='Airway Management Course']").click()
-        WebDriverWait(self.selenium_browser, 5).until(EC.element_to_be_selected('tcId'))
-        # WebDriverWait(self.selenium_browser, 5).until(self.selenium_browser.find_element_by_tag_name('tcId'))
+        # WebDriverWait(self.selenium_browser, 1).until(EC.element_to_be_selected('tcId'))
+        # WebDriverWait(self.selenium_browser, 5).until(self.selenium_browser.find_element_by_id('tcId'))
 
-        tc_list = self.selenium_browser.find_element_by_tag_name('tcId')
+        tc_list = self.selenium_browser.find_element_by_id('tcId')
         options = [x for x in tc_list.find_elements_by_tag_name('option')]
         for element in options:
             print(element.get_attribute('text'))
