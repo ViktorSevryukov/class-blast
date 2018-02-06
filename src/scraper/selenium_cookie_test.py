@@ -1,3 +1,9 @@
+import cookiejar
+from http import cookies
+
+
+
+
 self.mbrowser = mechanicalsoup.StatefulBrowser(
             soup_config={'features': 'lxml'},
             raise_on_404=True,
