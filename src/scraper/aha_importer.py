@@ -26,16 +26,12 @@ class AHAImporter():
 
     def login(self):
         self.selenium_browser.get(self.URLS['login'])
-        # self.selenium_browser.implicitly_wait(10)
+        self.selenium_browser.implicitly_wait(10)
 
         #TODO: add wait for login form, or redirect right now to "add class URL'
 
-        # try:
         login_form = WebDriverWait(self.selenium_browser, 10).until(
                 EC.presence_of_element_located((By.ID, "userScreDiv_content")))
-        # print(login_form)
-        # finally:
-        #     pass
         username_form = login_form.find_element_by_class_name('gigya-input-text')
         password_form = login_form.find_element_by_class_name('gigya-input-password')
 
@@ -51,6 +47,7 @@ class AHAImporter():
 
     def get_course(self):
 
+        self.selenium_browser.implicitly_wait(10)
         course_list = self.selenium_browser.find_element_by_id('courseId')
         options = [x for x in course_list.find_elements_by_tag_name('option')]
         for element in options:
@@ -58,6 +55,7 @@ class AHAImporter():
 
     def get_language(self):
 
+        self.selenium_browser.implicitly_wait(10)
         language_list = self.selenium_browser.find_element_by_id('languageId')
         options = [x for x in language_list.find_elements_by_tag_name('option')]
         for element in options:
@@ -67,6 +65,7 @@ class AHAImporter():
 
         #TODO: exclude "add new location"
 
+        self.selenium_browser.implicitly_wait(10)
         location_list = self.selenium_browser.find_element_by_id('locationId')
         options = [x for x in location_list.find_elements_by_tag_name('option')]
         for element in options:
@@ -76,45 +75,31 @@ class AHAImporter():
 
         #TODO: search TC for each Course
         self.selenium_browser.implicitly_wait(10)
-        # self.selenium_browser.find_element_by_id('courseId').find_element_by_tag_name('option[text]').click()
         self.selenium_browser.find_element_by_xpath("//select[@id='courseId']/option[text()='Airway Management Course']").click()
 
-        # WebDriverWait(self.selenium_browser, 1).until(EC.element_to_be_selected('tcId'))
-        WebDriverWait(self.selenium_browser, 5).until(EC.visibility_of_element_located((By.ID, 'tcNames'))) #centers
-        # WebDriverWait(self.selenium_browser, 5).until(self.selenium_browser.find_element_by_id('tcId'))
+        WebDriverWait(self.selenium_browser, 5).until(EC.presence_of_element_located((By.ID, 'tcNames')))
         tc_list = self.selenium_browser.find_element_by_id('tcId')
         options = [x for x in tc_list.find_elements_by_tag_name('option')]
         for element in options:
             print(element.get_attribute('text'))
 
-
     def get_instructors(self):
-        # self.selenium_browser.implicitly_wait(10)
+        self.selenium_browser.implicitly_wait(10)
+        self.selenium_browser.find_element_by_xpath("//select[@id='tcId']/option[text()='HeartShare Training Services Inc.']").click()
 
-        # self.selenium_browser.find_element_by_id('courseId').find_element_by_tag_name('option').click()
-        # self.selenium_browser.find_element_by_id('centers').find_element_by_tag_name('option').click()
-        # self.selenium_browser.find_element_by_id('tsNames').find_element_by_tag_name('option').click()
-        #
-        # instructor_list = self.selenium_browser.find_element_by_tag_name('instructors')
-        # options = [x for x in instructor_list.find_elements_by_tag_name('option')]
-        # for element in options:
-        #     print(element.get_attribute('text'))
-        pass
-
-
-    # def logout(self):
-    #     self.selenium_browser.find_element_by_class_name("username hidden-xs").find_element_by_class_name("fa fa-sign-out").click()
-    #     print("Log Out")
+        WebDriverWait(self.selenium_browser, 5).until(EC.presence_of_element_located((By.ID, 'instructorId')))
+        instructor_list = self.selenium_browser.find_element_by_id('instrNames')
+        options = [x for x in instructor_list.find_elements_by_tag_name('option')]
+        for element in options:
+            print(element.get_attribute('text'))
 
 
 if __name__ == '__main__':
     importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])
     importer.login()
     importer.jump_page()
-    # importer.get_course()
-    # importer.get_language()
-    # importer.get_location()
+    importer.get_course()
+    importer.get_language()
+    importer.get_location()
     importer.get_tc()
-    # importer.get_instructors()
-    # importer.logout()
-    # importer.browser_close()
+    importer.get_instructors()
