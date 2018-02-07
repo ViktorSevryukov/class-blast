@@ -1,10 +1,15 @@
 import mechanicalsoup
 
-SETTINGS = {
-    'username': 'gentrain',
-    'password': 'enrollware'
-}
+# SETTINGS = {
+#     'username': 'gentrain',
+#     'password': 'enrollware'
+# }
 
+
+SETTINGS = {
+    'username': 'v.akins',
+    'password': 'password1234'
+}
 
 def get_select_value_by_id(page, select_id):
     """
@@ -79,6 +84,8 @@ class ClassImporter:
         for link in link_elements:
             url = self.ADMIN_URL_TPL.format(link.get('href'))
             classes_urls.append(url)
+
+        print(len(classes_urls))
 
         return classes_urls
 
@@ -155,6 +162,7 @@ class ClassImporter:
         return class_times
 
     def get_max_students(self):
+        try:
         input_id = 'mainContent_maxEnrollment'
         return get_input_value_by_id(self.class_page, input_id)
 

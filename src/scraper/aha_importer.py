@@ -26,19 +26,22 @@ class AHAImporter():
 
     def login(self):
         self.selenium_browser.get(self.URLS['login'])
-        self.selenium_browser.implicitly_wait(10)
+        # self.selenium_browser.implicitly_wait(10)
 
         #TODO: add wait for login form, or redirect right now to "add class URL'
 
-        # WebDriverWait(self.selenium_browser, 5).until(EC._find_element(By.ID, "userScreDiv"), True)
-        login_form = self.selenium_browser.find_element_by_id('userScreDiv')
+        # try:
+        login_form = WebDriverWait(self.selenium_browser, 10).until(
+                EC.presence_of_element_located((By.ID, "userScreDiv_content")))
+        # print(login_form)
+        # finally:
+        #     pass
         username_form = login_form.find_element_by_class_name('gigya-input-text')
         password_form = login_form.find_element_by_class_name('gigya-input-password')
 
         username_form.send_keys("jason.j.boudreault@gmail.com")
         password_form.send_keys("Thecpr1")
         login_form.find_element_by_class_name("gigya-input-submit").click()
-
         print("LOGIN SUCCESS")
 
     def jump_page(self):
@@ -72,12 +75,13 @@ class AHAImporter():
     def get_tc(self):
 
         #TODO: search TC for each Course
-
-        # self.selenium_browser.find_element_by_id('courseId').find_element_by_tag_name('option').click()
+        self.selenium_browser.implicitly_wait(10)
+        # self.selenium_browser.find_element_by_id('courseId').find_element_by_tag_name('option[text]').click()
         self.selenium_browser.find_element_by_xpath("//select[@id='courseId']/option[text()='Airway Management Course']").click()
-        # WebDriverWait(self.selenium_browser, 1).until(EC.element_to_be_selected('tcId'))
-        # WebDriverWait(self.selenium_browser, 5).until(self.selenium_browser.find_element_by_id('tcId'))
 
+        # WebDriverWait(self.selenium_browser, 1).until(EC.element_to_be_selected('tcId'))
+        WebDriverWait(self.selenium_browser, 5).until(EC.visibility_of_element_located((By.ID, 'tcNames'))) #centers
+        # WebDriverWait(self.selenium_browser, 5).until(self.selenium_browser.find_element_by_id('tcId'))
         tc_list = self.selenium_browser.find_element_by_id('tcId')
         options = [x for x in tc_list.find_elements_by_tag_name('option')]
         for element in options:
@@ -86,7 +90,6 @@ class AHAImporter():
 
     def get_instructors(self):
         # self.selenium_browser.implicitly_wait(10)
-        # self.selenium_browser.get(self.URLS['add_course'])
 
         # self.selenium_browser.find_element_by_id('courseId').find_element_by_tag_name('option').click()
         # self.selenium_browser.find_element_by_id('centers').find_element_by_tag_name('option').click()
@@ -99,24 +102,19 @@ class AHAImporter():
         pass
 
 
-
-
     # def logout(self):
     #     self.selenium_browser.find_element_by_class_name("username hidden-xs").find_element_by_class_name("fa fa-sign-out").click()
     #     print("Log Out")
-
-
-
 
 
 if __name__ == '__main__':
     importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])
     importer.login()
     importer.jump_page()
-    importer.get_course()
-    importer.get_language()
-    importer.get_location()
+    # importer.get_course()
+    # importer.get_language()
+    # importer.get_location()
     importer.get_tc()
-    importer.get_instructors()
+    # importer.get_instructors()
     # importer.logout()
     # importer.browser_close()
