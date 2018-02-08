@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import Select
 
 
 SETTINGS = {
@@ -42,12 +43,12 @@ class AHAImporter():
 
     def jump_page(self):
 
-        WebDriverWait(self.selenium_browser, 5).until(EC.text_to_be_present_in_element((By.TAG_NAME, "strong"), "Welcome!"))
+        WebDriverWait(self.selenium_browser, 5).until(
+            EC.text_to_be_present_in_element((By.TAG_NAME, "strong"), "Welcome!"))
         self.selenium_browser.get(self.URLS['add_course'])
 
     def get_course(self):
 
-        self.selenium_browser.implicitly_wait(10)
         course_list = self.selenium_browser.find_element_by_id('courseId')
         options = [x for x in course_list.find_elements_by_tag_name('option')]
         for element in options:
@@ -55,7 +56,6 @@ class AHAImporter():
 
     def get_language(self):
 
-        self.selenium_browser.implicitly_wait(10)
         language_list = self.selenium_browser.find_element_by_id('languageId')
         options = [x for x in language_list.find_elements_by_tag_name('option')]
         for element in options:
@@ -65,17 +65,21 @@ class AHAImporter():
 
         #TODO: exclude "add new location"
 
-        self.selenium_browser.implicitly_wait(10)
         location_list = self.selenium_browser.find_element_by_id('locationId')
         options = [x for x in location_list.find_elements_by_tag_name('option')]
+        list = []
         for element in options:
-            print(element.get_attribute('text'))
+            list.append(element.get_attribute('text'))
+        list.remove('Add New Location')
+        list.pop(0)
+
+        print(list)
 
     def get_tc(self):
 
         #TODO: search TC for each Course
-        self.selenium_browser.implicitly_wait(10)
-        self.selenium_browser.find_element_by_xpath("//select[@id='courseId']/option[text()='Airway Management Course']").click()
+        self.selenium_browser.find_element_by_xpath(
+            "//select[@id='courseId']/option[text()='Airway Management Course']").click()
 
         WebDriverWait(self.selenium_browser, 5).until(EC.presence_of_element_located((By.ID, 'tcNames')))
         tc_list = self.selenium_browser.find_element_by_id('tcId')
@@ -84,8 +88,9 @@ class AHAImporter():
             print(element.get_attribute('text'))
 
     def get_instructors(self):
-        self.selenium_browser.implicitly_wait(10)
-        self.selenium_browser.find_element_by_xpath("//select[@id='tcId']/option[text()='HeartShare Training Services Inc.']").click()
+        #TODO: change "HeartShare Training Services Inc." to var
+        self.selenium_browser.find_element_by_xpath(
+            "//select[@id='tcId']/option[text()='HeartShare Training Services Inc.']").click()
 
         WebDriverWait(self.selenium_browser, 5).until(EC.presence_of_element_located((By.ID, 'instructorId')))
         instructor_list = self.selenium_browser.find_element_by_id('instrNames')

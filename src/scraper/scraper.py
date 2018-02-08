@@ -1,4 +1,5 @@
 import mechanicalsoup
+from datetime import datetime, timedelta
 
 # SETTINGS = {
 #     'username': 'gentrain',
@@ -73,19 +74,19 @@ class ClassImporter:
     def get_classes_urls(self):
         self.browser.open(self.URLS['classes_page'])
         classes_page = self.browser.get_current_page()
-
-        # just search <a> tags in table
-        link_elements = classes_page\
-            .find('table', {'id': 'upcmgclstbl'})\
-            .find_all('a')
-
+        classes_rows = classes_page.find('table', {'id': 'upcmgclstbl'}).find('tbody').find_all('tr')
         classes_urls = []
 
-        for link in link_elements:
-            url = self.ADMIN_URL_TPL.format(link.get('href'))
-            classes_urls.append(url)
+        for row in classes_rows:
+            #TODO: refactor table rows (in case of table structure be changed)
+            date_str = row.find('td').text
+            date_str += 'm'
+            datetime_object = datetime.strptime(date_str, '%a %m/%d/%y %I:%M%p')
 
-        print(len(classes_urls))
+            if (datetime.now() - datetime_object).days >= 3:
+                print(datetime_object)
+                url = self.ADMIN_URL_TPL.format(row.find('a').get('href'))
+                classes_urls.append(url)
 
         return classes_urls
 
@@ -94,7 +95,7 @@ class ClassImporter:
 
         # TODO: uncomment when ready to work, now just parse one group
         for class_url in classes_urls:
-            # class_url = classes_urls[0]  # just for test
+            class_url = classes_urls[0]  # just for test
             self.browser.open(class_url)
             self.class_page = self.browser.get_current_page()
             print(self.get_fields())
@@ -161,11 +162,16 @@ class ClassImporter:
 
         return class_times
 
-    def get_max_students(self):
-        try:
-        input_id = 'mainContent_maxEnrollment'
-        return get_input_value_by_id(self.class_page, input_id)
+    #TODO: fix invalid group.max_students
 
+    def get_max_students(self):
+
+        input_id = 'mainContent_maxEnrollment'
+        try:
+            return get_input_value_by_id(self.class_page, input_id)
+
+        except:
+            return None
 
 if __name__ == '__main__':
     importer = ClassImporter(SETTINGS['username'], SETTINGS['password'])
