@@ -49,31 +49,39 @@ class AHAImporter():
 
     def get_course(self):
 
-        course_list = self.selenium_browser.find_element_by_id('courseId')
-        options = [x for x in course_list.find_elements_by_tag_name('option')]
+        all_courses = self.selenium_browser.find_element_by_id('courseId')
+        options = [x for x in all_courses.find_elements_by_tag_name('option')]
+        course_list = []
         for element in options:
-            print(element.get_attribute('text'))
+            course_list.append(element.get_attribute('text'))
+
+        course_list.pop(0)
+
+        print("Courses:", course_list )
 
     def get_language(self):
 
-        language_list = self.selenium_browser.find_element_by_id('languageId')
-        options = [x for x in language_list.find_elements_by_tag_name('option')]
+        all_languages = self.selenium_browser.find_element_by_id('languageId')
+        options = [x for x in all_languages.find_elements_by_tag_name('option')]
+        language_list = []
         for element in options:
-            print(element.get_attribute('text'))
+            language_list.append(element.get_attribute('text'))
+
+        language_list.pop(0)
+
+        print("Languages:", language_list)
 
     def get_location(self):
 
-        #TODO: exclude "add new location"
-
-        location_list = self.selenium_browser.find_element_by_id('locationId')
-        options = [x for x in location_list.find_elements_by_tag_name('option')]
-        list = []
+        all_locations = self.selenium_browser.find_element_by_id('locationId')
+        options = [x for x in all_locations.find_elements_by_tag_name('option')]
+        location_list = []
         for element in options:
-            list.append(element.get_attribute('text'))
-        list.remove('Add New Location')
-        list.pop(0)
+            location_list.append(element.get_attribute('text'))
+        location_list.remove('Add New Location')
+        location_list.pop(0)
 
-        print(list)
+        print("Locations:", location_list)
 
     def get_tc(self):
 
@@ -82,10 +90,15 @@ class AHAImporter():
             "//select[@id='courseId']/option[text()='Airway Management Course']").click()
 
         WebDriverWait(self.selenium_browser, 5).until(EC.presence_of_element_located((By.ID, 'tcNames')))
-        tc_list = self.selenium_browser.find_element_by_id('tcId')
-        options = [x for x in tc_list.find_elements_by_tag_name('option')]
+        all_tc = self.selenium_browser.find_element_by_id('tcId')
+        options = [x for x in all_tc.find_elements_by_tag_name('option')]
+        tc_list = []
         for element in options:
-            print(element.get_attribute('text'))
+            tc_list.append(element.get_attribute('text'))
+
+        tc_list.pop(0)
+
+        print("Training Centers:", tc_list)
 
     def get_instructors(self):
         #TODO: change "HeartShare Training Services Inc." to var
@@ -93,11 +106,15 @@ class AHAImporter():
             "//select[@id='tcId']/option[text()='HeartShare Training Services Inc.']").click()
 
         WebDriverWait(self.selenium_browser, 5).until(EC.presence_of_element_located((By.ID, 'instructorId')))
-        instructor_list = self.selenium_browser.find_element_by_id('instrNames')
-        options = [x for x in instructor_list.find_elements_by_tag_name('option')]
+        all_instructor = self.selenium_browser.find_element_by_id('instrNames')
+        options = [x for x in all_instructor.find_elements_by_tag_name('option')]
+        instructor_list = []
         for element in options:
-            print(element.get_attribute('text'))
+            instructor_list.append(element.get_attribute('text'))
 
+        instructor_list.pop(0)
+
+        print("Instructors:", instructor_list)
 
 if __name__ == '__main__':
     importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])
