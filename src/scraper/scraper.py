@@ -1,10 +1,16 @@
 import mechanicalsoup
+from datetime import datetime, timedelta
+
+# SETTINGS = {
+#     'username': 'gentrain',
+#     'password': 'enrollware'
+# }
+
 
 SETTINGS = {
-    'username': 'gentrain',
-    'password': 'enrollware'
+    'username': 'v.akins',
+    'password': 'password1234'
 }
-
 
 def get_select_value_by_id(page, select_id):
     """
@@ -52,7 +58,9 @@ class ClassImporter:
 
     def run(self):
         self.login()
-        self.handle_classes()
+        return self.handle_classes()
+
+
 
     def login(self):
         self.browser.open(self.URLS['login'])
@@ -68,29 +76,36 @@ class ClassImporter:
     def get_classes_urls(self):
         self.browser.open(self.URLS['classes_page'])
         classes_page = self.browser.get_current_page()
-
-        # just search <a> tags in table
-        link_elements = classes_page\
-            .find('table', {'id': 'upcmgclstbl'})\
-            .find_all('a')
-
+        classes_rows = classes_page.find('table', {'id': 'upcmgclstbl'}).find('tbody').find_all('tr')
         classes_urls = []
 
-        for link in link_elements:
-            url = self.ADMIN_URL_TPL.format(link.get('href'))
-            classes_urls.append(url)
+        for row in classes_rows:
+            #TODO: refactor table rows (in case of table structure be changed)
+            date_str = row.find('td').text
+            date_str += 'm'
+            datetime_object = datetime.strptime(date_str, '%a %m/%d/%y %I:%M%p')
 
+            #TODO: correct time interval
+            # if (datetime.now() - datetime_object).days >= 0:
+                # print(datetime_object)
+            url = self.ADMIN_URL_TPL.format(row.find('a').get('href'))
+            classes_urls.append(url)
+        print(len(classes_urls))
         return classes_urls
 
     def handle_classes(self):
         classes_urls = self.get_classes_urls()
+        classes_data = []
 
         # TODO: uncomment when ready to work, now just parse one group
-        # for class_url in classes_urls:
-        class_url = classes_urls[0]  # just for test
-        self.browser.open(class_url)
-        self.class_page = self.browser.get_current_page()
-        print(self.get_fields())
+        for class_url in classes_urls:
+            # class_url = classes_urls[0]  # just for test
+            self.browser.open(class_url)
+            self.class_page = self.browser.get_current_page()
+            # print(self.get_fields())
+            classes_data.append(self.get_fields())
+
+        return classes_data
 
     def get_fields(self):
         return {
@@ -154,9 +169,16 @@ class ClassImporter:
 
         return class_times
 
+    #TODO: fix invalid group.max_students
+
     def get_max_students(self):
+
         input_id = 'mainContent_maxEnrollment'
-        return get_input_value_by_id(self.class_page, input_id)
+        try:
+            return get_input_value_by_id(self.class_page, input_id)
+
+        except:
+            return print("Links", self.browser.get_url())
 
 
 if __name__ == '__main__':

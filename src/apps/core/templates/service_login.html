@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ServiceLogin</title>
+</head>
+<body>
+<form action="" method="post">
+    {% csrf_token %}
+    {% for field in enroll_form %}
+        <div class="fieldWrapper">
+            {{ field.errors }}
+            {{ field.label_tag }} {{ field }}
+        </div>
+    {% endfor %}
+    <input type="submit" value="Submit"/>
+    <input type="hidden" name="service_type" value="enroll">
+</form>
+<hr>
+<br>
+<form action="" method="post">
+    {% csrf_token %}
+    {% for field in aha_form %}
+        <div class="fieldWrapper">
+            {{ field.errors }}
+            {{ field.label_tag }} {{ field }}
+        </div>
+    {% endfor %}
+    <input type="submit" value="Submit"/>
+    <input type="hidden" name="service_type" value="aha">
+</form>
+</body>
+</html>
