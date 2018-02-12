@@ -1,4 +1,7 @@
+import time
 import mechanicalsoup
+
+from concurrent import futures
 from datetime import datetime, timedelta
 
 # SETTINGS = {
@@ -46,6 +49,8 @@ class ClassImporter:
         'classes_page': ADMIN_URL_TPL.format('class-list.aspx')
     }
 
+    MAX_WORKERS = 20
+
     def __init__(self, username, password):
         self.username = username
         self.password = password
@@ -55,12 +60,12 @@ class ClassImporter:
             user_agent='MyBot/0.1: mysite.example.com/bot_info',
         )
         self.class_page = None
+        self.classes_data = []
 
     def run(self):
         self.login()
-        return self.handle_classes()
-
-
+        self.handle_classes()
+        return self.classes_data
 
     def login(self):
         self.browser.open(self.URLS['login'])
@@ -68,10 +73,6 @@ class ClassImporter:
         self.browser['username'] = self.username
         self.browser['password'] = self.password
         self.browser.submit_selected()
-
-    # TODO: remove method, just for test
-    def print_current_page(self):
-        print(self.browser.get_current_page())
 
     def get_classes_urls(self):
         self.browser.open(self.URLS['classes_page'])
@@ -93,19 +94,27 @@ class ClassImporter:
         print(len(classes_urls))
         return classes_urls
 
+    def handle_class(self, url):
+        self.browser.open(url)
+        self.class_page = self.browser.get_current_page()
+        self.classes_data.append(self.get_fields())
+
     def handle_classes(self):
         classes_urls = self.get_classes_urls()
-        classes_data = []
+        workers = min(self.MAX_WORKERS, len(classes_urls))
+        with futures.ThreadPoolExecutor(workers) as executor:
+            res = executor.map(self.handle_class, classes_urls)
+        return len(list(res))
 
         # TODO: uncomment when ready to work, now just parse one group
-        for class_url in classes_urls:
-            # class_url = classes_urls[0]  # just for test
-            self.browser.open(class_url)
-            self.class_page = self.browser.get_current_page()
-            # print(self.get_fields())
-            classes_data.append(self.get_fields())
-
-        return classes_data
+        # Without threads begin
+        # for class_url in classes_urls:
+        #     # class_url = classes_urls[0]  # just for test
+        #     self.browser.open(class_url)
+        #     self.class_page = self.browser.get_current_page()
+        #     self.classes_data.append(self.get_fields())
+        # return self.classes_data
+        # Without threads end
 
     def get_fields(self):
         return {
@@ -170,17 +179,18 @@ class ClassImporter:
         return class_times
 
     #TODO: fix invalid group.max_students
-
     def get_max_students(self):
 
         input_id = 'mainContent_maxEnrollment'
         try:
             return get_input_value_by_id(self.class_page, input_id)
-
         except:
-            return print("Links", self.browser.get_url())
+            return 0  # print("Links", self.browser.get_url())
 
 
 if __name__ == '__main__':
     importer = ClassImporter(SETTINGS['username'], SETTINGS['password'])
+    t0 = time.time()
     importer.run()
+
+    print(time.time() - t0, ' seconds')
