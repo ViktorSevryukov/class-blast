@@ -58,7 +58,9 @@ class ClassImporter:
 
     def run(self):
         self.login()
-        self.handle_classes()
+        return self.handle_classes()
+
+
 
     def login(self):
         self.browser.open(self.URLS['login'])
@@ -83,22 +85,27 @@ class ClassImporter:
             date_str += 'm'
             datetime_object = datetime.strptime(date_str, '%a %m/%d/%y %I:%M%p')
 
-            if (datetime.now() - datetime_object).days >= 3:
-                print(datetime_object)
-                url = self.ADMIN_URL_TPL.format(row.find('a').get('href'))
-                classes_urls.append(url)
-
+            #TODO: correct time interval
+            # if (datetime.now() - datetime_object).days >= 0:
+                # print(datetime_object)
+            url = self.ADMIN_URL_TPL.format(row.find('a').get('href'))
+            classes_urls.append(url)
+        print(len(classes_urls))
         return classes_urls
 
     def handle_classes(self):
         classes_urls = self.get_classes_urls()
+        classes_data = []
 
         # TODO: uncomment when ready to work, now just parse one group
         for class_url in classes_urls:
-            class_url = classes_urls[0]  # just for test
+            # class_url = classes_urls[0]  # just for test
             self.browser.open(class_url)
             self.class_page = self.browser.get_current_page()
-            print(self.get_fields())
+            # print(self.get_fields())
+            classes_data.append(self.get_fields())
+
+        return classes_data
 
     def get_fields(self):
         return {
@@ -171,7 +178,8 @@ class ClassImporter:
             return get_input_value_by_id(self.class_page, input_id)
 
         except:
-            return None
+            return print("Links", self.browser.get_url())
+
 
 if __name__ == '__main__':
     importer = ClassImporter(SETTINGS['username'], SETTINGS['password'])
