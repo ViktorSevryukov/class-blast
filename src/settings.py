@@ -128,3 +128,8 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = '/base/'
+
+try:
+    from local_settings import *
+except ImportError:
+    pass
