@@ -31,7 +31,8 @@ INSTALLED_APPS = [
     'selenium',
     'django_extensions',
 
-    'apps.core'
+    'apps.core',
+    'apps.scraper'
 ]
 
 MIDDLEWARE = [

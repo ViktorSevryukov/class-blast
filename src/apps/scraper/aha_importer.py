@@ -25,6 +25,8 @@ class AHAImporter():
         self.password = password
         self.selenium_browser = webdriver.Chrome()
 
+        self.group_data = []
+
     def login(self):
         self.selenium_browser.get(self.URLS['login'])
         self.selenium_browser.implicitly_wait(10)
@@ -56,8 +58,8 @@ class AHAImporter():
             course_list.append(element.get_attribute('text'))
 
         course_list.pop(0)
-
-        print("Courses:", course_list )
+        print("Courses:", course_list)
+        return self.group_data.append(course_list)
 
     def get_language(self):
 
@@ -68,8 +70,8 @@ class AHAImporter():
             language_list.append(element.get_attribute('text'))
 
         language_list.pop(0)
-
         print("Languages:", language_list)
+        return self.group_data.append(language_list)
 
     def get_location(self):
 
@@ -82,6 +84,7 @@ class AHAImporter():
         location_list.pop(0)
 
         print("Locations:", location_list)
+        return self.group_data.append(location_list)
 
     def get_tc(self):
 
@@ -97,8 +100,23 @@ class AHAImporter():
             tc_list.append(element.get_attribute('text'))
 
         tc_list.pop(0)
-
         print("Training Centers:", tc_list)
+        return self.group_data.append(tc_list)
+
+    def get_ts(self):
+        self.selenium_browser.find_element_by_xpath(
+            "//select[@id='tcId']/option[text()='HeartShare Training Services Inc.']").click()
+
+        WebDriverWait(self.selenium_browser, 5).until(EC.presence_of_element_located((By.ID, 'tsNames')))
+        all_ts = self.selenium_browser.find_element_by_id('tcSiteId')
+        options = [x for x in all_ts.find_elements_by_tag_name('option')]
+        ts_list = []
+        for element in options:
+            ts_list.append(element.get_attribute('text'))
+
+        ts_list.pop(0)
+        print("Training Sites:", ts_list)
+        return self.group_data.append(ts_list)
 
     def get_instructors(self):
         #TODO: change "HeartShare Training Services Inc." to var
@@ -113,8 +131,20 @@ class AHAImporter():
             instructor_list.append(element.get_attribute('text'))
 
         instructor_list.pop(0)
-
         print("Instructors:", instructor_list)
+        return self.group_data.append(instructor_list)
+
+    def run(self):
+        self.login()
+        self.jump_page()
+        self.get_course()
+        self.get_language()
+        self.get_location()
+        self.get_tc()
+        self.get_ts()
+        self.get_instructors()
+        print("self.group_data")
+        return self.group_data
 
 if __name__ == '__main__':
     importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])
@@ -124,4 +154,5 @@ if __name__ == '__main__':
     importer.get_language()
     importer.get_location()
     importer.get_tc()
+    importer.get_ts()
     importer.get_instructors()

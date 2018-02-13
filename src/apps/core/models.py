@@ -3,8 +3,6 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import ugettext_lazy as _
 
-from scraper.scraper import ClassImporter
-
 AHA_OCCURRENCE_CHOICES = (
     ('SN', 'Single'),
     ('WK', 'Weekly'),
@@ -70,15 +68,6 @@ class EnrollWareGroup(models.Model):
 
     def __str__(self):
         return "{type}".format(type=self.course)
-
-    @classmethod
-    def import_groups(self):
-
-        transfer = ClassImporter("v.akins", "password1234")
-
-        classes_list = transfer.run()
-
-        print("OLOLO", classes_list)
 
 
 #TODO: We have no group_id at group creating

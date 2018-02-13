@@ -1,14 +1,16 @@
 import time
 import mechanicalsoup
+from urllib import parse
 
 from concurrent import futures
 from datetime import datetime, timedelta
+
+from apps.core.models import *
 
 # SETTINGS = {
 #     'username': 'gentrain',
 #     'password': 'enrollware'
 # }
-
 
 SETTINGS = {
     'username': 'v.akins',
@@ -97,7 +99,7 @@ class ClassImporter:
     def handle_class(self, url):
         self.browser.open(url)
         self.class_page = self.browser.get_current_page()
-        self.classes_data.append(self.get_fields())
+        self.classes_data.append(self.prepare_group())
 
     def handle_classes(self):
         classes_urls = self.get_classes_urls()
@@ -116,14 +118,37 @@ class ClassImporter:
         # return self.classes_data
         # Without threads end
 
+    def prepare_group(self):
+        group_fields = self.get_fields()
+        # print(group_fields['class_times'])
+        print(group_fields['class_times'])
+        return EnrollWareGroup(group_id=group_fields['group_id'],
+                               course=group_fields['course'],
+                               location=group_fields['location'],
+                               instructor=group_fields['instructor'],
+                               max_students=group_fields['max_students'],
+                               synced=False)
+
+
+    #TODO: add ClassTime instance
+
     def get_fields(self):
         return {
+            'group_id': self.get_group_id(),
             'course': self.get_course(),
             'location': self.get_location(),
             'instructor': self.get_instructor(),
             'class_times': self.get_class_times(),
-            'max_students': self.get_max_students()
+            'max_students': self.get_max_students(),
         }
+
+    def get_group_id(self):
+        url = self.browser.get_url()
+
+        # group_id = parse.parse_qs(parse.urlparse(url).query)['id'][0]
+
+        group_id = parse.parse_qs(parse.urlparse(url).query)['id']
+        return group_id
 
     def get_course(self):
         select_id = 'mainContent_Course'
@@ -146,10 +171,11 @@ class ClassImporter:
         class time. Anyway, need to create group with several class times and 
         analyze its HTML  
         """
-        class_date = get_input_value_by_id(
-            self.class_page, 'mainContent_startDate'
-        )
+
         class_time = {
+            'date': get_input_value_by_id(
+                self.class_page, 'mainContent_startDate'
+            ),
             'from': {
                 'hour': get_select_value_by_id(
                     self.class_page, 'mainContent_startHour'
@@ -174,9 +200,7 @@ class ClassImporter:
             }
         }
 
-        class_times = {'date': class_date, 'time': class_time}
-
-        return class_times
+        return class_time
 
     #TODO: fix invalid group.max_students
     def get_max_students(self):
@@ -189,6 +213,7 @@ class ClassImporter:
 
 
 if __name__ == '__main__':
+
     importer = ClassImporter(SETTINGS['username'], SETTINGS['password'])
     t0 = time.time()
     importer.run()
