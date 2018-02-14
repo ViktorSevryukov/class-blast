@@ -4,6 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 
+from apps.core.models import AHAField
 
 SETTINGS = {
     'username': 'jason.j.boudreault@gmail.com',
@@ -59,7 +60,8 @@ class AHAImporter():
 
         course_list.pop(0)
         print("Courses:", course_list)
-        return self.group_data.append(course_list)
+        course_obj = AHAField(type='course', value=course_list)
+        return self.group_data.append(course_obj)
 
     def get_language(self):
 
@@ -71,7 +73,8 @@ class AHAImporter():
 
         language_list.pop(0)
         print("Languages:", language_list)
-        return self.group_data.append(language_list)
+        language_obj = AHAField(type='language', value=language_list)
+        return self.group_data.append(language_obj)
 
     def get_location(self):
 
@@ -84,7 +87,8 @@ class AHAImporter():
         location_list.pop(0)
 
         print("Locations:", location_list)
-        return self.group_data.append(location_list)
+        location_obj = AHAField(type='location', value=location_list)
+        return self.group_data.append(location_obj)
 
     def get_tc(self):
 
@@ -101,7 +105,8 @@ class AHAImporter():
 
         tc_list.pop(0)
         print("Training Centers:", tc_list)
-        return self.group_data.append(tc_list)
+        tc_obj = AHAField(type='tc', value=tc_list)
+        return self.group_data.append(tc_obj)
 
     def get_ts(self):
         self.selenium_browser.find_element_by_xpath(
@@ -116,7 +121,8 @@ class AHAImporter():
 
         ts_list.pop(0)
         print("Training Sites:", ts_list)
-        return self.group_data.append(ts_list)
+        ts_obj = AHAField(type='ts', value=ts_list)
+        return self.group_data.append(ts_obj)
 
     def get_instructors(self):
         #TODO: change "HeartShare Training Services Inc." to var
@@ -132,7 +138,12 @@ class AHAImporter():
 
         instructor_list.pop(0)
         print("Instructors:", instructor_list)
-        return self.group_data.append(instructor_list)
+        instructor_obj = AHAField(type='instructor', value=instructor_list)
+
+        return self.group_data.append(instructor_obj)
+
+    def save_to_db(self):
+        AHAField.objects.bulk_create(self.group_data)
 
     def run(self):
         self.login()
@@ -143,16 +154,9 @@ class AHAImporter():
         self.get_tc()
         self.get_ts()
         self.get_instructors()
-        print("self.group_data")
-        return self.group_data
+        self.save_to_db()
+        print(self.group_data)
 
 if __name__ == '__main__':
     importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])
-    importer.login()
-    importer.jump_page()
-    importer.get_course()
-    importer.get_language()
-    importer.get_location()
-    importer.get_tc()
-    importer.get_ts()
-    importer.get_instructors()
+    importer.run()

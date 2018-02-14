@@ -1,7 +1,9 @@
+from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import ugettext_lazy as _
+
 
 AHA_OCCURRENCE_CHOICES = (
     ('SN', 'Single'),
@@ -10,6 +12,7 @@ AHA_OCCURRENCE_CHOICES = (
 )
 
 
+#TODO: type like Choices
 class AHAField(models.Model):
     type = models.CharField(_("type"), max_length=64, default="")
     value = ArrayField(models.CharField(_("value"), max_length=128, default=""))
@@ -25,10 +28,11 @@ class AHAField(models.Model):
 
 
 class EnrollClassTime(models.Model):
-    date = models.DateField(_("date"))
-    start = models.TimeField(_("start"))
-    end = models.TimeField(_("end"))
-    group = models.ForeignKey("EnrollWareGroup", verbose_name=_("group"), on_delete=models.CASCADE)
+    #TODO: maybe should use datefield, timefield
+    date = models.CharField(_("date"), max_length=10, default="")
+    start = models.CharField(_("start"), max_length=10, default="")
+    end = models.CharField(_("end"), max_length=10, default="")
+    group_id = models.IntegerField(_("group id"))
 
     class Meta(object):
         verbose_name = _("enroll class time")

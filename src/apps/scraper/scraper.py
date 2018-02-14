@@ -7,15 +7,15 @@ from datetime import datetime, timedelta
 
 from apps.core.models import *
 
-# SETTINGS = {
-#     'username': 'gentrain',
-#     'password': 'enrollware'
-# }
-
 SETTINGS = {
-    'username': 'v.akins',
-    'password': 'password1234'
+    'username': 'gentrain',
+    'password': 'enrollware'
 }
+
+# SETTINGS = {
+#     'username': 'v.akins',
+#     'password': 'password1234'
+# }
 
 def get_select_value_by_id(page, select_id):
     """
@@ -63,11 +63,12 @@ class ClassImporter:
         )
         self.class_page = None
         self.classes_data = []
+        self.classes_times = []
 
     def run(self):
         self.login()
         self.handle_classes()
-        return self.classes_data
+        self.save_groups_to_db()
 
     def login(self):
         self.browser.open(self.URLS['login'])
@@ -99,7 +100,9 @@ class ClassImporter:
     def handle_class(self, url):
         self.browser.open(url)
         self.class_page = self.browser.get_current_page()
-        self.classes_data.append(self.prepare_group())
+        fields = self.get_fields()
+        self.classes_times.append(self.prepare_class_time(fields['class_times'], fields['group_id']))
+        self.classes_data.append(self.prepare_group(fields))
 
     def handle_classes(self):
         classes_urls = self.get_classes_urls()
@@ -118,10 +121,8 @@ class ClassImporter:
         # return self.classes_data
         # Without threads end
 
-    def prepare_group(self):
-        group_fields = self.get_fields()
-        # print(group_fields['class_times'])
-        print(group_fields['class_times'])
+    def prepare_group(self, group_fields):
+
         return EnrollWareGroup(group_id=group_fields['group_id'],
                                course=group_fields['course'],
                                location=group_fields['location'],
@@ -129,8 +130,26 @@ class ClassImporter:
                                max_students=group_fields['max_students'],
                                synced=False)
 
+    def prepare_class_time(self, class_time, group_id):
+        start_time = "{}:{} {}".format(
+            class_time['from']['hour'],
+            class_time['from']['minute'],
+            class_time['from']['am_pm']
+        )
+        end_time = "{}:{} {}".format(
+            class_time['to']['hour'],
+            class_time['to']['minute'],
+            class_time['to']['am_pm']
+        )
 
-    #TODO: add ClassTime instance
+        return EnrollClassTime(date=class_time['date'],
+                               start=start_time,
+                               end=end_time,
+                               group_id=group_id)
+
+    def save_groups_to_db(self):
+        EnrollWareGroup.objects.bulk_create(self.classes_data)
+        EnrollClassTime.objects.bulk_create(self.classes_times)
 
     def get_fields(self):
         return {
@@ -148,7 +167,7 @@ class ClassImporter:
         # group_id = parse.parse_qs(parse.urlparse(url).query)['id'][0]
 
         group_id = parse.parse_qs(parse.urlparse(url).query)['id']
-        return group_id
+        return group_id[0]
 
     def get_course(self):
         select_id = 'mainContent_Course'
