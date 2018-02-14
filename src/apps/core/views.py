@@ -1,7 +1,9 @@
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.views import View
-from scraper.scraper import ClassImporter
+
+from apps.scraper.aha_importer import AHAImporter
+from apps.scraper.scraper import ClassImporter
 
 from .forms import *
 
@@ -25,12 +27,14 @@ class ServiceLoginView(View):
 
         if form.is_valid():
             if service_type == "enroll":
-                importer = ClassImporter('v.akins', 'password1234')
+                importer = ClassImporter('gentrain', 'enrollware')
                 importer.run()
                 #TODO: scraper turn on, we should return both of forms
                 return render(request, self.template_name, {'form': form})
             else:
                 #TODO: aha_importer turn on
+                importer = AHAImporter('jason.j.boudreault@gmail.com', 'Thecpr1')
+                importer.run()
                 return render(request, self.template_name, {'form': form})
             # return HttpResponseRedirect('//')
 
