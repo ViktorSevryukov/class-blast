@@ -30,12 +30,18 @@ class ServiceLoginView(View):
                 importer = ClassImporter('gentrain', 'enrollware')
                 importer.run()
                 #TODO: scraper turn on, we should return both of forms
-                return render(request, self.template_name, {'form': form})
+                return render(request, self.template_name, {
+                    'enroll_form': form,
+                    'aha_form': AHALoginForm()
+                })
             else:
                 #TODO: aha_importer turn on
                 importer = AHAImporter('jason.j.boudreault@gmail.com', 'Thecpr1')
                 importer.run()
-                return render(request, self.template_name, {'form': form})
+                return render(request, self.template_name, {
+                    'aha_form': form,
+                    'enroll_form': EnrollLoginForm()
+                })
             # return HttpResponseRedirect('//')
 
         return render(request, self.template_name, {'form': form})
