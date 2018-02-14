@@ -1,21 +1,21 @@
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
 from django.views import View
 
 from apps.scraper.aha_importer import AHAImporter
 from apps.scraper.scraper import ClassImporter
 
-from .forms import *
+from .forms import AHALoginForm, EnrollLoginForm
 
 
-class ServiceLoginView(View):
-    template_name = 'service_login.html'
+class ServicesLoginView(View):
+    template_name = 'services_login.html'
 
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
         aha_form = AHALoginForm()
         return render(request, self.template_name, {'enroll_form': enroll_form, 'aha_form': aha_form})
-
 
     #TODO: redirect in case both forms are filled, check another form filled then you are fill the one
     def post(self, request, *args, **kwargs):
@@ -38,10 +38,16 @@ class ServiceLoginView(View):
                 #TODO: aha_importer turn on
                 importer = AHAImporter('jason.j.boudreault@gmail.com', 'Thecpr1')
                 importer.run()
-                return render(request, self.template_name, {
-                    'aha_form': form,
-                    'enroll_form': EnrollLoginForm()
-                })
-            # return HttpResponseRedirect('//')
-
+                return redirect(reverse_lazy('dashboard:dashboard'))
+                # return render(request, self.template_name, {
+                #     'aha_form': form,
+                #     'enroll_form': EnrollLoginForm()
+                # })
         return render(request, self.template_name, {'form': form})
+
+
+class DashboardView(View):
+    template_name = 'dashboard.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
