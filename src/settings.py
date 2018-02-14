@@ -31,8 +31,8 @@ INSTALLED_APPS = [
     'selenium',
     'django_extensions',
 
+    'apps.auth_core',
     'apps.core',
-    'apps.scraper'
 ]
 
 MIDDLEWARE = [
@@ -128,7 +128,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'var', 'www', 'media')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-LOGIN_REDIRECT_URL = '/base/'
+LOGIN_REDIRECT_URL = '/service_login/'
 
 try:
     from local_settings import *

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container">
+    <div class="panel panel-default text-center">
+      <div class="panel-heading">
+        <h3 class="panel-title">Class Blast</h3>
+      </div>
+      <div class="panel-body">
+
+        <!-- LOGIN FORM -->
+        <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+
+          {% if form.errors %}
+            <span>Your username and password didn't match. Please try
+              again.
+            </span>
+            <hr>
+          {% endif %}
+          {% for field in form %}
+            {% if field.errors %}
+              <div class="control-group error">
+                <label class="control-label">{{ field.label }}</label>
+                <div class="controls">{{ field }}
+                  <span class="help-inline">
+                            {% for error in  field.errors %}
+                              {{ error }}{% endfor %}
+                        </span>
+                </div>
+              </div>
+            {% else %}
+              <div class="control-group">
+                <label class="control-label">{{ field.label }}</label>
+                <div class="controls">{{ field }}
+                  {% if field.help_text %}
+                    <p class="help-inline">
+                      <small>{{ field.help_text }}</small>
+                    </p>
+                  {% endif %}
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Login</button>
+          </div>
+        </form>
+        <!-- /LOGIN FORM -->
+
+      </div>
+    </div>
+  </div>
+{% endblock %}
+

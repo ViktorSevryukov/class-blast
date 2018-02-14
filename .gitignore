@@ -1,3 +1,5 @@
 /venv
 *.pyc
 .idea
+*.log
+local_settings.py

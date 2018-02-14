@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 
 from apps.core.models import *
 
+
 SETTINGS = {
     'username': 'gentrain',
     'password': 'enrollware'
@@ -122,7 +123,6 @@ class ClassImporter:
         # Without threads end
 
     def prepare_group(self, group_fields):
-
         return EnrollWareGroup(group_id=group_fields['group_id'],
                                course=group_fields['course'],
                                location=group_fields['location'],
