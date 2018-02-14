@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
 
+from apps.core.models import EnrollWareGroup, AHAField
 from apps.scraper.aha_importer import AHAImporter
 from apps.scraper.scraper import ClassImporter
 
@@ -27,7 +28,11 @@ class ServicesLoginView(View):
 
         if form.is_valid():
             if service_type == "enroll":
-                importer = ClassImporter('gentrain', 'enrollware')
+                importer = ClassImporter(
+                    username='gentrain',
+                    password='enrollware',
+                    user=request.user
+                )
                 importer.run()
                 #TODO: scraper turn on, we should return both of forms
                 return render(request, self.template_name, {
@@ -38,7 +43,7 @@ class ServicesLoginView(View):
                 #TODO: aha_importer turn on
                 importer = AHAImporter('jason.j.boudreault@gmail.com', 'Thecpr1')
                 importer.run()
-                return redirect(reverse_lazy('dashboard:dashboard'))
+                return redirect(reverse_lazy('dashboard:manage'))
                 # return render(request, self.template_name, {
                 #     'aha_form': form,
                 #     'enroll_form': EnrollLoginForm()
@@ -50,4 +55,11 @@ class DashboardView(View):
     template_name = 'dashboard.html'
 
     def get(self, request, *args, **kwargs):
-        return render(request, self.template_name)
+
+        ew_groups = EnrollWareGroup.objects.filter(user_id=request.user.id, synced=False)
+        aha_fields = {field.type: field.value for field in AHAField.objects.all()}
+
+        return render(request, self.template_name, {
+            'ew_groups': ew_groups,
+            'aha_fields': aha_fields
+        })

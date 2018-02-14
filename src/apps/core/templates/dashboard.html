@@ -1,5 +1,61 @@
 {% extends 'base.html' %}
 {% block content %}
-Hello
+    <div>
+        <table class="table table-striped">
+
+            <tr>
+                <th>Course</th>
+                <th>AHA Course</th>
+                <th>Location</th>
+                <th>AHA Location</th>
+                <th>Instructor</th>
+                <th>AHA Instructor</th>
+                <th>Max Students</th>
+            </tr>
+            {% for ew_group in ew_groups %}
+                <tr>
+                    <td>{{ ew_group.course }}</td>
+                    <td>
+                        <select class="form-control">
+                            {% for option in aha_fields.course %}
+                                <option value="{{ option }}">
+                                    {{ option }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+
+                    <td>{{ ew_group.location }}</td>
+                    <td>
+                        <select class="form-control">
+                            {% for option in aha_fields.location %}
+                                <option value="{{ option }}">
+                                    {{ option }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+
+
+                    <td>{{ ew_group.instructor }}</td>
+                    <td>
+                        <select class="form-control">
+                            {% for option in aha_fields.instructor %}
+                                <option value="{{ option }}">
+                                    {{ option }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+
+                    <td>{{ ew_group.max_students }}</td>
+                </tr>
+
+            {% endfor %}
+
+        </table>
+
+
+    </div>
 {% endblock %}
 

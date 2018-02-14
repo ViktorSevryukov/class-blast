@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import ugettext_lazy as _
 
+from model_utils.models import TimeStampedModel
 
 AHA_OCCURRENCE_CHOICES = (
     ('SN', 'Single'),
@@ -13,7 +14,7 @@ AHA_OCCURRENCE_CHOICES = (
 
 
 #TODO: type like Choices
-class AHAField(models.Model):
+class AHAField(TimeStampedModel):
     type = models.CharField(_("type"), max_length=64, default="")
     value = ArrayField(models.CharField(_("value"), max_length=128, default=""))
 
@@ -27,7 +28,7 @@ class AHAField(models.Model):
         return "{type}".format(type=self.type)
 
 
-class EnrollClassTime(models.Model):
+class EnrollClassTime(TimeStampedModel):
     #TODO: maybe should use datefield, timefield
     date = models.CharField(_("date"), max_length=10, default="")
     start = models.CharField(_("start"), max_length=10, default="")
@@ -42,7 +43,7 @@ class EnrollClassTime(models.Model):
         return "{type}".format(type=self.date)
 
 
-class AHAClassSchedule(models.Model):
+class AHAClassSchedule(TimeStampedModel):
     class_description = models.CharField(_("class description"), max_length=256, default="")
     occurrence = models.CharField(_("occurrence"), max_length=2, choices=AHA_OCCURRENCE_CHOICES, default="SN")
     date = models.DateField(_("date"))
@@ -58,7 +59,8 @@ class AHAClassSchedule(models.Model):
         return "{type}".format(type=self.date)
 
 
-class EnrollWareGroup(models.Model):
+class EnrollWareGroup(TimeStampedModel):
+    user = models.ForeignKey('auth_core.User', related_name='enrollware_groups', verbose_name=_("user"))
     group_id = models.IntegerField(_("group id"))
     course = models.CharField(_("course"), max_length=128, default="")
     location = models.CharField(_("location"), max_length=128, default="")
@@ -73,9 +75,13 @@ class EnrollWareGroup(models.Model):
     def __str__(self):
         return "{type}".format(type=self.course)
 
+    @property
+    def class_times(self):
+        return EnrollClassTime.objects.filter(group_id=self.group_id)
+
 
 #TODO: We have no group_id at group creating
-class AHAGroup(models.Model):
+class AHAGroup(TimeStampedModel):
     course = models.CharField(_("course"), max_length=128, default="")
     location = models.CharField(_("location"), max_length=128, default="")
     instructor = models.CharField(_("instructor"), max_length=64, default="")
@@ -91,11 +97,11 @@ class AHAGroup(models.Model):
         return "{type}".format(type=self.course)
 
 
-class Mapper(models.Model):
+class Mapper(TimeStampedModel):
     aha_field = models.ForeignKey("AHAField", verbose_name=_("aha field"), on_delete=models.CASCADE)
     enroll_value = models.CharField(_("enroll value"), max_length=128, default="")
     aha_value = models.CharField(_("aha_value"), max_length=128, default="")
-    user = models.ForeignKey("auth.User", verbose_name=_("user"), on_delete=models.CASCADE)
+    user = models.ForeignKey("auth_core.User",  related_name='mappers', verbose_name=_("user"), on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = _("mapper")
@@ -103,11 +109,3 @@ class Mapper(models.Model):
 
     def __str__(self):
         return "{type}".format(type=self.aha_field)
-
-
-
-
-
-
-
-

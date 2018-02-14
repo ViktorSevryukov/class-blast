@@ -7,11 +7,11 @@ from datetime import datetime, timedelta
 
 from apps.core.models import *
 
-
 SETTINGS = {
     'username': 'gentrain',
     'password': 'enrollware'
 }
+
 
 # SETTINGS = {
 #     'username': 'v.akins',
@@ -54,9 +54,10 @@ class ClassImporter:
 
     MAX_WORKERS = 20
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, user):
         self.username = username
         self.password = password
+        self.user = user
         self.browser = mechanicalsoup.StatefulBrowser(
             soup_config={'features': 'lxml'},
             raise_on_404=True,
@@ -85,14 +86,14 @@ class ClassImporter:
         classes_urls = []
 
         for row in classes_rows:
-            #TODO: refactor table rows (in case of table structure be changed)
+            # TODO: refactor table rows (in case of table structure be changed)
             date_str = row.find('td').text
             date_str += 'm'
             datetime_object = datetime.strptime(date_str, '%a %m/%d/%y %I:%M%p')
 
-            #TODO: correct time interval
+            # TODO: correct time interval
             # if (datetime.now() - datetime_object).days >= 0:
-                # print(datetime_object)
+            # print(datetime_object)
             url = self.ADMIN_URL_TPL.format(row.find('a').get('href'))
             classes_urls.append(url)
         print(len(classes_urls))
@@ -123,12 +124,15 @@ class ClassImporter:
         # Without threads end
 
     def prepare_group(self, group_fields):
-        return EnrollWareGroup(group_id=group_fields['group_id'],
-                               course=group_fields['course'],
-                               location=group_fields['location'],
-                               instructor=group_fields['instructor'],
-                               max_students=group_fields['max_students'],
-                               synced=False)
+        return EnrollWareGroup(
+            user=self.user,
+            group_id=group_fields['group_id'],
+            course=group_fields['course'],
+            location=group_fields['location'],
+            instructor=group_fields['instructor'],
+            max_students=group_fields['max_students'],
+            synced=False
+        )
 
     def prepare_class_time(self, class_time, group_id):
         start_time = "{}:{} {}".format(
@@ -221,7 +225,7 @@ class ClassImporter:
 
         return class_time
 
-    #TODO: fix invalid group.max_students
+    # TODO: fix invalid group.max_students
     def get_max_students(self):
 
         input_id = 'mainContent_maxEnrollment'
@@ -232,7 +236,6 @@ class ClassImporter:
 
 
 if __name__ == '__main__':
-
     importer = ClassImporter(SETTINGS['username'], SETTINGS['password'])
     t0 = time.time()
     importer.run()
