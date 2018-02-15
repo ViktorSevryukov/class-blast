@@ -1,3 +1,5 @@
+import os
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -10,6 +12,9 @@ SETTINGS = {
     'username': 'jason.j.boudreault@gmail.com',
     'password': 'Thecpr1'
 }
+
+CURRENT_PATH = os.path.abspath(os.path.dirname(__file__))
+DRIVER_PATH = os.path.join(CURRENT_PATH, 'drivers', 'chromedriver')
 
 
 class AHAImporter():
@@ -24,7 +29,7 @@ class AHAImporter():
     def __init__(self, username, password):
         self.username = username
         self.password = password
-        self.selenium_browser = webdriver.Chrome()
+        self.selenium_browser = webdriver.Chrome(DRIVER_PATH)
 
         self.group_data = []
 

@@ -1,15 +1,17 @@
-from datetime import date
+import os
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import Select
-
 
 SETTINGS = {
     'username': 'jason.j.boudreault@gmail.com',
     'password': 'Thecpr1'
 }
+
+CURRENT_PATH = os.path.abspath(os.path.dirname(__file__))
+DRIVER_PATH = os.path.join(CURRENT_PATH, 'drivers', 'chromedriver')
 
 
 class AHAExporter():
@@ -21,11 +23,11 @@ class AHAExporter():
         'add_course': 'https://ahainstructornetwork.americanheart.org/AHAECC/ecc.jsp?pid=ahaecc.addClass&_requestid=535927',
     }
     def __init__(self, username, password, group_data):
-    # def __init__(self, username, password):
         self.username = username
         self.password = password
-        self.selenium_browser = webdriver.Chrome()
-#TODO: get group_data from DB
+        self.selenium_browser = webdriver.Chrome(DRIVER_PATH)
+
+        #TODO: get group_data from DB
         self.group_data = group_data
         # self.group_data = {'course': "Airway Management Course",
         #                    'language': "English",
@@ -154,7 +156,7 @@ class AHAExporter():
         self.paste_date()
         self.paste_roster_settings()
         self.save_button()
-#
+
 if __name__ == '__main__':
     importer = AHAExporter(SETTINGS['username'], SETTINGS['password'])
     importer.run()
