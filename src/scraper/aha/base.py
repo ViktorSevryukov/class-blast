@@ -39,9 +39,11 @@ class AHABase():
 
     @staticmethod
     def setup_browser():
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        return webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
+        # options = webdriver.ChromeOptions()
+        # options.add_argument('headless')
+        # return webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
+        #TODO: try to use Chrome, need to install Chrome binary on server
+        return webdriver.PhantomJS()
 
     def login(self):
         self.browser.get(self.URLS['login'])
