@@ -67,13 +67,12 @@ WSGI_APPLICATION = 'wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.11/ref/settings/#databases
 
-# TODO: use complex password
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'blast',
-        'USER': 'admin',
-        'PASSWORD': 'password',
+        'NAME': 'class-blast',
+        'USER': 'postgres',
+        'PASSWORD': 'postgres',
         'HOST': '127.0.0.1',
         'PORT': '5432'
     }
@@ -133,6 +132,6 @@ MEDIA_URL = '/media/'
 LOGIN_REDIRECT_URL = '/dashboard/services_login/'
 
 try:
-    from local_settings import *
+    from .local_settings import *
 except ImportError:
     pass
