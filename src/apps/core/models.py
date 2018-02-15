@@ -3,6 +3,8 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import ugettext_lazy as _
+from datetime import datetime, timedelta
+
 
 from model_utils.models import TimeStampedModel
 
@@ -79,6 +81,14 @@ class EnrollWareGroup(TimeStampedModel):
     def class_times(self):
         return EnrollClassTime.objects.filter(group_id=self.group_id)
 
+    def get_cutoff_date(self):
+        obj = self.class_times.first()
+        if obj is None:
+            return None
+        class_time = "{} {}".format(obj.date, obj.start)
+        datetime_object = datetime.strptime(class_time, '%m/%d/%Y %I:%M %p')
+        day_before = datetime_object - timedelta(days=1)
+        return datetime.strftime(day_before, '%m/%d/%Y')
 
 #TODO: We have no group_id at group creating
 class AHAGroup(TimeStampedModel):

@@ -36,7 +36,9 @@ class AHAImporter():
                            'date': "14/02/2018",
                            'from': "10:15 AM",
                            'to': "11:15 AM",
-                           'class_description': "test"
+                           'class_description': "test",
+                           'roster_limit': '15',
+                           'roster_date': "14/02/2018"
                            }
 #TODO: add schedule data items
 
@@ -108,7 +110,6 @@ class AHAImporter():
         element_date = "//input[@id='classStartDate']"
         element = self.selenium_browser.find_element_by_xpath(element_date)
 
-
         # self.selenium_browser.execute_script("console.log(arguments[0]); arguments[0].setAttribute('readonly', false); arguments[0].setAttribute('value', '" + value_date + "')", element)
         self.selenium_browser.execute_script("console.log(arguments[0]); arguments[0].setAttribute('readonly', false); arguments[0].value = '" + value_date + "'", element)
         self.selenium_browser.find_element_by_xpath(element_date).send_keys('1/03/2018')
@@ -125,9 +126,21 @@ class AHAImporter():
         element_end = "//select[@id='classMeetingEndTime']/option[text()='{}']".format(value_end)
         self.selenium_browser.find_element_by_xpath(element_end).click()
 
-
         time_button = "//a[@id='buttonSubmitClassTime']"
-        # self.selenium_browser.find_element_by_xpath(time_button).click()
+        self.selenium_browser.find_element_by_xpath(time_button).click()
+
+    def paste_roster_settings(self):
+        value_roster_limit = self.group_data['roster_limit']
+        element_limit = "//input[@id='numberOfStudents']"
+        self.selenium_browser.find_element_by_xpath(element_limit).send_keys(value_roster_limit)
+
+        value_roster_date = self.group_data['roster_date']
+        element_date = "//input[@id='enrollCutOffDate']"
+        element = self.selenium_browser.find_element_by_xpath(element_date)
+        self.selenium_browser.execute_script("console.log(arguments[0]); arguments[0].setAttribute('readonly', false); arguments[0].value = '" + value_roster_date + "'", element)
+
+    def save_button(self):
+        self.selenium_browser.execute_script("saveInfo('save','false')")
 
     def run(self):
         self.login()
@@ -139,6 +152,8 @@ class AHAImporter():
         self.paste_instructor()
         self.paste_location()
         self.paste_date()
+        self.paste_roster_settings()
+        self.save_button()
 
 if __name__ == '__main__':
     importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])

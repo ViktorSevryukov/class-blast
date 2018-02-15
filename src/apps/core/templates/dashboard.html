@@ -10,7 +10,12 @@
                 <th>AHA Location</th>
                 <th>Instructor</th>
                 <th>AHA Instructor</th>
-                <th>Max Students</th>
+                <th>TC</th>
+                <th>TS</th>
+                <th>Roster Limit</th>
+                <th>Cutoff</th>
+                <th>Class Description</th>
+                <th>Student Notes</th>
             </tr>
             {% for ew_group in ew_groups %}
                 <tr>
@@ -36,8 +41,8 @@
                         </select>
                     </td>
 
-
                     <td>{{ ew_group.instructor }}</td>
+
                     <td>
                         <select class="form-control">
                             {% for option in aha_fields.instructor %}
@@ -48,7 +53,37 @@
                         </select>
                     </td>
 
+                    <td>
+                        <select class="form-control">
+                            {% for option in aha_fields.tc %}
+                                <option value="{{ option }}">
+                                    {{ option }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </td>
+
+                    <td><select class="form-control">
+                        {% for option in aha_fields.ts %}
+                            <option value="{{ option }}">
+                                {{ option }}
+                            </option>
+                        {% endfor %}
+                    </select></td>
+
                     <td>{{ ew_group.max_students }}</td>
+
+                    <td>
+                        {{ ew_group.get_cutoff_date }}
+                    </td>
+
+                    <td>
+                        <input type="text" size="50">
+                    </td>
+
+                    <td>
+                        <input type="text" size="50">
+                    </td>
                 </tr>
 
             {% endfor %}
