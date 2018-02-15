@@ -16,12 +16,16 @@
                 <th>Cutoff</th>
                 <th>Class Description</th>
                 <th>Student Notes</th>
+                <th>Export</th>
+
             </tr>
             {% for ew_group in ew_groups %}
                 <tr>
+                  <form method="post" action="">
+                  {% csrf_token %}
                     <td>{{ ew_group.course }}</td>
                     <td>
-                        <select class="form-control">
+                        <select name="course" class="form-control">
                             {% for option in aha_fields.course %}
                                 <option value="{{ option }}">
                                     {{ option }}
@@ -32,7 +36,7 @@
 
                     <td>{{ ew_group.location }}</td>
                     <td>
-                        <select class="form-control">
+                        <select name="location" class="form-control">
                             {% for option in aha_fields.location %}
                                 <option value="{{ option }}">
                                     {{ option }}
@@ -44,7 +48,7 @@
                     <td>{{ ew_group.instructor }}</td>
 
                     <td>
-                        <select class="form-control">
+                        <select name="instructor" class="form-control">
                             {% for option in aha_fields.instructor %}
                                 <option value="{{ option }}">
                                     {{ option }}
@@ -54,7 +58,7 @@
                     </td>
 
                     <td>
-                        <select class="form-control">
+                        <select name="training_center" class="form-control">
                             {% for option in aha_fields.tc %}
                                 <option value="{{ option }}">
                                     {{ option }}
@@ -63,7 +67,7 @@
                         </select>
                     </td>
 
-                    <td><select class="form-control">
+                    <td><select name="training_site" class="form-control">
                         {% for option in aha_fields.ts %}
                             <option value="{{ option }}">
                                 {{ option }}
@@ -71,19 +75,24 @@
                         {% endfor %}
                     </select></td>
 
-                    <td>{{ ew_group.max_students }}</td>
-
-                    <td>
-                        {{ ew_group.get_cutoff_date }}
+                    <td><input name="roster_limit" value={{ ew_group.max_students }}>
                     </td>
 
                     <td>
-                        <input type="text" size="50">
+                        <input name="cutoff_date" value={{ ew_group.get_cutoff_date }}>
                     </td>
 
                     <td>
-                        <input type="text" size="50">
+                        <input name="class_description" type="text" size="50" required="true">
                     </td>
+
+                    <td>
+                        <input name="student_notes" type="text" size="50">
+                    </td>
+                  <td><input type="hidden" name="group_id" value={{ ew_group.group_id}}>
+                      <button type="submit">Export</button>
+                  </td>
+                  </form>
                 </tr>
 
             {% endfor %}

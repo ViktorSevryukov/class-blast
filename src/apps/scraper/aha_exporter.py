@@ -12,7 +12,7 @@ SETTINGS = {
 }
 
 
-class AHAImporter():
+class AHAExporter():
     """
     Class for import information info from AHA site
     """
@@ -20,26 +20,26 @@ class AHAImporter():
         'login': 'https://sso.heart.org/account.html',
         'add_course': 'https://ahainstructornetwork.americanheart.org/AHAECC/ecc.jsp?pid=ahaecc.addClass&_requestid=535927',
     }
-# def __init__(self, username, password, group_data):
-    def __init__(self, username, password):
+    def __init__(self, username, password, group_data):
+    # def __init__(self, username, password):
         self.username = username
         self.password = password
         self.selenium_browser = webdriver.Chrome()
 #TODO: get group_data from DB
-        # self.group_data = group_data
-        self.group_data = {'course': "Airway Management Course",
-                           'language': "English",
-                           'location': "Above Bar CPR Office ",
-                           'tc': "HeartShare Training Services Inc.",
-                           'ts': "HeartShare Training North Bay",
-                           'instructor': "Jason Boudreault",
-                           'date': "14/02/2018",
-                           'from': "10:15 AM",
-                           'to': "11:15 AM",
-                           'class_description': "test",
-                           'roster_limit': '15',
-                           'roster_date': "14/02/2018"
-                           }
+        self.group_data = group_data
+        # self.group_data = {'course': "Airway Management Course",
+        #                    'language': "English",
+        #                    'location': "Above Bar CPR Office ",
+        #                    'tc': "HeartShare Training Services Inc.",
+        #                    'ts': "HeartShare Training North Bay",
+        #                    'instructor': "Jason Boudreault",
+        #                    'date': "14/02/2018",
+        #                    'from': "10:15 AM",
+        #                    'to': "11:15 AM",
+        #                    'class_description': "test",
+        #                    'roster_limit': '15',
+        #                    'roster_date': "14/02/2018"
+        #                    }
 #TODO: add schedule data items
 
     def login(self):
@@ -154,7 +154,7 @@ class AHAImporter():
         self.paste_date()
         self.paste_roster_settings()
         self.save_button()
-
+#
 if __name__ == '__main__':
-    importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])
+    importer = AHAExporter(SETTINGS['username'], SETTINGS['password'])
     importer.run()

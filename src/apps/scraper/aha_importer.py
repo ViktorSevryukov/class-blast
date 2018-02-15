@@ -146,16 +146,21 @@ class AHAImporter():
         AHAField.objects.bulk_create(self.group_data)
 
     def run(self):
-        self.login()
-        self.jump_page()
-        self.get_course()
-        self.get_language()
-        self.get_location()
-        self.get_tc()
-        self.get_ts()
-        self.get_instructors()
-        self.save_to_db()
-        print(self.group_data)
+        try:
+            self.login()
+            self.jump_page()
+            self.get_course()
+            self.get_language()
+            self.get_location()
+            self.get_tc()
+            self.get_ts()
+            self.get_instructors()
+            self.save_to_db()
+        except:
+            self.selenium_browser.refresh()
+
+
+        # print(self.group_data)
 
 if __name__ == '__main__':
     importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])

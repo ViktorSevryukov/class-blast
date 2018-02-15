@@ -3,9 +3,10 @@ from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
 
-from apps.core.models import EnrollWareGroup, AHAField
+from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime
 from apps.scraper.aha_importer import AHAImporter
 from apps.scraper.scraper import ClassImporter
+from apps.scraper.aha_exporter import AHAExporter
 
 from .forms import AHALoginForm, EnrollLoginForm
 
@@ -63,3 +64,27 @@ class DashboardView(View):
             'ew_groups': ew_groups,
             'aha_fields': aha_fields
         })
+
+    def post(self, request, *args, **kwargs):
+        class_time = EnrollClassTime.objects.filter(group_id=request.POST['group_id']).first()
+        print(request.POST['class_description'])
+        group_data = {
+        'course': request.POST['course'],
+        'language': "English",
+        'location': request.POST['location']+" ",
+        'tc': request.POST['training_center'],
+        'ts': request.POST['training_center'],
+        'instructor': request.POST['instructor'],
+        'date': class_time.date,
+        'from': class_time.start,
+        'to': class_time.end,
+        'class_description': request.POST['class_description'],
+        'roster_limit': request.POST['roster_limit'],
+        'roster_date': request.POST['cutoff_date']
+        }
+
+        exporter = AHAExporter('jason.j.boudreault@gmail.com', 'Thecpr1', group_data)
+        exporter.run()
+
+        return render(request, self.template_name)
+
