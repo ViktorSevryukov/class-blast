@@ -30,10 +30,11 @@ class ServicesLoginView(View):
 
         if form.is_valid():
 
-            username = 'gentrain' if self.TEST_MODE else request.POST['username']
-            password = 'enrollware' if self.TEST_MODE else request.POST['password']
-
             if service_type == "enroll":
+                # TODO: hide real user data
+                username = 'gentrain' if self.TEST_MODE else request.POST['username']
+                password = 'enrollware' if self.TEST_MODE else request.POST['password']
+
                 importer = ClassImporter(
                     username=username,
                     password=password,
@@ -45,6 +46,7 @@ class ServicesLoginView(View):
                     'aha_form': AHALoginForm()
                 })
             else:
+                # TODO: hide real user data
                 username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else request.POST['username']
                 password = 'Thecpr1' if self.TEST_MODE else request.POST['password']
 
