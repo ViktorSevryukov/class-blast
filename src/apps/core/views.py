@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
+from django.contrib.auth.decorators import login_required
 
-from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime
+from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime, EnrollWareCredentials, AHACredentials
 from scraper.aha.exporter import AHAExporter
 from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
@@ -35,6 +36,8 @@ class ServicesLoginView(View):
                 username = 'gentrain' if self.TEST_MODE else request.POST['username']
                 password = 'enrollware' if self.TEST_MODE else request.POST['password']
 
+                EnrollWareCredentials.objects.update_or_create(username=username, user=request.user, defaults={'password': request.POST['password']})
+
                 importer = ClassImporter(
                     username=username,
                     password=password,
@@ -49,6 +52,8 @@ class ServicesLoginView(View):
                 # TODO: hide real user data
                 username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else request.POST['username']
                 password = 'Thecpr1' if self.TEST_MODE else request.POST['password']
+
+                AHACredentials.objects.update_or_create(username=username, user=request.user, defaults={'password': request.POST['password']})
 
                 importer = AHAImporter(
                     username=username,

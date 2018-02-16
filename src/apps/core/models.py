@@ -4,7 +4,8 @@ from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.utils.translation import ugettext_lazy as _
 from datetime import datetime, timedelta
-
+from django.dispatch import receiver
+from django.db.models.signals import post_delete
 
 from model_utils.models import TimeStampedModel
 
@@ -90,6 +91,12 @@ class EnrollWareGroup(TimeStampedModel):
         day_before = datetime_object - timedelta(days=1)
         return datetime.strftime(day_before, '%m/%d/%Y')
 
+
+@receiver(post_delete, sender=EnrollWareGroup)
+def delete_times(sender, instance, using, **kwargs):
+    EnrollClassTime.objects.filter(group_id=instance.group_id).delete()
+
+
 #TODO: We have no group_id at group creating
 class AHAGroup(TimeStampedModel):
     course = models.CharField(_("course"), max_length=128, default="")
@@ -119,3 +126,26 @@ class Mapper(TimeStampedModel):
 
     def __str__(self):
         return "{type}".format(type=self.aha_field)
+
+
+class BaseCredentials(TimeStampedModel):
+    username = models.CharField(_("username"), max_length=32, default="")
+    password = models.CharField(_("password"), max_length=16, default="")
+    user = models.ForeignKey("auth_core.User", related_name='%(class)s', verbose_name=_("user"))
+
+    class Meta:
+        abstract = True
+
+
+class AHACredentials(BaseCredentials):
+
+    class Meta:
+        verbose_name = _("aha_credential")
+        verbose_name_plural = _("aha_credentials")
+
+
+class EnrollWareCredentials(BaseCredentials):
+
+    class Meta:
+        verbose_name = _("enroll_credential")
+        verbose_name_plural = _("enroll_credentials")
