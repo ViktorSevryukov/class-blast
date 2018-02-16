@@ -69,6 +69,7 @@ class ServicesLoginView(View):
         return render(request, self.template_name, {'form': form})
 
 
+# @login_required(login_url='/services_login/')
 class DashboardView(View):
     template_name = 'dashboard.html'
 
@@ -110,10 +111,13 @@ class SyncView(View):
 
     def post(self, request):
         credentials = request.user.enrollwarecredentials.first()
+
         if credentials:
             username = credentials.username
             password = credentials.password
             importer = ClassImporter(username, password, request.user)
             importer.run()
-        return render(request, self.template_name)
+
+        return redirect(reverse_lazy('dashboard:manage'))
+
 
