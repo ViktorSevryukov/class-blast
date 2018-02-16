@@ -13,6 +13,8 @@ from .forms import AHALoginForm, EnrollLoginForm
 class ServicesLoginView(View):
     template_name = 'services_login.html'
 
+    TEST_MODE = False
+
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
         aha_form = AHALoginForm()
@@ -27,23 +29,32 @@ class ServicesLoginView(View):
             form = AHALoginForm(request.POST)
 
         if form.is_valid():
+
+            username = 'gentrain' if self.TEST_MODE else request.POST['username']
+            password = 'enrollware' if self.TEST_MODE else request.POST['password']
+
             if service_type == "enroll":
                 importer = ClassImporter(
-                    username='gentrain',
-                    password='enrollware',
+                    username=username,
+                    password=password,
                     user=request.user
                 )
                 importer.run()
-                # TODO: scraper turn on, we should return both of forms
                 return render(request, self.template_name, {
                     'enroll_form': form,
                     'aha_form': AHALoginForm()
                 })
             else:
-                # TODO: aha_importer turn on
-                importer = AHAImporter('jason.j.boudreault@gmail.com', 'Thecpr1')
+                username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else request.POST['username']
+                password = 'Thecpr1' if self.TEST_MODE else request.POST['password']
+
+                importer = AHAImporter(
+                    username=username,
+                    password=password
+                )
                 importer.run()
                 return redirect(reverse_lazy('dashboard:manage'))
+
                 # return render(request, self.template_name, {
                 #     'aha_form': form,
                 #     'enroll_form': EnrollLoginForm()
