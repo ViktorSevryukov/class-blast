@@ -66,6 +66,8 @@ class ClassImporter:
         self.class_page = None
         self.classes_data = []
         self.classes_times = []
+        #TODO: synced should be False or True, what we will do with synced groups?!
+        self.existing_groups = list(EnrollWareGroup.objects.filter(user=user, synced=False).values_list('group_id', flat=True))
 
     def run(self):
         self.login()
@@ -79,6 +81,10 @@ class ClassImporter:
         self.browser['password'] = self.password
         self.browser.submit_selected()
 
+    def get_group_id_from_url(self, url):
+        group_id = int(parse.parse_qs(parse.urlparse(url).query)['id'][0])
+        return group_id
+
     def get_classes_urls(self):
         self.browser.open(self.URLS['classes_page'])
         classes_page = self.browser.get_current_page()
@@ -87,6 +93,13 @@ class ClassImporter:
 
         for row in classes_rows:
             # TODO: refactor table rows (in case of table structure be changed)
+
+            url = self.ADMIN_URL_TPL.format(row.find('a').get('href'))
+            group_id = self.get_group_id_from_url(url)
+
+            if group_id in self.existing_groups:
+                continue
+
             date_str = row.find('td').text
             date_str += 'm'
             datetime_object = datetime.strptime(date_str, '%a %m/%d/%y %I:%M%p')
@@ -94,9 +107,9 @@ class ClassImporter:
             # TODO: correct time interval
             # if (datetime.now() - datetime_object).days >= 0:
             # print(datetime_object)
-            url = self.ADMIN_URL_TPL.format(row.find('a').get('href'))
+
             classes_urls.append(url)
-        print(len(classes_urls))
+
         return classes_urls
 
     def handle_class(self, url):
@@ -108,6 +121,8 @@ class ClassImporter:
 
     def handle_classes(self):
         classes_urls = self.get_classes_urls()
+        if len(classes_urls) == 0:
+            return 0
         workers = min(self.MAX_WORKERS, len(classes_urls))
         with futures.ThreadPoolExecutor(workers) as executor:
             res = executor.map(self.handle_class, classes_urls)
@@ -124,6 +139,7 @@ class ClassImporter:
         # Without threads end
 
     def prepare_group(self, group_fields):
+
         return EnrollWareGroup(
             user=self.user,
             group_id=group_fields['group_id'],
@@ -167,11 +183,7 @@ class ClassImporter:
 
     def get_group_id(self):
         url = self.browser.get_url()
-
-        # group_id = parse.parse_qs(parse.urlparse(url).query)['id'][0]
-
-        group_id = parse.parse_qs(parse.urlparse(url).query)['id']
-        return group_id[0]
+        return self.get_group_id_from_url(url)
 
     def get_course(self):
         select_id = 'mainContent_Course'
