@@ -103,3 +103,17 @@ class DashboardView(View):
         exporter.run()
 
         return render(request, self.template_name)
+
+
+class SyncView(View):
+    template_name = 'dashboard.html'
+
+    def post(self, request):
+        credentials = request.user.enrollwarecredentials.first()
+        if credentials:
+            username = credentials.username
+            password = credentials.password
+            importer = ClassImporter(username, password, request.user)
+            importer.run()
+        return render(request, self.template_name)
+
