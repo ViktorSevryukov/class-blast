@@ -131,6 +131,8 @@ MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = '/dashboard/services_login/'
 
+LOGIN_URL = '/auth/login/'
+
 # try:
 #     from .local_settings import *
 # except ImportError:
