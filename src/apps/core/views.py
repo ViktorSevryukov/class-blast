@@ -97,7 +97,8 @@ class DashboardView(View):
             'to': class_time.end,
             'class_description': request.POST['class_description'],
             'roster_limit': request.POST['roster_limit'],
-            'roster_date': request.POST['cutoff_date']
+            'roster_date': request.POST['cutoff_date'],
+            'class_notes': request.POST['class_notes']
         }
 
         exporter = AHAExporter('jason.j.boudreault@gmail.com', 'Thecpr1', group_data)

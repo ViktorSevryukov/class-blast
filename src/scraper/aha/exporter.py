@@ -112,6 +112,11 @@ class AHAExporter(AHABase):
         element = self.browser.find_element_by_xpath(element_date)
         self.browser.execute_script("arguments[0].value = '" + value_roster_date + "'", element)
 
+    def paste_notes(self):
+        class_notes = self.group_data['class_notes']
+        element_notes = "//textarea[@id='notes']"
+        self.browser.find_element_by_xpath(element_notes).send_keys(class_notes)
+
     def save_button(self):
         self.browser.execute_script("saveInfo('save','false')")
 
@@ -126,6 +131,7 @@ class AHAExporter(AHABase):
         self.paste_location()
         self.paste_date()
         self.paste_roster_settings()
+        self.paste_notes()
         self.save_button()
 
 
