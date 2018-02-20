@@ -7,6 +7,10 @@ from datetime import datetime, timedelta
 
 from apps.core.models import *
 
+import logging
+
+logger = logging.getLogger('enroll')
+
 SETTINGS = {
     'username': 'gentrain',
     'password': 'enrollware'
@@ -70,6 +74,7 @@ class ClassImporter:
         self.existing_groups = list(EnrollWareGroup.objects.filter(user=user, synced=False).values_list('group_id', flat=True))
 
     def run(self):
+        logger.info("\n\nSCRAPER LOGGER \n")
         self.login()
         self.handle_classes()
         self.save_groups_to_db()
@@ -121,6 +126,7 @@ class ClassImporter:
 
     def handle_classes(self):
         classes_urls = self.get_classes_urls()
+        logger.info('Founded list urls count {}'.format(len(classes_urls)))
         if len(classes_urls) == 0:
             return 0
         workers = min(self.MAX_WORKERS, len(classes_urls))
