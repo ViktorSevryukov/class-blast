@@ -148,7 +148,8 @@ LOGGING = {
         'logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'enroll.log'),
+            'filename': os.path.join(BASE_DIR, 'logs',
+                                     'enrollware_import.log'),
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',
@@ -158,9 +159,7 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
-
     },
-
     'loggers': {
         'enroll': {
             'handlers': ['logfile', 'console'],
@@ -168,22 +167,3 @@ LOGGING = {
         },
     },
 }
-
-#
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'enroll': {
-#             'handlers': ['console'],
-#             'level': 'INFO',
-#         },
-#     },
-# }
-
-print(" PATH TO LOGS:", os.path.join(BASE_DIR, 'logs', 'enroll.log'))

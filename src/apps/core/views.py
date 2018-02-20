@@ -3,7 +3,8 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime, EnrollWareCredentials, AHACredentials
+from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime, \
+    EnrollWareCredentials, AHACredentials
 from scraper.aha.exporter import AHAExporter
 from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
@@ -14,7 +15,7 @@ from .forms import AHALoginForm, EnrollLoginForm
 class ServicesLoginView(View):
     template_name = 'services_login.html'
 
-    TEST_MODE = True
+    TEST_MODE = False
 
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
@@ -77,11 +78,6 @@ class ServicesLoginView(View):
                     })
 
                 return redirect(reverse_lazy('dashboard:manage'))
-
-                # return render(request, self.template_name, {
-                #     'aha_form': form,
-                #     'enroll_form': EnrollLoginForm()
-                # })
         return render(request, self.template_name, {'form': form})
 
 
@@ -101,7 +97,8 @@ class DashboardView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         class_time = EnrollClassTime.objects.filter(group_id=request.POST['group_id']).first()
-        print(request.POST['class_description'])
+        aha_auth_data = AHACredentials.objects.filter(user=request.user).last()
+
         group_data = {
             'course': request.POST['course'],
             'language': "English",
@@ -118,8 +115,10 @@ class DashboardView(LoginRequiredMixin, View):
             'class_notes': request.POST['class_notes']
         }
 
-        exporter = AHAExporter('jason.j.boudreault@gmail.com', 'Thecpr1', group_data)
-        # exporter.run()
+        exporter = AHAExporter(aha_auth_data.username, aha_auth_data.password, group_data)
+
+        # TODO: handle error, show message
+        exporter.run()
 
         return redirect(reverse_lazy('dashboard:manage'))
 
