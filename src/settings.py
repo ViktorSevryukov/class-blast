@@ -1,5 +1,6 @@
 import os
 import django
+import sys
 
 from django.utils.translation import ugettext_lazy as _
 
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
 
     'apps.auth_core',
     'apps.core',
+    'scraper'
 ]
 
 MIDDLEWARE = [
@@ -131,7 +133,57 @@ MEDIA_URL = '/media/'
 
 LOGIN_REDIRECT_URL = '/dashboard/services_login/'
 
-# try:
-#     from .local_settings import *
-# except ImportError:
-#     pass
+LOGIN_URL = '/auth/login/'
+
+LOGGING = {
+    'version': 1,
+    # 'disable_existing_loggers': True,
+    'formatters': {
+        'standard': {
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        }},
+
+    'handlers': {
+        'logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'enroll.log'),
+            'maxBytes': 50000,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard'
+        },
+
+    },
+
+    'loggers': {
+        'enroll': {
+            'handlers': ['logfile', 'console'],
+            'level': 'DEBUG',
+        },
+    },
+}
+
+#
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'console': {
+#             'class': 'logging.StreamHandler',
+#         },
+#     },
+#     'loggers': {
+#         'enroll': {
+#             'handlers': ['console'],
+#             'level': 'INFO',
+#         },
+#     },
+# }
+
+print(" PATH TO LOGS:", os.path.join(BASE_DIR, 'logs', 'enroll.log'))

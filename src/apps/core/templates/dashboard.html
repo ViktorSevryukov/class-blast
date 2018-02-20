@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
+    {% if user.is_authenticated %}
     <div>
         <table class="table table-striped">
 
@@ -15,7 +16,7 @@
                 <th>Roster Limit</th>
                 <th>Cutoff</th>
                 <th>Class Description</th>
-                <th>Student Notes</th>
+                <th>Class Notes</th>
                 <th>Export</th>
 
             </tr>
@@ -87,7 +88,7 @@
                     </td>
 
                     <td>
-                        <input name="student_notes" type="text" size="50">
+                        <input name="class_notes" type="text" size="50">
                     </td>
                   <td><input type="hidden" name="group_id" value={{ ew_group.group_id}}>
                       <button type="submit">Export</button>
@@ -98,8 +99,17 @@
             {% endfor %}
 
         </table>
-
-
+    <form method="post" action={% url 'dashboard:sync' %}>
+        {% csrf_token %}
+        <button type="submit">SYNC</button>
+    </form>
     </div>
+    <div>
+    <form method="post" action="{% url 'auth:logout' %}">
+        {% csrf_token %}
+        <button type="submit">LOGOUT</button>
+    </form>
+    </div>
+    {% endif %}
 {% endblock %}
 

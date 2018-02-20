@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime
+from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime, EnrollWareCredentials, AHACredentials
 from scraper.aha.exporter import AHAExporter
 from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
@@ -13,7 +14,7 @@ from .forms import AHALoginForm, EnrollLoginForm
 class ServicesLoginView(View):
     template_name = 'services_login.html'
 
-    TEST_MODE = False
+    TEST_MODE = True
 
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
@@ -35,26 +36,46 @@ class ServicesLoginView(View):
                 username = 'gentrain' if self.TEST_MODE else request.POST['username']
                 password = 'enrollware' if self.TEST_MODE else request.POST['password']
 
+                EnrollWareCredentials.objects.update_or_create(username=username, user=request.user, defaults={'password': request.POST['password']})
+
+                context = {
+                    'enroll_form': form,
+                    'aha_form': AHALoginForm(),
+                    'success_auth': False
+                }
+
                 importer = ClassImporter(
                     username=username,
                     password=password,
                     user=request.user
                 )
-                importer.run()
-                return render(request, self.template_name, {
-                    'enroll_form': form,
-                    'aha_form': AHALoginForm()
-                })
+                try:
+                    importer.run()
+                    context['success_auth'] = True
+                except:
+                    context['enrollware_error_message'] = "Sorry, your login data wrong, please try again"
+
+                return render(request, self.template_name, context)
             else:
                 # TODO: hide real user data
                 username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else request.POST['username']
                 password = 'Thecpr1' if self.TEST_MODE else request.POST['password']
 
+                AHACredentials.objects.update_or_create(username=username, user=request.user, defaults={'password': request.POST['password']})
+
                 importer = AHAImporter(
                     username=username,
                     password=password
                 )
-                importer.run()
+                try:
+                    importer.run()
+                except:
+                    return render(request, self.template_name, {
+                        'aha_error_message': "Sorry, your login data wrong, please try again",
+                        'aha_form': form,
+                        'enroll_form': EnrollLoginForm()
+                    })
+
                 return redirect(reverse_lazy('dashboard:manage'))
 
                 # return render(request, self.template_name, {
@@ -64,8 +85,10 @@ class ServicesLoginView(View):
         return render(request, self.template_name, {'form': form})
 
 
-class DashboardView(View):
+class DashboardView(LoginRequiredMixin, View):
     template_name = 'dashboard.html'
+    login_url = '/auth/login/'
+    redirect_field_name = ''
 
     def get(self, request, *args, **kwargs):
         ew_groups = EnrollWareGroup.objects.filter(user_id=request.user.id, synced=False)
@@ -91,10 +114,30 @@ class DashboardView(View):
             'to': class_time.end,
             'class_description': request.POST['class_description'],
             'roster_limit': request.POST['roster_limit'],
-            'roster_date': request.POST['cutoff_date']
+            'roster_date': request.POST['cutoff_date'],
+            'class_notes': request.POST['class_notes']
         }
 
         exporter = AHAExporter('jason.j.boudreault@gmail.com', 'Thecpr1', group_data)
-        exporter.run()
+        # exporter.run()
 
-        return render(request, self.template_name)
+        return redirect(reverse_lazy('dashboard:manage'))
+
+
+class SyncView(LoginRequiredMixin, View):
+    login_url = '/auth/login/'
+    redirect_field_name = ''
+    template_name = 'dashboard.html'
+
+    def post(self, request):
+        credentials = request.user.enrollwarecredentials.first()
+
+        if credentials:
+            username = credentials.username
+            password = credentials.password
+            importer = ClassImporter(username, password, request.user)
+            importer.run()
+
+        return redirect(reverse_lazy('dashboard:manage'))
+
+
