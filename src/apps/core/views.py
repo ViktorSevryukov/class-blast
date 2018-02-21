@@ -20,7 +20,8 @@ class ServicesLoginView(View):
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
         aha_form = AHALoginForm()
-        return render(request, self.template_name, {'enroll_form': enroll_form, 'aha_form': aha_form})
+        return render(request, self.template_name,
+                      {'enroll_form': enroll_form, 'aha_form': aha_form})
 
     # TODO: redirect in case both forms are filled, check another form filled then you are fill the one
     def post(self, request, *args, **kwargs):
@@ -37,8 +38,6 @@ class ServicesLoginView(View):
                 username = 'gentrain' if self.TEST_MODE else request.POST['username']
                 password = 'enrollware' if self.TEST_MODE else request.POST['password']
 
-                EnrollWareCredentials.objects.update_or_create(username=username, user=request.user, defaults={'password': request.POST['password']})
-
                 context = {
                     'enroll_form': form,
                     'aha_form': AHALoginForm(),
@@ -54,20 +53,26 @@ class ServicesLoginView(View):
                     importer.run()
                     context['success_auth'] = True
                 except:
-                    context['enrollware_error_message'] = "Sorry, your login data wrong, please try again"
+                    context['enrollware_error_message'] = \
+                        "Sorry, your login data wrong, please try again"
 
-                return render(request, self.template_name, context)
+                EnrollWareCredentials.objects.update_or_create(
+                    username=username,
+                    user=request.user,
+                    defaults={'password': request.POST['password']}
+                )
+
+                return render( request, self.template_name, context)
             else:
                 # TODO: hide real user data
                 username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else request.POST['username']
                 password = 'Thecpr1' if self.TEST_MODE else request.POST['password']
 
-                AHACredentials.objects.update_or_create(username=username, user=request.user, defaults={'password': request.POST['password']})
-
                 importer = AHAImporter(
                     username=username,
                     password=password
                 )
+
                 try:
                     importer.run()
                 except:
@@ -76,6 +81,12 @@ class ServicesLoginView(View):
                         'aha_form': form,
                         'enroll_form': EnrollLoginForm()
                     })
+
+                AHACredentials.objects.update_or_create(
+                    username=username,
+                    user=request.user,
+                    defaults={'password':request.POST['password']}
+                )
 
                 return redirect(reverse_lazy('dashboard:manage'))
         return render(request, self.template_name, {'form': form})
@@ -87,7 +98,11 @@ class DashboardView(LoginRequiredMixin, View):
     redirect_field_name = ''
 
     def get(self, request, *args, **kwargs):
-        ew_groups = EnrollWareGroup.objects.filter(user_id=request.user.id, synced=False)
+        ew_groups = EnrollWareGroup.objects.filter(
+            user_id=request.user.id,
+            synced=False
+        )
+
         aha_fields = {field.type: field.value for field in AHAField.objects.all()}
 
         return render(request, self.template_name, {
@@ -96,7 +111,9 @@ class DashboardView(LoginRequiredMixin, View):
         })
 
     def post(self, request, *args, **kwargs):
-        class_time = EnrollClassTime.objects.filter(group_id=request.POST['group_id']).first()
+        class_time = EnrollClassTime.objects.filter(
+            group_id=request.POST['group_id']).first()
+
         aha_auth_data = AHACredentials.objects.filter(user=request.user).last()
         enroll_group = EnrollWareGroup.objects.filter(group_id=request.POST['group_id']).first()
 
@@ -152,5 +169,3 @@ class SyncView(LoginRequiredMixin, View):
             importer.run()
 
         return redirect(reverse_lazy('dashboard:manage'))
-
-
