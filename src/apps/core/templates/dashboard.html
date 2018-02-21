@@ -116,12 +116,6 @@
         <button type="submit">SYNC</button>
     </form>
     </div>
-    <div>
-    <form method="post" action="{% url 'auth:logout' %}">
-        {% csrf_token %}
-        <button type="submit">LOGOUT</button>
-    </form>
-    </div>
     {% endif %}
 {% endblock %}
 

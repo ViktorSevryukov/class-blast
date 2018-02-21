@@ -1,7 +1,7 @@
-{% extends "base.html" %}
+{% extends "auth_base.html" %}
 
 {% block content %}
-  <div class="container">
+  <div class="login-container">
     <div class="panel panel-default text-center">
       <div class="panel-heading">
         <h3 class="panel-title">Class Blast</h3>
@@ -9,7 +9,7 @@
       <div class="panel-body">
 
         <!-- LOGIN FORM -->
-        <form method="post" action="{% url 'auth:login' %}">
+        <form id='login-form' class='form-group' method="post" action="{% url 'auth:login' %}">
           {% csrf_token %}
 
           {% if form.errors %}

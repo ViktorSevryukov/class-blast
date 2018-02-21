@@ -137,6 +137,7 @@ class DashboardView(LoginRequiredMixin, View):
 
         MAPPER_FIELDS = (AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION, AHAField.FIELD_TYPES.INSTRUCTOR)
 
+        # TODO: parallel function
         for field in MAPPER_FIELDS:
 
             Mapper.objects.update_or_create(

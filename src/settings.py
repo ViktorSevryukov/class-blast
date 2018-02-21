@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'selenium',
     'django_extensions',
 
+    'apps.base',
     'apps.auth_core',
     'apps.core',
     'scraper'
@@ -128,8 +129,11 @@ USE_TZ = True
 STATIC_ROOT = os.path.join(BASE_DIR, 'var', 'www', 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'var', 'www', 'media')
 
+
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
+
+STATICFILES_DIRS = ( os.path.join('static'), )
 
 LOGIN_REDIRECT_URL = '/dashboard/services_login/'
 

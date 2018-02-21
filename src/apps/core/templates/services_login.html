@@ -1,19 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-  <div class="container">
-    <div class="panel panel-default text-center">
-      <div class="panel-heading">
-        <h3 class="panel-title">Class Blast</h3>
-      </div>
-      <div class="panel-body">
-
+  <div class="container text-center">
+    <h3 class="panel-title">Class Blast</h3>
+    <div class="row">
+      <div class="col-12 col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
         <!-- ENROLLWARE FORM -->
-        <form method="post" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <form method="post">
           {% csrf_token %}
           <fieldset>
             <legend>Enrollware account</legend>
             {% if enrollware_error_message %}
-                {{ enrollware_error_message }}
+              {{ enrollware_error_message }}
             {% endif %}
             {% if form.errors %}
               <span>Error. Please try again.</span>
@@ -51,62 +48,65 @@
           <input type="hidden" name="service_type" value="enroll">
         </form>
         <!-- /ENROLLWARE FORM -->
+      </div>
 
+      <div class="col-12 col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
         <!-- AHA FORM -->
-        <form method="post" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+        <form method="post">
           {% csrf_token %}
           <fieldset>
             <legend>AHA account</legend>
             {% if success_auth %}
-                {% if aha_error_message %}
-                    {{ aha_error_message }}
-                {% endif %}
+              {% if aha_error_message %}
+                {{ aha_error_message }}
+              {% endif %}
 
-                {% if form.errors %}
-                  <span>Error. Please try again.</span>
-                  <hr>
-                {% endif %}
+              {% if form.errors %}
+                <span>Error. Please try again.</span>
+                <hr>
+              {% endif %}
 
-                    {% for field in aha_form %}
+              {% for field in aha_form %}
 
-                      {% if field.errors %}
-                        <div class="control-group error">
-                          <label class="control-label">{{ field.label }}</label>
-                          <div class="controls">{{ field }}
-                            <span class="help-inline">
+                {% if field.errors %}
+                  <div class="control-group error">
+                    <label class="control-label">{{ field.label }}</label>
+                    <div class="controls">{{ field }}
+                      <span class="help-inline">
                                     {% for error in  field.errors %}
                                       {{ error }}{% endfor %}
                                 </span>
-                          </div>
-                        </div>
-                      {% else %}
-                        <div class="control-group">
-                          <label class="control-label">{{ field.label }}</label>
-                          <div class="controls">{{ field }}
-                            {% if field.help_text %}
-                              <p class="help-inline">
-                                <small>{{ field.help_text }}</small>
-                              </p>
-                            {% endif %}
-                          </div>
-                        </div>
-                      {% endif %}
-
-                    {% endfor %}
-
-          </fieldset>
-
-                  <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
                   </div>
-              {% endif %}
+                {% else %}
+                  <div class="control-group">
+                    <label class="control-label">{{ field.label }}</label>
+                    <div class="controls">{{ field }}
+                      {% if field.help_text %}
+                        <p class="help-inline">
+                          <small>{{ field.help_text }}</small>
+                        </p>
+                      {% endif %}
+                    </div>
+                  </div>
+                {% endif %}
+
+              {% endfor %}
+
+              </fieldset>
+
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Submit</button>
+              </div>
+            {% endif %}
           <input type="hidden" name="service_type" value="aha">
 
         </form>
         <!-- /AHA FORM -->
-
       </div>
     </div>
+
+
   </div>
 
 {% endblock %}
