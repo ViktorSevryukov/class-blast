@@ -32,9 +32,16 @@ class AHAImporter(AHABase):
         # get non-empty options from select element
         xpath = self.XPATH_TPLS['select'].format(select_id=select_id, filter=self.XPATH_FILTERS['not_empty'])
         options = self.browser.find_elements_by_xpath(xpath)
+        values_list = []
         if remove_first:
             options.pop(0)
-        values_list = [element.get_attribute('text') for element in options]
+
+        for element in options:
+            element_dict = {
+                'value': element.get_attribute('value'),
+                'text': element.get_attribute('text')
+            }
+            values_list.append(element_dict)
         return values_list
 
     def click_on_first_option(self, select_id):

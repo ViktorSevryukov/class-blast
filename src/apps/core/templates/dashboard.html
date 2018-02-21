@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load extra_filters %}
 {% block content %}
     {% if user.is_authenticated %}
     <div>
@@ -32,8 +33,8 @@
                                         {% if option == ew_group.get_default_course %}
                                             selected
                                         {% endif %}
-                                        value="{{ option }}">
-                                    {{ option }}
+                                        value="{{ option|get_value }}">
+                                    {{ option|get_text }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -47,8 +48,8 @@
                                         {% if option == ew_group.get_default_location %}
                                             selected
                                         {% endif %}
-                                        value="{{ option }}">
-                                    {{ option }}
+                                        value="{{ option|get_value }}">
+                                    {{ option|get_text }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -63,8 +64,8 @@
                                         {% if option == ew_group.get_default_instructor %}
                                             selected
                                         {% endif %}
-                                        value="{{ option }}">
-                                    {{ option }}
+                                        value="{{ option|get_value }}">
+                                    {{ option|get_text }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -73,8 +74,8 @@
                     <td>
                         <select name="training_center" class="form-control">
                             {% for option in aha_fields.tc %}
-                                <option value="{{ option }}">
-                                    {{ option }}
+                                <option value="{{ option|get_value }}">
+                                    {{ option|get_text }}
                                 </option>
                             {% endfor %}
                         </select>
@@ -82,8 +83,8 @@
 
                     <td><select name="training_site" class="form-control">
                         {% for option in aha_fields.ts %}
-                            <option value="{{ option }}">
-                                {{ option }}
+                            <option value="{{ option|get_value }}">
+                                {{ option|get_text }}
                             </option>
                         {% endfor %}
                     </select></td>
