@@ -122,7 +122,7 @@ class DashboardView(LoginRequiredMixin, View):
             'language': "English",
             'location': request.POST['location'] + " ",
             'tc': request.POST['training_center'],
-            'ts': request.POST['training_center'],
+            'ts': request.POST['training_site'],
             'instructor': request.POST['instructor'],
             'date': class_time.date,
             'from': class_time.start,
