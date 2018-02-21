@@ -39,6 +39,7 @@ class AHAExporter(AHABase):
     def paste_course(self):
         value = self.group_data['course']
         element = "//select[@id='courseId']/option[text()='{}']".format(value)
+        element = "//select[@id='courseId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
     def paste_language(self):
@@ -49,6 +50,7 @@ class AHAExporter(AHABase):
     def paste_tc(self):
         value = self.group_data['tc']
         element = "//select[@id='tcId']/option[text()='{}']".format(value)
+        element = "//select[@id='tcId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
     def paste_ts(self):
@@ -58,6 +60,7 @@ class AHAExporter(AHABase):
         options = [x for x in all_ts.find_elements_by_tag_name('option')]
         for element in options:
             if element.get_attribute('text') == value:
+            if element.get_attribute('value') == value:
                 element.click()
                 break
 
@@ -71,12 +74,14 @@ class AHAExporter(AHABase):
         options = [x for x in all_instructor.find_elements_by_tag_name('option')]
         for element in options:
             if element.get_attribute('text') == value:
+            if element.get_attribute('value') == value:
                 element.click()
                 break
 
     def paste_location(self):
         value = self.group_data['location']
         element = "//select[@id='locationId']/option[text()='{}']".format(value)
+        element = "//select[@id='locationId']/option[@value={}]".format(value)
         self.browser.find_element_by_xpath(element).click()
 
     def paste_date(self):
