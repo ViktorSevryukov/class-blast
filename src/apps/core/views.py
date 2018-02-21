@@ -4,7 +4,7 @@ from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime, \
-    EnrollWareCredentials, AHACredentials
+    EnrollWareCredentials, AHACredentials, Mapper
 from scraper.aha.exporter import AHAExporter
 from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
@@ -98,6 +98,7 @@ class DashboardView(LoginRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         class_time = EnrollClassTime.objects.filter(group_id=request.POST['group_id']).first()
         aha_auth_data = AHACredentials.objects.filter(user=request.user).last()
+        enroll_group = EnrollWareGroup.objects.filter(group_id=request.POST['group_id']).first()
 
         group_data = {
             'course': request.POST['course'],
@@ -114,6 +115,19 @@ class DashboardView(LoginRequiredMixin, View):
             'roster_date': request.POST['cutoff_date'],
             'class_notes': request.POST['class_notes']
         }
+
+        #TODO: fix user literal
+
+        MAPPER_FIELDS = (AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION, AHAField.FIELD_TYPES.INSTRUCTOR)
+
+        for field in MAPPER_FIELDS:
+
+            Mapper.objects.update_or_create(
+                aha_field=AHAField.objects.filter(type=field).first(),
+                enroll_value=getattr(enroll_group, field),
+                user=request.user,
+                defaults={'aha_value': request.POST[field]}
+            )
 
         exporter = AHAExporter(aha_auth_data.username, aha_auth_data.password, group_data)
 

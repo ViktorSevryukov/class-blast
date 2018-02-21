@@ -8,6 +8,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_delete
 
 from model_utils.models import TimeStampedModel
+from model_utils.choices import Choices
 
 AHA_OCCURRENCE_CHOICES = (
     ('SN', 'Single'),
@@ -16,9 +17,19 @@ AHA_OCCURRENCE_CHOICES = (
 )
 
 
-#TODO: type like Choices
 class AHAField(TimeStampedModel):
-    type = models.CharField(_("type"), max_length=64, default="")
+
+    FIELD_TYPES = Choices(
+        ('course', 'COURSE', _("Course")),
+        ('location', 'LOCATION', _("Location")),
+        ('instructor', 'INSTRUCTOR', _("Instructor")),
+        ('tc', 'TC', _("Training Center")),
+        ('ts', 'TS', _("Training Site")),
+        ('lang', 'LANGUAGE', _("Language"))
+
+    )
+
+    type = models.CharField(_("type"), max_length=64, choices=FIELD_TYPES, default="")
     value = ArrayField(models.CharField(_("value"), max_length=128, default=""))
 
     class Meta(object):
@@ -125,7 +136,7 @@ class Mapper(TimeStampedModel):
         verbose_name_plural = _("mappers")
 
     def __str__(self):
-        return "{type}".format(type=self.aha_field)
+        return "{type} {user}".format(type=self.aha_field, user=self.user)
 
 
 class BaseCredentials(TimeStampedModel):

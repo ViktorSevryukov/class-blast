@@ -44,19 +44,19 @@ class AHAImporter(AHABase):
     def get_course(self):
         courses_list = self.get_options_by_select_id('courseId')
         print("Courses:", courses_list)
-        course_obj = AHAField(type='course', value=courses_list)
+        course_obj = AHAField(type=AHAField.FIELD_TYPES.COURSE, value=courses_list)
         return self.group_data.append(course_obj)
 
     def get_language(self):
         languages_list = self.get_options_by_select_id('languageId')
         print("Languages:", languages_list)
-        language_obj = AHAField(type='language', value=languages_list)
+        language_obj = AHAField(type=AHAField.FIELD_TYPES.LANGUAGE, value=languages_list)
         return self.group_data.append(language_obj)
 
     def get_location(self):
         locations_list = self.get_options_by_select_id('locationId', remove_first=True)
         print("Locations:", locations_list)
-        location_obj = AHAField(type='location', value=locations_list)
+        location_obj = AHAField(type=AHAField.FIELD_TYPES.LOCATION, value=locations_list)
         return self.group_data.append(location_obj)
 
     def get_tc(self):
@@ -65,7 +65,7 @@ class AHAImporter(AHABase):
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tcNames')))
         tc_list = self.get_options_by_select_id('tcId')
         print("Training Centers:", tc_list)
-        tc_obj = AHAField(type='tc', value=tc_list)
+        tc_obj = AHAField(type=AHAField.FIELD_TYPES.TC, value=tc_list)
         return self.group_data.append(tc_obj)
 
     def get_ts(self):
@@ -73,13 +73,13 @@ class AHAImporter(AHABase):
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tsNames')))
         ts_list = self.get_options_by_select_id('tcSiteId')
         print("Training Sites:", ts_list)
-        ts_obj = AHAField(type='ts', value=ts_list)
+        ts_obj = AHAField(type=AHAField.FIELD_TYPES.TS, value=ts_list)
         return self.group_data.append(ts_obj)
 
     def get_instructors(self):
         instructor_list = self.get_options_by_select_id('instructorId')
         print("Instructors:", instructor_list)
-        instructor_obj = AHAField(type='instructor', value=instructor_list)
+        instructor_obj = AHAField(type=AHAField.FIELD_TYPES.INSTRUCTOR, value=instructor_list)
         return self.group_data.append(instructor_obj)
 
     def get_fields(self):
