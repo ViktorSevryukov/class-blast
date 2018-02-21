@@ -102,6 +102,28 @@ class EnrollWareGroup(TimeStampedModel):
         day_before = datetime_object - timedelta(days=1)
         return datetime.strftime(day_before, '%m/%d/%Y')
 
+    # TODO: maybe cache defaults
+    def get_default_course(self):
+        mapper = Mapper.objects.filter(
+            aha_field__type=AHAField.FIELD_TYPES.COURSE,
+            user=self.user,
+            enroll_value=self.course).last()
+        return mapper.aha_value if mapper else None
+
+    def get_default_location(self):
+        mapper = Mapper.objects.filter(
+            aha_field__type=AHAField.FIELD_TYPES.LOCATION,
+            user=self.user,
+            enroll_value=self.location).last()
+        return mapper.aha_value if mapper else None
+
+    def get_default_instructor(self):
+        mapper = Mapper.objects.filter(
+            aha_field__type=AHAField.FIELD_TYPES.INSTRUCTOR,
+            user=self.user,
+            enroll_value=self.instructor).last()
+        return mapper.aha_value if mapper else None
+
 
 @receiver(post_delete, sender=EnrollWareGroup)
 def delete_times(sender, instance, using, **kwargs):
