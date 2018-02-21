@@ -28,7 +28,11 @@
                     <td>
                         <select name="course" class="form-control">
                             {% for option in aha_fields.course %}
-                                <option value="{{ option }}">
+                                <option
+                                        {% if option == ew_group.get_default_course %}
+                                            selected
+                                        {% endif %}
+                                        value="{{ option }}">
                                     {{ option }}
                                 </option>
                             {% endfor %}
@@ -39,7 +43,11 @@
                     <td>
                         <select name="location" class="form-control">
                             {% for option in aha_fields.location %}
-                                <option value="{{ option }}">
+                                <option
+                                        {% if option == ew_group.get_default_location %}
+                                            selected
+                                        {% endif %}
+                                        value="{{ option }}">
                                     {{ option }}
                                 </option>
                             {% endfor %}
@@ -51,7 +59,11 @@
                     <td>
                         <select name="instructor" class="form-control">
                             {% for option in aha_fields.instructor %}
-                                <option value="{{ option }}">
+                                <option
+                                        {% if option == ew_group.get_default_instructor %}
+                                            selected
+                                        {% endif %}
+                                        value="{{ option }}">
                                     {{ option }}
                                 </option>
                             {% endfor %}
