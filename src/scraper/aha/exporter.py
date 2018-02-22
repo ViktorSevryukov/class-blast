@@ -59,7 +59,6 @@ class AHAExporter(AHABase):
         all_ts = self.browser.find_element_by_id('tcSiteId')
         options = [x for x in all_ts.find_elements_by_tag_name('option')]
         for element in options:
-            if element.get_attribute('text') == value:
             if element.get_attribute('value') == value:
                 element.click()
                 break
@@ -73,7 +72,6 @@ class AHAExporter(AHABase):
         all_instructor = self.browser.find_element_by_id('instrNames')
         options = [x for x in all_instructor.find_elements_by_tag_name('option')]
         for element in options:
-            if element.get_attribute('text') == value:
             if element.get_attribute('value') == value:
                 element.click()
                 break

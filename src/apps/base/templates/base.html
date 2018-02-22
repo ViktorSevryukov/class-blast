@@ -15,10 +15,10 @@
         crossorigin="anonymous">
 
   <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <title>{% block title %}ClassBlast{% endblock %}</title>
-
   {% block extra_css %}
   {% endblock %}
+
+<title>{% block title %}ClassBlast{% endblock %}</title>
 </head>
 <body>
 {% block header %}

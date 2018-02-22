@@ -1,8 +1,15 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/dashboard.css'%}">
+{% endblock %}
+
 {% load extra_filters %}
+
 {% block content %}
     {% if user.is_authenticated %}
-    <div>
+    <div class="table-wrapper">
         <table class="table table-striped">
 
             <tr>
@@ -19,14 +26,13 @@
                 <th>Class Description</th>
                 <th>Class Notes</th>
                 <th>Export</th>
-
             </tr>
             {% for ew_group in ew_groups %}
                 <tr>
                   <form method="post" action="">
                   {% csrf_token %}
-                    <td>{{ ew_group.course }}</td>
-                    <td>
+                    <td class="td-md"><span>{{ ew_group.course }}</span></td>
+                    <td class="td-md">
                         <select name="course" class="form-control">
                             {% for option in aha_fields.course %}
                                 <option
@@ -40,8 +46,8 @@
                         </select>
                     </td>
 
-                    <td>{{ ew_group.location }}</td>
-                    <td>
+                    <td class="td-md"><span>{{ ew_group.location }}</span></td>
+                    <td class="td-md">
                         <select name="location" class="form-control">
                             {% for option in aha_fields.location %}
                                 <option
@@ -55,9 +61,9 @@
                         </select>
                     </td>
 
-                    <td>{{ ew_group.instructor }}</td>
+                    <td class="td-md">{{ ew_group.instructor }}</td>
 
-                    <td>
+                    <td class="td-md">
                         <select name="instructor" class="form-control">
                             {% for option in aha_fields.instructor %}
                                 <option
@@ -71,7 +77,7 @@
                         </select>
                     </td>
 
-                    <td>
+                    <td class="td-md">
                         <select name="training_center" class="form-control">
                             {% for option in aha_fields.tc %}
                                 <option value="{{ option|get_value }}">
@@ -81,7 +87,7 @@
                         </select>
                     </td>
 
-                    <td><select name="training_site" class="form-control">
+                    <td class="td-md"><select name="training_site" class="form-control">
                         {% for option in aha_fields.ts %}
                             <option value="{{ option|get_value }}">
                                 {{ option|get_text }}
@@ -89,21 +95,21 @@
                         {% endfor %}
                     </select></td>
 
-                    <td><input name="roster_limit" value={{ ew_group.max_students }}>
+                    <td class="td-xs"><input class="input-sm" name="roster_limit" value={{ ew_group.max_students }}>
                     </td>
 
-                    <td>
-                        <input name="cutoff_date" value={{ ew_group.get_cutoff_date }}>
+                    <td class="td-sm">
+                        <input class="input-sm" name="cutoff_date" value={{ ew_group.get_cutoff_date }}>
                     </td>
 
-                    <td>
+                    <td class="td-md">
                         <input name="class_description" type="text" size="50" required>
                     </td>
 
-                    <td>
+                    <td class="td-md">
                         <input name="class_notes" type="text" size="50">
                     </td>
-                  <td><input type="hidden" name="group_id" value={{ ew_group.group_id}}>
+                  <td class="td-md"><input type="hidden" name="group_id" value={{ ew_group.group_id}}>
                       <button type="submit">Export</button>
                   </td>
                   </form>

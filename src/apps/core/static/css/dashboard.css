@@ -1,0 +1,36 @@
+:root {
+    --md-width: 15rem;
+    --sm-width: 10rem;
+}
+
+select{
+    width: auto!important;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    width: calc(100% - 2rem);
+    margin: 1rem 0 0 1rem;
+    -webkit-border-radius:5px;
+    -moz-border-radius:5px;
+    border-radius:5px;
+}
+
+.td-xs{
+    max-width: 5rem;
+    min-width: 4rem;
+}
+
+.td-sm {
+    min-width: var(--sm-width)!important;
+    width: var(--sm-width)!important;
+}
+
+.td-md{
+    min-width: var(--md-width);
+}
+
+.input-sm{
+    width: 100%;
+}
+
