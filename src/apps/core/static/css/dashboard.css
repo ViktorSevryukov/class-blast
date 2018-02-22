@@ -34,3 +34,16 @@ select{
     width: 100%;
 }
 
+.check-control{
+    -webkit-transform: scale(1.5);
+    -moz-transform: scale(1.5);
+    -ms-transform: scale(1.5);
+    -o-transform: scale(1.5);
+    transform: scale(1.5);
+}
+
+.export-controls{
+    display: flex;
+    justify-content: center;
+    margin: 2rem;
+}
