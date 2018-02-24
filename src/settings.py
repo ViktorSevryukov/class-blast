@@ -137,6 +137,10 @@ STATICFILES_DIRS = ( os.path.join('static'), )
 
 LOGIN_REDIRECT_URL = '/dashboard/services_login/'
 
+# try:
+#     from .local_settings import *
+# except ImportError:
+#     pass
 LOGIN_URL = '/auth/login/'
 
 LOGGING = {
