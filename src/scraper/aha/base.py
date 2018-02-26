@@ -64,4 +64,3 @@ class AHABase():
         WebDriverWait(self.browser, 5).until(
             EC.text_to_be_present_in_element((By.TAG_NAME, "strong"), "Welcome!"))
         self.browser.get(self.URLS['add_class'])
-
