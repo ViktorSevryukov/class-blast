@@ -10,6 +10,21 @@ const htmlFields = {
     classNotes: '#aha-class-notes-'
 };
 
+var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+
 function getFieldId(name, groupId) {
     return htmlFields[name] + groupId;
 }
@@ -52,9 +67,11 @@ function exportGroups() {
     var groupsData = prepareGroups();
     console.log(groupsData)
 
+    var json_data = JSON.stringify(groupsData)
+
     $.post({
         url: '/dashboard/export/',
-        data: groupsData,
+        data: {'groups': json_data},
         success: function (data) {
             console.log(data);
         },

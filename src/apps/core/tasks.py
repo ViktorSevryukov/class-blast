@@ -1,38 +1,29 @@
 from apps.auth_core.models import User
 from apps.core.celery import app
-from apps.core.models import EnrollClassTime, AHACredentials, EnrollWareGroup, AHAField, Mapper, TaskReport
+from apps.core.models import EnrollClassTime, AHACredentials, EnrollWareGroup, AHAField, Mapper
 from scraper.aha.exporter import AHAExporter
 
-@app.task
-def test():
-    return print("OLOLO")
-
-
 
 @app.task
-def export_to_aha(post_data, user_id):
-    exported_groups = post_data('exportedGroups', None)
+def export_to_aha(exported_groups, user_id):
 
     user = User.objects.filter(id=user_id).first()
 
     for group in exported_groups:
 
-        report = TaskReport.objects.create(status=TaskReport.STATUSES.IN_PROCESS,
-                                           type=TaskReport.TYPES.EXPORT,
-                                           user=user)
+        # TODO: add try except, return Error if something not found
+        enroll_group = EnrollWareGroup.objects.filter(id=group['enroll_group_id']).first()
 
-        class_time = EnrollClassTime.objects.filter(
-            group_id=group['enroll_group_id']).first()
+        class_time = EnrollClassTime.objects.filter(group_id=enroll_group.group_id).first()
 
         aha_auth_data = AHACredentials.objects.filter(user=user_id).last()
-        enroll_group = EnrollWareGroup.objects.filter(group_id=group['enroll_group_id']).first()
 
         group_data = {
             'course': group['aha_data']['course'],
             'language': "English",
             'location': group['aha_data']['location'] + " ",
-            'tc': group['aha_data']['training_center'],
-            'ts': group['aha_data']['training_site'],
+            'tc': group['aha_data']['tc'],
+            'ts': group['aha_data']['ts'],
             'instructor': group['aha_data']['instructor'],
             'date': class_time.date,
             'from': class_time.start,
@@ -59,8 +50,9 @@ def export_to_aha(post_data, user_id):
         exporter = AHAExporter(aha_auth_data.username, aha_auth_data.password, group_data)
 
         # TODO: handle error, show message
-        # TODO: add error status to task model
-        exporter.run()
+        try:
+            exporter.run()
+        except Exception as e:
+            return False
 
-        report.status = TaskReport.STATUSES.SUCCESS
-        report.save()
+        return True

@@ -38,7 +38,7 @@ class AHAExporter(AHABase):
 
     def paste_course(self):
         value = self.group_data['course']
-        element = "//select[@id='courseId']/option[text()='{}']".format(value)
+        # element = "//select[@id='courseId']/option[text()='{}']".format(value)
         element = "//select[@id='courseId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
@@ -49,7 +49,7 @@ class AHAExporter(AHABase):
 
     def paste_tc(self):
         value = self.group_data['tc']
-        element = "//select[@id='tcId']/option[text()='{}']".format(value)
+        # element = "//select[@id='tcId']/option[text()='{}']".format(value)
         element = "//select[@id='tcId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
@@ -78,7 +78,7 @@ class AHAExporter(AHABase):
 
     def paste_location(self):
         value = self.group_data['location']
-        element = "//select[@id='locationId']/option[text()='{}']".format(value)
+        # element = "//select[@id='locationId']/option[text()='{}']".format(value)
         element = "//select[@id='locationId']/option[@value={}]".format(value)
         self.browser.find_element_by_xpath(element).click()
 
@@ -135,7 +135,7 @@ class AHAExporter(AHABase):
         self.paste_date()
         self.paste_roster_settings()
         self.paste_notes()
-        # self.save_button()
+        self.save_button()
 
 
 if __name__ == '__main__':
