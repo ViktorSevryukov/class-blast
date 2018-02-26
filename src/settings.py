@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'selenium',
     'django_extensions',
+    'rest_framework',
 
     'apps.base',
     'apps.auth_core',
@@ -149,11 +150,29 @@ LOGGING = {
         }},
 
     'handlers': {
-        'logfile': {
+        'enroll_logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs',
                                      'enrollware_import.log'),
+            'maxBytes': 50000,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'aha_export_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs',
+                                     'aha_export.log'),
+            'maxBytes': 50000,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'aha_import_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs',
+                                     'aha_import.log'),
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',
@@ -166,8 +185,19 @@ LOGGING = {
     },
     'loggers': {
         'enroll': {
-            'handlers': ['logfile', 'console'],
+            'handlers': ['enroll_logfile', 'console'],
             'level': 'DEBUG',
+            'propagate': True
+        },
+        'aha_export': {
+            'handlers': ['aha_export_logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'aha_import': {
+            'handlers': ['aha_import_logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True
         },
     },
 }
