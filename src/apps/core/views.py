@@ -11,11 +11,15 @@ from scraper.enrollware.importer import ClassImporter
 
 from .forms import AHALoginForm, EnrollLoginForm
 
+import logging
+
+logger = logging.getLogger('aha_export')
+
 
 class ServicesLoginView(View):
     template_name = 'services_login.html'
 
-    TEST_MODE = False
+    TEST_MODE = True
 
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
@@ -62,7 +66,7 @@ class ServicesLoginView(View):
                     defaults={'password': request.POST['password']}
                 )
 
-                return render( request, self.template_name, context)
+                return render(request, self.template_name, context)
             else:
                 # TODO: hide real user data
                 username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else request.POST['username']
@@ -109,50 +113,6 @@ class DashboardView(LoginRequiredMixin, View):
             'ew_groups': ew_groups,
             'aha_fields': aha_fields
         })
-
-    def post(self, request, *args, **kwargs):
-        class_time = EnrollClassTime.objects.filter(
-            group_id=request.POST['group_id']).first()
-
-        aha_auth_data = AHACredentials.objects.filter(user=request.user).last()
-        enroll_group = EnrollWareGroup.objects.filter(group_id=request.POST['group_id']).first()
-
-        group_data = {
-            'course': request.POST['course'],
-            'language': "English",
-            'location': request.POST['location'] + " ",
-            'tc': request.POST['training_center'],
-            'ts': request.POST['training_site'],
-            'instructor': request.POST['instructor'],
-            'date': class_time.date,
-            'from': class_time.start,
-            'to': class_time.end,
-            'class_description': request.POST['class_description'],
-            'roster_limit': request.POST['roster_limit'],
-            'roster_date': request.POST['cutoff_date'],
-            'class_notes': request.POST['class_notes']
-        }
-
-        #TODO: fix user literal
-
-        MAPPER_FIELDS = (AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION, AHAField.FIELD_TYPES.INSTRUCTOR)
-
-        # TODO: parallel function
-        for field in MAPPER_FIELDS:
-
-            Mapper.objects.update_or_create(
-                aha_field=AHAField.objects.filter(type=field).first(),
-                enroll_value=getattr(enroll_group, field),
-                user=request.user,
-                defaults={'aha_value': request.POST[field]}
-            )
-
-        exporter = AHAExporter(aha_auth_data.username, aha_auth_data.password, group_data)
-
-        # TODO: handle error, show message
-        exporter.run()
-
-        return redirect(reverse_lazy('dashboard:manage'))
 
 
 class SyncView(LoginRequiredMixin, View):

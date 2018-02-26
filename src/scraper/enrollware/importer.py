@@ -201,7 +201,11 @@ class ClassImporter:
 
     def get_instructor(self):
         select_id = 'mainContent_instructorId'
-        return get_select_value_by_id(self.class_page, select_id)
+        instructor = get_select_value_by_id(self.class_page, select_id)
+        if instructor == "--Choose--":
+            return "Instructor doesn't selected"
+        else:
+            return instructor
 
     def get_class_times(self):
 

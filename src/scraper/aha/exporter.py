@@ -110,7 +110,7 @@ class AHAExporter(AHABase):
         element_limit = "//input[@id='numberOfStudents']"
         self.browser.find_element_by_xpath(element_limit).send_keys(value_roster_limit)
 
-        value_roster_date = self.group_data['roster_date']
+        value_roster_date = self.group_data['cutoff_date']
         element_date = "//input[@id='enrollCutOffDate']"
         element = self.browser.find_element_by_xpath(element_date)
         self.browser.execute_script("arguments[0].value = '" + value_roster_date + "'", element)
@@ -135,7 +135,7 @@ class AHAExporter(AHABase):
         self.paste_date()
         self.paste_roster_settings()
         self.paste_notes()
-        self.save_button()
+        # self.save_button()
 
 
 if __name__ == '__main__':

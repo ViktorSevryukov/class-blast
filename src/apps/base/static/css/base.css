@@ -1,6 +1,6 @@
 #header {
     display: flex;
-    justify-content: flex-end;
+    justify-content: end;
     margin: 1em 1em;
 }
 
