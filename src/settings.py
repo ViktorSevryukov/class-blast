@@ -74,7 +74,7 @@ WSGI_APPLICATION = 'wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'class-blast',
+        'NAME': 'blast',
         'USER': 'postgres',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
@@ -134,7 +134,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'var', 'www', 'media')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-STATICFILES_DIRS = ( os.path.join('static'), )
+# STATICFILES_DIRS = ( os.path.join('static'),)
 
 LOGIN_REDIRECT_URL = '/dashboard/services_login/'
 
