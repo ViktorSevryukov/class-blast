@@ -3,15 +3,14 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime, \
-    EnrollWareCredentials, AHACredentials, Mapper
+from apps.core.forms import AHALoginForm, EnrollLoginForm
+from apps.core.models import EnrollWareGroup, AHAField, \
+    EnrollWareCredentials, AHACredentials
 from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
 
-from .forms import AHALoginForm, EnrollLoginForm
 
 import logging
-from apps.core.tasks import export_to_aha
 
 logger = logging.getLogger('aha_export')
 

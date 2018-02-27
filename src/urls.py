@@ -7,6 +7,7 @@ urlpatterns = [
     url(r'^$', root),
     url(r'^admin/', admin.site.urls),
     url(r'^auth/', include('apps.auth_core.urls', namespace='auth')),
-    url(r'^dashboard/', include('apps.core.urls', namespace='dashboard'))
+    url(r'^dashboard/', include('apps.core.urls', namespace='dashboard')),
+    url(r'^api/v1/', include('apps.core.urls.api', namespace='api'))
 ]
 

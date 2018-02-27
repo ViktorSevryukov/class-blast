@@ -83,17 +83,15 @@ function prepareGroups(){
 
 function exportGroups() {
     var groupsData = prepareGroups();
-    console.log(groupsData);
     exportButton.hide();
     loader.show();
 
     var json_data = JSON.stringify(groupsData)
 
     $.post({
-        url: '/dashboard/export/',
+        url: '/api/v1/export/',
         data: {'groups': json_data},
         success: function (data) {
-            console.log(data);
              if (typeof data.tasks !== 'undefined') {
                  checkStatusInterval = setInterval(function () {
                      check_tasks(data.tasks)
@@ -110,11 +108,10 @@ function check_tasks(tasks_list) {
     var json_data = JSON.stringify(tasks_list)
 
     $.post({
-        url: '/dashboard/check_tasks/',
+        url: '/api/v1/check_tasks/',
         data: {'tasks': json_data},
         success: function(data) {
             handleResponse(data);
-            console.log(data)
         },
         dataType: 'json'
     })

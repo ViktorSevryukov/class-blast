@@ -67,7 +67,7 @@ def export_group(request):
 
 
 @api_view(['POST'])
-def tasks_progress(request):
+def check_tasks(request):
     try:
         tasks = json.loads(request.data['tasks'])
 
