@@ -1,5 +1,6 @@
 import json
 
+from celery.result import AsyncResult
 from django.utils.translation import ugettext_lazy as _
 
 from rest_framework import status
@@ -61,4 +62,23 @@ def export_group(request):
 
         task = export_to_aha.delay(aha_auth_data.username, aha_auth_data.password, group_data)
         tasks.append(task.id)
+
     return Response({'details':  _("Tasks in progress"), 'tasks': tasks}, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def tasks_progress(request):
+    try:
+        tasks = json.loads(request.data['tasks'])
+
+    except:
+        return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+    for task in tasks:
+        if not AsyncResult(task).ready():
+            return Response({'code': 'WAIT'})
+
+    return Response({'code': 'SUCCESS'})
+
+
+
