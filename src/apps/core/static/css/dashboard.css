@@ -47,3 +47,7 @@ select{
     justify-content: center;
     margin: 2rem;
 }
+
+#export-loader{
+    display: none;
+}

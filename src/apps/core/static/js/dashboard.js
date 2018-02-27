@@ -10,7 +10,12 @@ const htmlFields = {
     classNotes: '#aha-class-notes-'
 };
 
+
+var checkStatusInterval = null;
+var exportButton = $('#export-button');
+var loader = $('#export-loader');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
@@ -24,6 +29,19 @@ $.ajaxSetup({
     }
 });
 
+function stopChecking(){
+    if (checkStatusInterval !== null)
+            clearInterval(checkStatusInterval);
+}
+
+function handleResponse(data) {
+
+    if (data.code === 'SUCCESS') {
+        stopChecking();
+        loader.hide();
+        exportButton.show();
+    }
+}
 
 function getFieldId(name, groupId) {
     return htmlFields[name] + groupId;
@@ -65,16 +83,38 @@ function prepareGroups(){
 
 function exportGroups() {
     var groupsData = prepareGroups();
-    console.log(groupsData)
+    exportButton.hide();
+    loader.show();
 
     var json_data = JSON.stringify(groupsData)
 
     $.post({
-        url: '/dashboard/export/',
+        url: '/api/v1/export/',
         data: {'groups': json_data},
         success: function (data) {
-            console.log(data);
+             if (typeof data.tasks !== 'undefined') {
+                 checkStatusInterval = setInterval(function () {
+                     check_tasks(data.tasks)
+                 }, 5000);
+
+             }
         },
         dataType: 'json'
     })
 }
+
+function check_tasks(tasks_list) {
+
+    var json_data = JSON.stringify(tasks_list)
+
+    $.post({
+        url: '/api/v1/check_tasks/',
+        data: {'tasks': json_data},
+        success: function(data) {
+            handleResponse(data);
+        },
+        dataType: 'json'
+    })
+}
+
+
