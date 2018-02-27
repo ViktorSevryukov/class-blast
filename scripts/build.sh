@@ -9,5 +9,6 @@ pip install -r requirements.txt
 ./src/manage.py collectstatic --noinput
 
 sudo supervisorctl restart class-blast_uwsgi
+sudo supervisorctl restart class-blast-celery
 
 #sudo service nginx restart
