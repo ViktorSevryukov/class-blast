@@ -48,6 +48,11 @@ select{
     margin: 2rem;
 }
 
-#export-loader{
+#loader-wrapper{
     display: none;
+}
+
+#export-loader{
+    max-width: 50px;
+    height: auto;
 }

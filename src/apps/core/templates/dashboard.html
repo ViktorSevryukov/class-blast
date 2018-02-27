@@ -128,11 +128,15 @@
         </div>
 
         <div class="export-controls">
+        <div id="loader-wrapper">
+          <span>Please, wait... </span>
+                <img src="{% static "img/loader.gif" %}"
+             id="export-loader" class="loader">
+        </div>
             <button class="btn btn-primary" id="export-button" onclick="exportGroups()">Export to AHA</button>
         </div>
 
-        <img src="{% static "img/loader.gif" %}"
-             id="export-loader" class="loader">
+
 
         <form method="post" action={% url 'dashboard:sync' %}>
             {% csrf_token %}

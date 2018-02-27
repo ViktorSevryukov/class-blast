@@ -13,7 +13,7 @@ const htmlFields = {
 
 var checkStatusInterval = null;
 var exportButton = $('#export-button');
-var loader = $('#export-loader');
+var loaderWrapper = $('#loader-wrapper');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
 
@@ -38,7 +38,7 @@ function handleResponse(data) {
 
     if (data.code === 'SUCCESS') {
         stopChecking();
-        loader.hide();
+        loaderWrapper.hide();
         exportButton.show();
     }
 }
@@ -84,7 +84,7 @@ function prepareGroups(){
 function exportGroups() {
     var groupsData = prepareGroups();
     exportButton.hide();
-    loader.show();
+    loaderWrapper.show();
 
     var json_data = JSON.stringify(groupsData)
 
