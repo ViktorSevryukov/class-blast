@@ -32,6 +32,7 @@ def export_group(request):
         aha_auth_data = AHACredentials.objects.filter(user=user).last()
 
         group_data = {
+            'enroll_id': enroll_group.id,
             'course': group['aha_data']['course'],
             'language': "English",
             'location': group['aha_data']['location'] + " ",
