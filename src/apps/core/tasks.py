@@ -10,21 +10,20 @@ def export_to_aha(username, password, group_data):
     exporter = AHAExporter(username, password, group_data)
 
     print("task ...")
-    current_id = group_data['enroll_id']
-    current_group = EnrollWareGroup.objects.filter(id=current_id).first()
-    current_group.status = EnrollWareGroup.STATUS_CHOICES.IN_PROGRESS
-    current_group.save()
+    ew_group = EnrollWareGroup.objects.filter(
+        id=group_data['enroll_id']).first()
+    ew_group.status = EnrollWareGroup.STATUS_CHOICES.IN_PROGRESS
+    ew_group.save()
     # TODO: handle error, show message
     try:
-        time.sleep(5)
         print("TRY")
+        exporter.run()
     except Exception as e:
         print("not ok")
-        current_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
-        current_group.save()
+        ew_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
     else:
-        current_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
-        current_group.save()
-        pass
+        ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
+
+    ew_group.save()
+
     print("ok")
-    return True
