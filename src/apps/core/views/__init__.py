@@ -103,7 +103,7 @@ class DashboardView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         ew_groups = EnrollWareGroup.objects.filter(
             user_id=request.user.id,
-            synced=False
+            status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED
         )
 
         aha_fields = {field.type: field.value for field in AHAField.objects.all()}
