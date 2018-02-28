@@ -3,12 +3,29 @@ import json
 from celery.result import AsyncResult
 from django.utils.translation import ugettext_lazy as _
 
-from rest_framework import status
+from rest_framework import status, permissions
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from apps.core.models import EnrollWareGroup, EnrollClassTime, AHACredentials, AHAField, Mapper
-from apps.core.tasks import export_to_aha
+from apps.core.tasks import export_to_aha, import_enroll_groups
+
+
+class ImportEnroll(APIView):
+
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, format=None):
+        credentials = request.user.enrollwarecredentials.first()
+
+        if credentials:
+            username = credentials.username
+            password = credentials.password
+
+            task = import_enroll_groups.delay(username, password, request.user.id)
+            return Response({'details': _("Task in progress"), 'tasks': [task.id]})
+        return Response({'details': _("Credentials not valid")}, status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])

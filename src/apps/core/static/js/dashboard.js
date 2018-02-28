@@ -24,39 +24,51 @@ function csrfSafeMethod(method) {
     return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
 }
 $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
+    beforeSend: function (xhr, settings) {
         if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
         }
     }
 });
 
-function stopChecking(){
+function stopChecking() {
     if (checkStatusInterval !== null)
-            clearInterval(checkStatusInterval);
+        clearInterval(checkStatusInterval);
 }
 
-function handleResponse(data) {
+function handleResponse(data, type) {
 
-    if (data.code === 'SUCCESS') {
-        stopChecking();
-        loaderWrapper.hide();
-        exportControls.show();  
-        $(exportButton).prop( "disabled", false );
-        alert("Export success, check AHA classes");
-        location.reload();
+    if (type === 'import') {
+        console.log(data, type);
+        if (data.code === 'SUCCESS') {
+            stopChecking();
+            alert("Import successfully ended");
+            location.reload();
+        }
     }
+
+    if (type === 'export') {
+        if (data.code === 'SUCCESS') {
+            stopChecking();
+            // loaderWrapper.hide();
+            // exportControls.show();
+            // $(exportButton).prop("disabled", false);
+            alert("Export success, check AHA classes");
+            location.reload();
+        }
+    }
+
 }
 
 function getFieldId(name, groupId) {
     return htmlFields[name] + groupId;
 }
 
-function prepareFields(groupId){
+function prepareFields(groupId) {
 
     // validate description field
     var classDescrEl = $(getFieldId('classDescription', groupId));
-    if (classDescrEl.val() === ''){
+    if (classDescrEl.val() === '') {
         classDescrEl.focus();
         return {
             is_valid: false
@@ -80,9 +92,9 @@ function prepareFields(groupId){
     };
 }
 
-function prepareGroups(){
+function prepareGroups() {
     var groupsData = [];
-    var idSelector = function() {
+    var idSelector = function () {
         return this.id.replace('check-', '');
     };
 
@@ -126,34 +138,52 @@ function exportGroups() {
         url: '/api/v1/export/',
         data: {'groups': json_data},
         success: function (data) {
-             if (typeof data.tasks !== 'undefined') {
-                 checkStatusInterval = setInterval(function () {
-                     check_tasks(data.tasks)
-                 }, 5000);
+            if (typeof data.tasks !== 'undefined') {
+                checkStatusInterval = setInterval(function () {
+                    check_tasks(data.tasks, 'export')
+                }, 5000);
 
-             }
+            }
         },
         dataType: 'json'
     })
 }
 
-function check_tasks(tasks_list) {
+function importFromEnroll() {
+    exportControls.hide();
+    loaderWrapper.show();
+    $.get({
+        url: '/api/v1/import/',
+        data: {},
+        success: function (data) {
+            if (typeof data.tasks !== 'undefined') {
+                checkStatusInterval = setInterval(function () {
+                    check_tasks(data.tasks, 'import')
+                }, 5000);
+
+            }
+        },
+        dataType: 'json'
+    })
+}
+
+function check_tasks(tasks_list, type) {
 
     var json_data = JSON.stringify(tasks_list)
 
     $.post({
         url: '/api/v1/check_tasks/',
         data: {'tasks': json_data},
-        success: function(data) {
-            handleResponse(data);
+        success: function (data) {
+            handleResponse(data, type);
         },
         dataType: 'json'
     })
 }
 
 
-function checkExportAvailable(){
+function checkExportAvailable() {
     var checkedCount = $('.group-check:checkbox:checked').length;
-    $(exportButton).prop( "disabled", !checkedCount)
+    $(exportButton).prop("disabled", !checkedCount)
 }
 

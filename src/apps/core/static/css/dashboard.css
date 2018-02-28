@@ -63,6 +63,10 @@ select{
     margin-right: 2rem;
 }
 
+.export-form{
+    margin-left: 2rem;
+}
+
 .pagination-nav{
     margin: 1rem;
 }

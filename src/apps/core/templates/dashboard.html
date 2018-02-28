@@ -181,18 +181,18 @@
     <div id="controls-panel">
 
       <div id="loader-wrapper">
-        <span>Export in progress... </span>
+        <span>Process in progress... </span>
         <img src="{% static "img/loader.gif" %}"
              id="export-loader" class="loader">
       </div>
 
       <div id="export-controls">
-        <div class="sync-form">
-          <form method="post" action={% url 'dashboard:sync' %}>
-            {% csrf_token %}
-            <button type="submit" class="btn btn-secondary">SYNC</button>
-          </form>
+        <div class="import-form">
+          <button class="btn btn-primary" id="sync-button"
+                  onclick="importFromEnroll()">Sync
+          </button>
         </div>
+
         <div class="export-form">
           <button disabled class="btn btn-primary" id="export-button"
                   onclick="exportGroups()">Export to AHA
