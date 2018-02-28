@@ -17,7 +17,7 @@ def export_to_aha(username, password, group_data):
     # TODO: handle error, show message
     try:
         print("TRY")
-        # exporter.run()
+        exporter.run()
     except Exception as e:
         # print("not ok")
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
