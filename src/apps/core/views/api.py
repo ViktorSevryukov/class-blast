@@ -91,8 +91,12 @@ def check_tasks(request):
 
     except:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
-
+#TODO: some of taks can be SUCCESS, but other will be ERROR
+    failed_tasks_list = []
     for task in tasks:
+        if AsyncResult(task).failed():
+            failed_tasks_list.append(task)
+            return Response({failed_tasks_list})
         if not AsyncResult(task).ready():
             return Response({'code': 'WAIT'})
 

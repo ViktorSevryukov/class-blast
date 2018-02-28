@@ -39,7 +39,6 @@ function stopChecking() {
 function handleResponse(data, type) {
 
     if (type === 'import') {
-        console.log(data, type);
         if (data.code === 'SUCCESS') {
             stopChecking();
             alert("Import successfully ended");
