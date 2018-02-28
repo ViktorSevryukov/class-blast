@@ -32,8 +32,8 @@
                     <tr id="row-group-{{ ew_group.id }}">
                         <td>
                             <div class="form-check">
-                                <input id="check-{{ ew_group.id }}" class="check-control form-check-input"
-                                       type="checkbox">
+                                <input id="check-{{ ew_group.id }}" class="group-check check-control"
+                                       type="checkbox" onclick="checkClick()">
                             </div>
                         </td>
                         <td class="td-md"><span>{{ ew_group.course }}</span></td>
@@ -133,7 +133,7 @@
                 <img src="{% static "img/loader.gif" %}"
                      id="export-loader" class="loader">
             </div>
-            <button class="btn btn-primary" id="export-button" onclick="exportGroups()">Export to AHA</button>
+            <button disabled class="btn btn-primary" id="export-button" onclick="exportGroups()">Export to AHA</button>
         </div>
 
 

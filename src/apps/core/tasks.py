@@ -1,5 +1,3 @@
-import time
-
 from apps.core.celery import app
 from scraper.aha.exporter import AHAExporter
 from apps.core.models import EnrollWareGroup

@@ -39,7 +39,7 @@ function handleResponse(data) {
     if (data.code === 'SUCCESS') {
         stopChecking();
         loaderWrapper.hide();
-        exportButton.show();
+        $(exportButton).prop( "disabled", false );
         alert("Export success, check AHA classes");
         location.reload();
     }
@@ -50,6 +50,16 @@ function getFieldId(name, groupId) {
 }
 
 function prepareFields(groupId){
+
+    // validate description field
+    var classDescrEl = $(getFieldId('classDescription', groupId));
+    if (classDescrEl.val() === ''){
+        classDescrEl.focus();
+        return {
+            is_valid: false
+        };
+    }
+
     var fields = {
         'course': $(getFieldId('course', groupId)).val(),
         'location': $(getFieldId('location', groupId)).val(),
@@ -58,10 +68,13 @@ function prepareFields(groupId){
         'ts': $(getFieldId('ts', groupId)).val(),
         'roster_limit': $(getFieldId('rosterLimit', groupId)).val(),
         'cutoff_date': $(getFieldId('cutoffDate', groupId)).val(),
-        'class_description': $(getFieldId('classDescription', groupId)).val(),
+        'class_description': classDescrEl.val(),
         'class_notes': $(getFieldId('classNotes', groupId)).val()
     };
-    return fields;
+    return {
+        is_valid: true,
+        data: fields
+    };
 }
 
 function prepareGroups(){
@@ -74,21 +87,37 @@ function prepareGroups(){
 
     for (var i in groupIds) {
         var groupId = groupIds[i];
+        var ahaFields = prepareFields(groupId);
+
+        if (!ahaFields.is_valid) {
+            return {is_valid: false}
+        }
+
         var groupData = {
             'enroll_group_id': groupId,
-            'aha_data': prepareFields(groupId)
+            'aha_data': ahaFields.data
         };
         groupsData.push(groupData);
     }
-    return groupsData;
+    return {
+        is_valid: true,
+        data: groupsData
+    };
 }
 
 function exportGroups() {
-    var groupsData = prepareGroups();
+    var groups = prepareGroups();
+
+    if (!groups.is_valid)
+        return {is_valid: false}
+
+    if (groups.data.length === 0)
+        return alert('Please, select groups to export')
+
     exportButton.hide();
     loaderWrapper.show();
 
-    var json_data = JSON.stringify(groupsData)
+    var json_data = JSON.stringify(groups.data)
 
     $.post({
         url: '/api/v1/export/',
@@ -119,4 +148,9 @@ function check_tasks(tasks_list) {
     })
 }
 
+
+function checkClick(){
+    var checkedCount = $('.group-check:checkbox:checked').length;
+    $(exportButton).prop( "disabled", !checkedCount)
+}
 
