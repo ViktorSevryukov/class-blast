@@ -17,6 +17,7 @@ var exportButton = $('#export-button')
 var loaderWrapper = $('#loader-wrapper');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
+checkExportAvailable();
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
@@ -151,7 +152,7 @@ function check_tasks(tasks_list) {
 }
 
 
-function checkClick(){
+function checkExportAvailable(){
     var checkedCount = $('.group-check:checkbox:checked').length;
     $(exportButton).prop( "disabled", !checkedCount)
 }

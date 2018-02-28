@@ -62,3 +62,7 @@ select{
 .sync-form{
     margin-right: 2rem;
 }
+
+.pagination-nav{
+    margin: 1rem;
+}

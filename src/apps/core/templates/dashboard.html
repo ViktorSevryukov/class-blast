@@ -33,7 +33,7 @@
                         <td>
                             <div class="form-check">
                                 <input id="check-{{ ew_group.id }}" class="group-check check-control"
-                                       type="checkbox" onclick="checkClick()">
+                                       type="checkbox" onclick="checkExportAvailable()">
                             </div>
                         </td>
                         <td class="td-md"><span>{{ ew_group.course }}</span></td>
@@ -136,7 +136,7 @@
     </div>
 
     <!-- PAGINATION -->
-    <nav>
+    <nav class="pagination-nav">
         <ul class="pagination justify-content-center">
             <li class="page-item">
                 {% if page_obj.has_previous %}
