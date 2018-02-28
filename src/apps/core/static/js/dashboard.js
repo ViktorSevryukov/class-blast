@@ -13,6 +13,7 @@ const htmlFields = {
 
 var checkStatusInterval = null;
 var exportControls = $('#export-controls');
+var exportButton = $('#export-button')
 var loaderWrapper = $('#loader-wrapper');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
@@ -39,7 +40,10 @@ function handleResponse(data) {
     if (data.code === 'SUCCESS') {
         stopChecking();
         loaderWrapper.hide();
-        exportControls.show();
+        exportControls.show();  
+        $(exportButton).prop( "disabled", false );
+        alert("Export success, check AHA classes");
+        location.reload();
     }
 }
 
@@ -146,4 +150,9 @@ function check_tasks(tasks_list) {
     })
 }
 
+
+function checkClick(){
+    var checkedCount = $('.group-check:checkbox:checked').length;
+    $(exportButton).prop( "disabled", !checkedCount)
+}
 

@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
+from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from apps.core.forms import AHALoginForm, EnrollLoginForm
@@ -95,23 +96,27 @@ class ServicesLoginView(View):
         return render(request, self.template_name, {'form': form})
 
 
-class DashboardView(LoginRequiredMixin, View):
+class DashboardView(LoginRequiredMixin, ListView):
+
+    model = EnrollWareGroup
     template_name = 'dashboard.html'
+    context_object_name = 'ew_groups'
+    paginate_by = 10
     login_url = '/auth/login/'
     redirect_field_name = ''
 
-    def get(self, request, *args, **kwargs):
-        ew_groups = EnrollWareGroup.objects.filter(
-            user_id=request.user.id,
+    def get_queryset(self):
+        qs = self.model.objects.filter(
+            user_id=self.request.user.id,
             status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED
         )
+        return qs
 
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
         aha_fields = {field.type: field.value for field in AHAField.objects.all()}
-
-        return render(request, self.template_name, {
-            'ew_groups': ew_groups,
-            'aha_fields': aha_fields
-        })
+        context['aha_fields'] = aha_fields
+        return context
 
 
 class SyncView(LoginRequiredMixin, View):
