@@ -12,7 +12,7 @@ const htmlFields = {
 
 
 var checkStatusInterval = null;
-var exportButton = $('#export-button');
+var exportControls = $('#export-controls');
 var loaderWrapper = $('#loader-wrapper');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
@@ -39,7 +39,7 @@ function handleResponse(data) {
     if (data.code === 'SUCCESS') {
         stopChecking();
         loaderWrapper.hide();
-        exportButton.show();
+        exportControls.show();
     }
 }
 
@@ -112,7 +112,7 @@ function exportGroups() {
     if (groups.data.length === 0)
         return alert('Please, select groups to export')
 
-    exportButton.hide();
+    exportControls.hide();
     loaderWrapper.show();
 
     var json_data = JSON.stringify(groups.data)
