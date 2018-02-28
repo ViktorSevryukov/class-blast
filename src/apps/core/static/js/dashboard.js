@@ -40,6 +40,8 @@ function handleResponse(data) {
         stopChecking();
         loaderWrapper.hide();
         exportButton.show();
+        alert("Export success, check AHA classes");
+        location.reload();
     }
 }
 
