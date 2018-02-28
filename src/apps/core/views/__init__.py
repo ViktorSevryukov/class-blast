@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 
 from apps.core.forms import AHALoginForm, EnrollLoginForm
 from apps.core.models import EnrollWareGroup, AHAField, \
@@ -107,8 +108,8 @@ class DashboardView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = self.model.objects.filter(
+            Q(status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED) | Q(status=EnrollWareGroup.STATUS_CHOICES.ERROR),
             user_id=self.request.user.id,
-            status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED
         )
         return qs
 

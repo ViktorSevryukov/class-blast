@@ -36,7 +36,9 @@
                                        type="checkbox" onclick="checkExportAvailable()">
                             </div>
                         </td>
-                        <td class="td-md"><span>{{ ew_group.course }}</span></td>
+                        <td class="td-md"><span
+                                {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}
+                                class="text-danger" {% endif %}>{{ ew_group.course }}</span></td>
                         <td class="td-md">
                             <select id="aha-course-{{ ew_group.id }}" name="course" class="form-control">
                                 {% for option in aha_fields.course %}
