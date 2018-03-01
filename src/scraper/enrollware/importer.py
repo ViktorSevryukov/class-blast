@@ -71,7 +71,7 @@ class ClassImporter:
         self.classes_data = []
         self.classes_times = []
         #TODO: synced should be False or True, what we will do with synced groups?!
-        self.existing_groups = list(EnrollWareGroup.objects.filter(user=user, status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED).values_list('group_id', flat=True))
+        self.existing_groups = list(EnrollWareGroup.objects.filter(user=user).values_list('group_id', flat=True))
 
     def run(self):
         logger.info("\n\nSCRAPER LOGGER \n")
