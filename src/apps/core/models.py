@@ -182,13 +182,13 @@ class BaseCredentials(TimeStampedModel):
 class AHACredentials(BaseCredentials):
 
     class Meta:
-        verbose_name = _("aha_credential")
-        verbose_name_plural = _("aha_credentials")
+        verbose_name = _("aha credential")
+        verbose_name_plural = _("aha credentials")
 
 
 class EnrollWareCredentials(BaseCredentials):
 
     class Meta:
-        verbose_name = _("enroll_credential")
-        verbose_name_plural = _("enroll_credentials")
+        verbose_name = _("enroll credential")
+        verbose_name_plural = _("enroll credentials")
 
