@@ -5,6 +5,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from apps.core.models import AHAField
 from scraper.aha.base import AHABase
 
+import logging
+
+logger = logging.getLogger('aha_import')
+
 SETTINGS = {
     'username': 'jason.j.boudreault@gmail.com',
     'password': 'Thecpr1'
@@ -49,33 +53,34 @@ class AHAImporter(AHABase):
         self.browser.find_element_by_xpath(xpath).click()
 
     def get_course(self):
+        logger.info("AHA IMPORT GETTING COURSE \n")
         courses_list = self.get_options_by_select_id('courseId')
-        print("Courses:", courses_list)
         course_obj = AHAField(type=AHAField.FIELD_TYPES.COURSE, value=courses_list)
         return self.group_data.append(course_obj)
 
     def get_language(self):
+        logger.info("AHA IMPORT GETTING LANGUAGE \n")
         languages_list = self.get_options_by_select_id('languageId')
-        print("Languages:", languages_list)
         language_obj = AHAField(type=AHAField.FIELD_TYPES.LANGUAGE, value=languages_list)
         return self.group_data.append(language_obj)
 
     def get_location(self):
+        logger.info("AHA IMPORT GETTING LOCATION \n")
         locations_list = self.get_options_by_select_id('locationId', remove_first=True)
-        print("Locations:", locations_list)
         location_obj = AHAField(type=AHAField.FIELD_TYPES.LOCATION, value=locations_list)
         return self.group_data.append(location_obj)
 
     def get_tc(self):
+        logger.info("AHA IMPORT GETTING TCs \n")
         #TODO: search TC for each Course
         self.click_on_first_option(select_id='courseId')
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tcNames')))
         tc_list = self.get_options_by_select_id('tcId')
-        print("Training Centers:", tc_list)
         tc_obj = AHAField(type=AHAField.FIELD_TYPES.TC, value=tc_list)
         return self.group_data.append(tc_obj)
 
     def get_ts(self):
+        logger.info("AHA IMPORT GETTING TSs \n")
         self.click_on_first_option(select_id='tcId')
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tsNames')))
         ts_list = self.get_options_by_select_id('tcSiteId')
@@ -84,12 +89,14 @@ class AHAImporter(AHABase):
         return self.group_data.append(ts_obj)
 
     def get_instructors(self):
+        logger.info("AHA IMPORT GETTING INSTRUCTORS \n")
         instructor_list = self.get_options_by_select_id('instructorId')
         print("Instructors:", instructor_list)
         instructor_obj = AHAField(type=AHAField.FIELD_TYPES.INSTRUCTOR, value=instructor_list)
         return self.group_data.append(instructor_obj)
 
     def get_fields(self):
+        logger.info("AHA IMPORTER FIELDS GETTING \n")
         self.get_course()
         self.get_language()
         self.get_location()
@@ -101,6 +108,7 @@ class AHAImporter(AHABase):
         AHAField.objects.bulk_create(self.group_data)
 
     def run(self):
+            logger.info("AHA IMPORTER RUNNING \n")
             self.login()
             self.go_to_add_class_page()
             self.get_fields()

@@ -1,21 +1,26 @@
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
+from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q
 
-from apps.core.models import EnrollWareGroup, AHAField, EnrollClassTime, \
-    EnrollWareCredentials, AHACredentials, Mapper
-from scraper.aha.exporter import AHAExporter
+from apps.core.forms import AHALoginForm, EnrollLoginForm
+from apps.core.models import EnrollWareGroup, AHAField, \
+    EnrollWareCredentials, AHACredentials
 from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
 
-from .forms import AHALoginForm, EnrollLoginForm
+
+import logging
+
+logger = logging.getLogger('aha_export')
 
 
 class ServicesLoginView(View):
     template_name = 'services_login.html'
 
-    TEST_MODE = False
+    TEST_MODE = True
 
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
@@ -62,7 +67,7 @@ class ServicesLoginView(View):
                     defaults={'password': request.POST['password']}
                 )
 
-                return render( request, self.template_name, context)
+                return render(request, self.template_name, context)
             else:
                 # TODO: hide real user data
                 username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else request.POST['username']
@@ -92,67 +97,27 @@ class ServicesLoginView(View):
         return render(request, self.template_name, {'form': form})
 
 
-class DashboardView(LoginRequiredMixin, View):
+class DashboardView(LoginRequiredMixin, ListView):
+
+    model = EnrollWareGroup
     template_name = 'dashboard.html'
+    context_object_name = 'ew_groups'
+    paginate_by = 10
     login_url = '/auth/login/'
     redirect_field_name = ''
 
-    def get(self, request, *args, **kwargs):
-        ew_groups = EnrollWareGroup.objects.filter(
-            user_id=request.user.id,
-            synced=False
+    def get_queryset(self):
+        qs = self.model.objects.filter(
+            Q(status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED) | Q(status=EnrollWareGroup.STATUS_CHOICES.ERROR),
+            user_id=self.request.user.id,
         )
+        return qs
 
+    def get_context_data(self, **kwargs):
+        context = super(DashboardView, self).get_context_data(**kwargs)
         aha_fields = {field.type: field.value for field in AHAField.objects.all()}
-
-        return render(request, self.template_name, {
-            'ew_groups': ew_groups,
-            'aha_fields': aha_fields
-        })
-
-    def post(self, request, *args, **kwargs):
-        class_time = EnrollClassTime.objects.filter(
-            group_id=request.POST['group_id']).first()
-
-        aha_auth_data = AHACredentials.objects.filter(user=request.user).last()
-        enroll_group = EnrollWareGroup.objects.filter(group_id=request.POST['group_id']).first()
-
-        group_data = {
-            'course': request.POST['course'],
-            'language': "English",
-            'location': request.POST['location'] + " ",
-            'tc': request.POST['training_center'],
-            'ts': request.POST['training_site'],
-            'instructor': request.POST['instructor'],
-            'date': class_time.date,
-            'from': class_time.start,
-            'to': class_time.end,
-            'class_description': request.POST['class_description'],
-            'roster_limit': request.POST['roster_limit'],
-            'roster_date': request.POST['cutoff_date'],
-            'class_notes': request.POST['class_notes']
-        }
-
-        #TODO: fix user literal
-
-        MAPPER_FIELDS = (AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION, AHAField.FIELD_TYPES.INSTRUCTOR)
-
-        # TODO: parallel function
-        for field in MAPPER_FIELDS:
-
-            Mapper.objects.update_or_create(
-                aha_field=AHAField.objects.filter(type=field).first(),
-                enroll_value=getattr(enroll_group, field),
-                user=request.user,
-                defaults={'aha_value': request.POST[field]}
-            )
-
-        exporter = AHAExporter(aha_auth_data.username, aha_auth_data.password, group_data)
-
-        # TODO: handle error, show message
-        exporter.run()
-
-        return redirect(reverse_lazy('dashboard:manage'))
+        context['aha_fields'] = aha_fields
+        return context
 
 
 class SyncView(LoginRequiredMixin, View):

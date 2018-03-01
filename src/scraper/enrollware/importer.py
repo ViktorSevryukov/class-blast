@@ -71,7 +71,7 @@ class ClassImporter:
         self.classes_data = []
         self.classes_times = []
         #TODO: synced should be False or True, what we will do with synced groups?!
-        self.existing_groups = list(EnrollWareGroup.objects.filter(user=user, synced=False).values_list('group_id', flat=True))
+        self.existing_groups = list(EnrollWareGroup.objects.filter(user=user).values_list('group_id', flat=True))
 
     def run(self):
         logger.info("\n\nSCRAPER LOGGER \n")
@@ -153,7 +153,7 @@ class ClassImporter:
             location=group_fields['location'],
             instructor=group_fields['instructor'],
             max_students=group_fields['max_students'],
-            synced=False
+            status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED
         )
 
     def prepare_class_time(self, class_time, group_id):
@@ -201,7 +201,11 @@ class ClassImporter:
 
     def get_instructor(self):
         select_id = 'mainContent_instructorId'
-        return get_select_value_by_id(self.class_page, select_id)
+        instructor = get_select_value_by_id(self.class_page, select_id)
+        if instructor == "--Choose--":
+            return "Instructor doesn't selected"
+        else:
+            return instructor
 
     def get_class_times(self):
 

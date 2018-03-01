@@ -6,6 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from datetime import datetime, timedelta
 from django.dispatch import receiver
 from django.db.models.signals import post_delete
+from model_utils import Choices
 
 from model_utils.models import TimeStampedModel
 from model_utils.choices import Choices
@@ -74,13 +75,21 @@ class AHAClassSchedule(TimeStampedModel):
 
 
 class EnrollWareGroup(TimeStampedModel):
+
+    STATUS_CHOICES = Choices(
+        ('unsynced', 'UNSYNCED', _("Unsynced")),
+        ('synced', 'SYNCED', _("Synced")),
+        ('in_progress', 'IN_PROGRESS', _("In progress")),
+        ('error', 'ERROR', _("Error"))
+    )
+
     user = models.ForeignKey('auth_core.User', related_name='enrollware_groups', verbose_name=_("user"))
     group_id = models.IntegerField(_("group id"))
     course = models.CharField(_("course"), max_length=128, default="")
     location = models.CharField(_("location"), max_length=128, default="")
     instructor = models.CharField(_("instructor"), max_length=64, default="")
     max_students = models.IntegerField(_("max students"), default=0)
-    synced = models.BooleanField(_("synced"), default=False)
+    status = models.CharField(_("status"), max_length=12, choices=STATUS_CHOICES, default=STATUS_CHOICES.UNSYNCED)
 
     class Meta(object):
         verbose_name = _("enroll group")
@@ -182,3 +191,4 @@ class EnrollWareCredentials(BaseCredentials):
     class Meta:
         verbose_name = _("enroll_credential")
         verbose_name_plural = _("enroll_credentials")
+

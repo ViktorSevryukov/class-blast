@@ -42,8 +42,31 @@ select{
     transform: scale(1.5);
 }
 
-.export-controls{
+#export-controls{
     display: flex;
     justify-content: center;
     margin: 2rem;
+}
+
+#loader-wrapper{
+    display: none;
+    text-align: center;
+    margin: 2rem;
+}
+
+#export-loader{
+    /*max-width: 50px;*/
+    height: auto;
+}
+
+.sync-form{
+    margin-right: 2rem;
+}
+
+.export-form{
+    margin-left: 2rem;
+}
+
+.pagination-nav{
+    margin: 1rem;
 }

@@ -10,11 +10,71 @@ const htmlFields = {
     classNotes: '#aha-class-notes-'
 };
 
+
+var checkStatusInterval = null;
+var exportControls = $('#export-controls');
+var exportButton = $('#export-button')
+var loaderWrapper = $('#loader-wrapper');
+var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+
+checkExportAvailable();
+
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function (xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
+
+function stopChecking() {
+    if (checkStatusInterval !== null)
+        clearInterval(checkStatusInterval);
+}
+
+function handleResponse(data, type) {
+
+    if (type === 'import') {
+        console.log(data, type);
+        if (data.code === 'SUCCESS') {
+            stopChecking();
+            alert("Import successfully ended");
+            location.reload();
+        }
+    }
+
+    if (type === 'export') {
+        if (data.code === 'SUCCESS') {
+            stopChecking();
+            // loaderWrapper.hide();
+            // exportControls.show();
+            // $(exportButton).prop("disabled", false);
+            alert("Export success, check AHA classes");
+            location.reload();
+        }
+    }
+
+}
+
 function getFieldId(name, groupId) {
     return htmlFields[name] + groupId;
 }
 
-function prepareFields(groupId){
+function prepareFields(groupId) {
+
+    // validate description field
+    var classDescrEl = $(getFieldId('classDescription', groupId));
+    if (classDescrEl.val() === '') {
+        classDescrEl.focus();
+        return {
+            is_valid: false
+        };
+    }
+
     var fields = {
         'course': $(getFieldId('course', groupId)).val(),
         'location': $(getFieldId('location', groupId)).val(),
@@ -23,15 +83,18 @@ function prepareFields(groupId){
         'ts': $(getFieldId('ts', groupId)).val(),
         'roster_limit': $(getFieldId('rosterLimit', groupId)).val(),
         'cutoff_date': $(getFieldId('cutoffDate', groupId)).val(),
-        'class_description': $(getFieldId('classDescription', groupId)).val(),
+        'class_description': classDescrEl.val(),
         'class_notes': $(getFieldId('classNotes', groupId)).val()
     };
-    return fields;
+    return {
+        is_valid: true,
+        data: fields
+    };
 }
 
-function prepareGroups(){
+function prepareGroups() {
     var groupsData = [];
-    var idSelector = function() {
+    var idSelector = function () {
         return this.id.replace('check-', '');
     };
 
@@ -39,25 +102,88 @@ function prepareGroups(){
 
     for (var i in groupIds) {
         var groupId = groupIds[i];
+        var ahaFields = prepareFields(groupId);
+
+        if (!ahaFields.is_valid) {
+            return {is_valid: false}
+        }
+
         var groupData = {
             'enroll_group_id': groupId,
-            'aha_data': prepareFields(groupId)
+            'aha_data': ahaFields.data
         };
         groupsData.push(groupData);
     }
-    return groupsData;
+    return {
+        is_valid: true,
+        data: groupsData
+    };
 }
 
 function exportGroups() {
-    var groupsData = prepareGroups();
-    console.log(groupsData)
+    var groups = prepareGroups();
+
+    if (!groups.is_valid)
+        return {is_valid: false}
+
+    if (groups.data.length === 0)
+        return alert('Please, select groups to export')
+
+    exportControls.hide();
+    loaderWrapper.show();
+
+    var json_data = JSON.stringify(groups.data)
 
     $.post({
-        url: '/dashboard/export/',
-        data: groupsData,
+        url: '/api/v1/export/',
+        data: {'groups': json_data},
         success: function (data) {
-            console.log(data);
+            if (typeof data.tasks !== 'undefined') {
+                checkStatusInterval = setInterval(function () {
+                    check_tasks(data.tasks, 'export')
+                }, 5000);
+
+            }
         },
         dataType: 'json'
     })
 }
+
+function importFromEnroll() {
+    exportControls.hide();
+    loaderWrapper.show();
+    $.get({
+        url: '/api/v1/import/',
+        data: {},
+        success: function (data) {
+            if (typeof data.tasks !== 'undefined') {
+                checkStatusInterval = setInterval(function () {
+                    check_tasks(data.tasks, 'import')
+                }, 5000);
+
+            }
+        },
+        dataType: 'json'
+    })
+}
+
+function check_tasks(tasks_list, type) {
+
+    var json_data = JSON.stringify(tasks_list)
+
+    $.post({
+        url: '/api/v1/check_tasks/',
+        data: {'tasks': json_data},
+        success: function (data) {
+            handleResponse(data, type);
+        },
+        dataType: 'json'
+    })
+}
+
+
+function checkExportAvailable() {
+    var checkedCount = $('.group-check:checkbox:checked').length;
+    $(exportButton).prop("disabled", !checkedCount)
+}
+

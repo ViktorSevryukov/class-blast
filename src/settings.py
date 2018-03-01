@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'selenium',
     'django_extensions',
+    'rest_framework',
 
     'apps.base',
     'apps.auth_core',
@@ -75,7 +76,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'class-blast',
         'USER': 'postgres',
-        'PASSWORD': '',
+        'PASSWORD': 'postgres',
         'HOST': '127.0.0.1',
         'PORT': '5432'
     }
@@ -133,7 +134,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'var', 'www', 'media')
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 
-STATICFILES_DIRS = ( os.path.join('static'), )
+# STATICFILES_DIRS = ( os.path.join('static'),)
 
 LOGIN_REDIRECT_URL = '/dashboard/services_login/'
 
@@ -153,11 +154,29 @@ LOGGING = {
         }},
 
     'handlers': {
-        'logfile': {
+        'enroll_logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs',
                                      'enrollware_import.log'),
+            'maxBytes': 50000,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'aha_export_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs',
+                                     'aha_export.log'),
+            'maxBytes': 50000,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
+        'aha_import_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs',
+                                     'aha_import.log'),
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',
@@ -170,8 +189,19 @@ LOGGING = {
     },
     'loggers': {
         'enroll': {
-            'handlers': ['logfile', 'console'],
+            'handlers': ['enroll_logfile', 'console'],
             'level': 'DEBUG',
+            'propagate': True
+        },
+        'aha_export': {
+            'handlers': ['aha_export_logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True
+        },
+        'aha_import': {
+            'handlers': ['aha_import_logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True
         },
     },
 }

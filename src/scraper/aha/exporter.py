@@ -36,9 +36,20 @@ class AHAExporter(AHABase):
 
     # TODO: add schedule data items
 
+    def paste_fields(self):
+        self.paste_course()
+        self.paste_language()
+        self.paste_tc()
+        self.paste_ts()
+        self.paste_instructor()
+        self.paste_location()
+        self.paste_date()
+        self.paste_roster_settings()
+        self.paste_notes()
+
     def paste_course(self):
         value = self.group_data['course']
-        element = "//select[@id='courseId']/option[text()='{}']".format(value)
+        # element = "//select[@id='courseId']/option[text()='{}']".format(value)
         element = "//select[@id='courseId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
@@ -49,7 +60,7 @@ class AHAExporter(AHABase):
 
     def paste_tc(self):
         value = self.group_data['tc']
-        element = "//select[@id='tcId']/option[text()='{}']".format(value)
+        # element = "//select[@id='tcId']/option[text()='{}']".format(value)
         element = "//select[@id='tcId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
@@ -78,7 +89,7 @@ class AHAExporter(AHABase):
 
     def paste_location(self):
         value = self.group_data['location']
-        element = "//select[@id='locationId']/option[text()='{}']".format(value)
+        # element = "//select[@id='locationId']/option[text()='{}']".format(value)
         element = "//select[@id='locationId']/option[@value={}]".format(value)
         self.browser.find_element_by_xpath(element).click()
 
@@ -110,7 +121,7 @@ class AHAExporter(AHABase):
         element_limit = "//input[@id='numberOfStudents']"
         self.browser.find_element_by_xpath(element_limit).send_keys(value_roster_limit)
 
-        value_roster_date = self.group_data['roster_date']
+        value_roster_date = self.group_data['cutoff_date']
         element_date = "//input[@id='enrollCutOffDate']"
         element = self.browser.find_element_by_xpath(element_date)
         self.browser.execute_script("arguments[0].value = '" + value_roster_date + "'", element)
@@ -126,18 +137,10 @@ class AHAExporter(AHABase):
     def run(self):
         self.login()
         self.go_to_add_class_page()
-        self.paste_course()
-        self.paste_language()
-        self.paste_tc()
-        self.paste_ts()
-        self.paste_instructor()
-        self.paste_location()
-        self.paste_date()
-        self.paste_roster_settings()
-        self.paste_notes()
+        self.paste_fields()
         self.save_button()
 
-
-if __name__ == '__main__':
-    importer = AHAExporter(SETTINGS['username'], SETTINGS['password'], TEST_DATA)
-    importer.run()
+#
+# if __name__ == '__main__':
+#     importer = AHAExporter(SETTINGS['username'], SETTINGS['password'], TEST_DATA)
+#     importer.run()
