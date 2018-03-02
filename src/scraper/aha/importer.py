@@ -28,8 +28,9 @@ class AHAImporter(AHABase):
         'select': "//select[@id='{select_id}']/option[{filter}]"
     }
 
-    def __init__(self, username, password, *args, **kwargs):
+    def __init__(self, username, password, user, *args, **kwargs):
         super(AHAImporter, self).__init__(username, password, *args, **kwargs)
+        self.user = user
         self.group_data = []
 
     def get_options_by_select_id(self, select_id, remove_first=False):
@@ -55,19 +56,19 @@ class AHAImporter(AHABase):
     def get_course(self):
         logger.info("AHA IMPORT GETTING COURSE \n")
         courses_list = self.get_options_by_select_id('courseId')
-        course_obj = AHAField(type=AHAField.FIELD_TYPES.COURSE, value=courses_list)
+        course_obj = AHAField(type=AHAField.FIELD_TYPES.COURSE, value=courses_list, user=self.user)
         return self.group_data.append(course_obj)
 
     def get_language(self):
         logger.info("AHA IMPORT GETTING LANGUAGE \n")
         languages_list = self.get_options_by_select_id('languageId')
-        language_obj = AHAField(type=AHAField.FIELD_TYPES.LANGUAGE, value=languages_list)
+        language_obj = AHAField(type=AHAField.FIELD_TYPES.LANGUAGE, value=languages_list, user=self.user)
         return self.group_data.append(language_obj)
 
     def get_location(self):
         logger.info("AHA IMPORT GETTING LOCATION \n")
         locations_list = self.get_options_by_select_id('locationId', remove_first=True)
-        location_obj = AHAField(type=AHAField.FIELD_TYPES.LOCATION, value=locations_list)
+        location_obj = AHAField(type=AHAField.FIELD_TYPES.LOCATION, value=locations_list, user=self.user)
         return self.group_data.append(location_obj)
 
     def get_tc(self):
@@ -76,7 +77,7 @@ class AHAImporter(AHABase):
         self.click_on_first_option(select_id='courseId')
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tcNames')))
         tc_list = self.get_options_by_select_id('tcId')
-        tc_obj = AHAField(type=AHAField.FIELD_TYPES.TC, value=tc_list)
+        tc_obj = AHAField(type=AHAField.FIELD_TYPES.TC, value=tc_list, user=self.user)
         return self.group_data.append(tc_obj)
 
     def get_ts(self):
@@ -85,14 +86,14 @@ class AHAImporter(AHABase):
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tsNames')))
         ts_list = self.get_options_by_select_id('tcSiteId')
         print("Training Sites:", ts_list)
-        ts_obj = AHAField(type=AHAField.FIELD_TYPES.TS, value=ts_list)
+        ts_obj = AHAField(type=AHAField.FIELD_TYPES.TS, value=ts_list, user=self.user)
         return self.group_data.append(ts_obj)
 
     def get_instructors(self):
         logger.info("AHA IMPORT GETTING INSTRUCTORS \n")
         instructor_list = self.get_options_by_select_id('instructorId')
         print("Instructors:", instructor_list)
-        instructor_obj = AHAField(type=AHAField.FIELD_TYPES.INSTRUCTOR, value=instructor_list)
+        instructor_obj = AHAField(type=AHAField.FIELD_TYPES.INSTRUCTOR, value=instructor_list, user=self.user)
         return self.group_data.append(instructor_obj)
 
     def get_fields(self):
@@ -105,6 +106,8 @@ class AHAImporter(AHABase):
         self.get_instructors()
 
     def save_to_db(self):
+        print("save_to_db")
+        AHAField.objects.filter(user=self.user).delete()
         AHAField.objects.bulk_create(self.group_data)
 
     def run(self):

@@ -32,7 +32,7 @@ class AHAField(TimeStampedModel):
 
     type = models.CharField(_("type"), max_length=64, choices=FIELD_TYPES, default="")
     value = ArrayField(models.CharField(_("value"), max_length=128, default=""))
-
+    user = models.ForeignKey('auth_core.User', related_name='aha_fields', verbose_name=_("user"))
     class Meta(object):
         verbose_name = _("aha field")
         verbose_name_plural = _("aha field")

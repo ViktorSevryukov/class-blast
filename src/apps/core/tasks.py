@@ -3,7 +3,8 @@ from celery.result import AsyncResult
 from apps.auth_core.models import User
 from apps.core.celery import app
 from scraper.aha.exporter import AHAExporter
-from apps.core.models import EnrollWareGroup, EnrollWareCredentials
+from apps.core.models import EnrollWareGroup, EnrollWareCredentials, AHACredentials
+from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
 
 
@@ -19,16 +20,14 @@ def export_to_aha(username, password, group_data):
     # TODO: handle error, show message
     try:
         print("TRY")
-        # exporter.run()
+        exporter.run()
     except Exception as e:
-        # print("not ok")
+        print("not ok")
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
     else:
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
 
     ew_group.save()
-
-    # print("ok")
 
 
 @app.task
@@ -44,7 +43,6 @@ def import_enroll_groups(username, password, user_id):
 
 @app.task
 def update_enroll_credentials(result):
-    print("OLOLO RESULT:", result)
     user = User.objects.get(id=result['user_id'])
 
     EnrollWareCredentials.objects.update_or_create(
@@ -53,10 +51,27 @@ def update_enroll_credentials(result):
         defaults={'password': result['password']}
     )
 
-
+#TODO: user auth model
 @app.task
-def error_handler(uuid):
-    result = AsyncResult(uuid)
-    exc = result.get(propagate=False)
-    print('Task {0} raised exception: {1!r}\n{2!r}'.format(
-          uuid, exc, result.traceback))
+def import_aha_fields(username, password, user_id):
+    user = User.objects.get(id=user_id)
+    importer = AHAImporter(username, password, user)
+    importer.run()
+    return {
+        'username': username,
+        'password': password,
+        'user_id': user_id
+    }
+
+#TODO: use content type
+@app.task
+def update_aha_credentials(result):
+    user = User.objects.get(id=result['user_id'])
+
+    AHACredentials.objects.update_or_create(
+        username=result['username'],
+        user=user,
+        defaults={'password': result['password']}
+    )
+
+

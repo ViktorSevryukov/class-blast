@@ -1,6 +1,7 @@
 import os
 import sys
 
+import logging
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -20,6 +21,8 @@ try:
     DRIVER_PATH = os.path.join(CURRENT_PATH, '../drivers', WEB_DRIVERS[sys.platform])
 except:
     raise Exception
+
+logger = logging.getLogger('aha_import')
 
 
 class AHABase():
@@ -46,6 +49,7 @@ class AHABase():
         return webdriver.PhantomJS()
 
     def login(self):
+        logger.info("Try to LogIn")
         self.browser.get(self.URLS['login'])
         self.browser.implicitly_wait(10)
 
@@ -59,8 +63,11 @@ class AHABase():
         username_form.send_keys(self.username)
         password_form.send_keys(self.password)
         login_form.find_element_by_class_name("gigya-input-submit").click()
+        logger.info("LogIn click")
 
     def go_to_add_class_page(self):
+        logger.info("Go to class page")
         WebDriverWait(self.browser, 5).until(
             EC.text_to_be_present_in_element((By.TAG_NAME, "strong"), "Welcome!"))
         self.browser.get(self.URLS['add_class'])
+        logger.info("Current URL:", self.browser.current_url)
