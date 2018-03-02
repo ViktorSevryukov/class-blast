@@ -8,6 +8,8 @@ from django.db.models import Q
 from apps.core.forms import AHALoginForm, EnrollLoginForm
 from apps.core.models import EnrollWareGroup, AHAField, \
     EnrollWareCredentials, AHACredentials
+from apps.core.tasks import import_enroll_groups, update_enroll_credentials, error_handler
+from celery import chain
 from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
 
@@ -20,7 +22,7 @@ logger = logging.getLogger('aha_export')
 class ServicesLoginView(View):
     template_name = 'services_login.html'
 
-    TEST_MODE = True
+    TEST_MODE = False
 
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
@@ -49,23 +51,18 @@ class ServicesLoginView(View):
                     'success_auth': False
                 }
 
-                importer = ClassImporter(
-                    username=username,
-                    password=password,
-                    user=request.user
-                )
+                res = chain(
+                    import_enroll_groups.s(username, password, request.user.id),
+                    update_enroll_credentials.s()
+                )()
+
                 try:
-                    importer.run()
+                    res.parent.get()
                     context['success_auth'] = True
                 except:
-                    context['enrollware_error_message'] = \
-                        "Sorry, your login data wrong, please try again"
-
-                EnrollWareCredentials.objects.update_or_create(
-                    username=username,
-                    user=request.user,
-                    defaults={'password': request.POST['password']}
-                )
+                    if res.parent.failed():
+                        context['enrollware_error_message'] = \
+                            "Sorry, your login data wrong, please try again"
 
                 return render(request, self.template_name, context)
             else:

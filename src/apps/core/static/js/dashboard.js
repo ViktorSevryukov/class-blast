@@ -188,3 +188,6 @@ function checkExportAvailable() {
     $(exportButton).prop("disabled", !checkedCount)
 }
 
+function showServicesLoginLoader(){
+    loaderWrapper.show();
+}

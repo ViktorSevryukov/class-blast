@@ -1,7 +1,16 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
 {% block content %}
   <div class="container text-center">
     <h3 class="panel-title">Class Blast</h3>
+
+
+
     <div class="row">
       <div class="col-12 col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
         <!-- ENROLLWARE FORM -->
@@ -43,7 +52,7 @@
             {% endfor %}
           </fieldset>
           <div class="form-actions">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button onclick="showServicesLoginLoader()" type="submit" class="btn btn-primary">Submit</button>
           </div>
           <input type="hidden" name="service_type" value="enroll">
         </form>
@@ -96,7 +105,7 @@
               </fieldset>
 
               <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button onclick="showServicesLoginLoader()" type="submit" class="btn btn-primary">Submit</button>
               </div>
             {% endif %}
           <input type="hidden" name="service_type" value="aha">
@@ -105,6 +114,11 @@
         <!-- /AHA FORM -->
       </div>
     </div>
+        <div id="loader-wrapper">
+{#        <span>Process in progress... </span>#}
+        <img src="{% static "img/loader.gif" %}"
+             id="services-loader" class="loader">
+      </div>
 
 
   </div>
