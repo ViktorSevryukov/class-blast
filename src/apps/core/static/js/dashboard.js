@@ -36,25 +36,14 @@ function stopChecking() {
         clearInterval(checkStatusInterval);
 }
 
-function handleResponse(data, type) {
+function handleResponse(data, msg, redirectUrl) {
 
-    if (type === 'import') {
-        if (data.code === 'SUCCESS') {
-            stopChecking();
-            alert("Import successfully ended");
-            location.reload();
-        }
-    }
 
-    if (type === 'export') {
-        if (data.code === 'SUCCESS') {
-            stopChecking();
-            // loaderWrapper.hide();
-            // exportControls.show();
-            // $(exportButton).prop("disabled", false);
-            alert("Export success, check AHA classes");
+    if (data.code === 'SUCCESS') {
+        stopChecking();
+        alert(msg);
+        if (!redirectUrl)
             location.reload();
-        }
     }
 
 }
@@ -139,42 +128,55 @@ function exportGroups() {
         success: function (data) {
             if (typeof data.tasks !== 'undefined') {
                 checkStatusInterval = setInterval(function () {
-                    check_tasks(data.tasks, 'export')
+                    check_tasks(data.tasks, 'Export success', null)
                 }, 5000);
-
             }
         },
         dataType: 'json'
     })
 }
 
-function importFromEnroll() {
-    exportControls.hide();
-    loaderWrapper.show();
+function sync() {
+    var elementsToHide = [exportControls];
+    var elementsToShow = [loaderWrapper];
+    importFromEnroll(elementsToHide, elementsToShow)
+}
+
+function importFromEnroll(elementsToHide, elementsToShow) {
+
+    // hide elements
+    for (var i in elementsToHide) {
+        elementsToHide[i].hide()
+    }
+
+    // show elements
+    for (var i in elementsToShow) {
+        elementsToShow[i].show()
+    }
+
     $.get({
         url: '/api/v1/import/',
         data: {},
         success: function (data) {
             if (typeof data.tasks !== 'undefined') {
                 checkStatusInterval = setInterval(function () {
-                    check_tasks(data.tasks, 'import')
+                    check_tasks(data.tasks, 'Import success', null)
                 }, 5000);
-
             }
         },
         dataType: 'json'
     })
 }
 
-function check_tasks(tasks_list, type) {
+function check_tasks(tasks_list, msg, redirectUrl) {
 
-    var json_data = JSON.stringify(tasks_list)
+    var json_data = JSON.stringify(tasks_list);
 
     $.post({
         url: '/api/v1/check_tasks/',
         data: {'tasks': json_data},
         success: function (data) {
-            handleResponse(data, type);
+            handleResponse(data, msg, redirectUrl);
         },
         dataType: 'json'
     })
