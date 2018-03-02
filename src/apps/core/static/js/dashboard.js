@@ -38,6 +38,7 @@ function stopChecking() {
 
 function handleResponse(data, msg, redirectUrl) {
 
+
     if (data.code === 'SUCCESS') {
         stopChecking();
         alert(msg);
@@ -187,3 +188,6 @@ function checkExportAvailable() {
     $(exportButton).prop("disabled", !checkedCount)
 }
 
+function showServicesLoginLoader(){
+    loaderWrapper.show();
+}
