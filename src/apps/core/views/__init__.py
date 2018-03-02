@@ -110,7 +110,7 @@ class DashboardView(LoginRequiredMixin, ListView):
         qs = self.model.objects.filter(
             Q(status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED) | Q(status=EnrollWareGroup.STATUS_CHOICES.ERROR),
             user_id=self.request.user.id,
-        )
+        ).order_by('-modified')
         return qs
 
     def get_context_data(self, **kwargs):
