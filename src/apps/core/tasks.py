@@ -22,7 +22,7 @@ def export_to_aha(username, password, group_data):
         print("TRY")
         exporter.run()
     except Exception as e:
-        print("not ok")
+        print("not ok - {}".format(e))
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
     else:
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
