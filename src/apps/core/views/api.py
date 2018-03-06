@@ -8,12 +8,12 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.core.models import EnrollWareGroup, EnrollClassTime, AHACredentials, AHAField, Mapper
+from apps.core.models import EnrollWareGroup, EnrollClassTime, AHACredentials, \
+    AHAField, Mapper
 from apps.core.tasks import export_to_aha, import_enroll_groups
 
 
 class ImportEnroll(APIView):
-
     permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request, format=None):
@@ -23,9 +23,12 @@ class ImportEnroll(APIView):
             username = credentials.username
             password = credentials.password
 
-            task = import_enroll_groups.delay(username, password, request.user.id)
-            return Response({'details': _("Task in progress"), 'tasks': [task.id]})
-        return Response({'details': _("Credentials not valid")}, status=status.HTTP_400_BAD_REQUEST)
+            task = import_enroll_groups.delay(username, password,
+                                              request.user.id)
+            return Response(
+                {'details': _("Task in progress"), 'tasks': [task.id]})
+        return Response({'details': _("Credentials not valid")},
+                        status=status.HTTP_400_BAD_REQUEST)
 
 
 @api_view(['POST'])
@@ -40,12 +43,17 @@ def export_group(request):
 
     for group in groups:
 
-        # TODO: add try except, return Error if something not found
-        enroll_group = EnrollWareGroup.objects.filter(id=group['enroll_group_id']).first()
+        try:
+            enroll_group = EnrollWareGroup.objects.filter(
+                id=group['enroll_group_id'], available_to_export=True).first()
+        except:
+            return Response({'details': _("Invalid group id")},
+                    status=status.HTTP_400_BAD_REQUEST)
 
-        class_time = EnrollClassTime.objects.filter(group_id=enroll_group.group_id).first()
+        class_time = EnrollClassTime.objects.filter(
+            group_id=enroll_group.group_id).first()
 
-        #TODO: use lookups
+        # TODO: use lookups
         aha_auth_data = AHACredentials.objects.filter(user=user).last()
 
         group_data = {
@@ -67,7 +75,9 @@ def export_group(request):
 
         # TODO: fix user literal
 
-        MAPPER_FIELDS = (AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION, AHAField.FIELD_TYPES.INSTRUCTOR)
+        MAPPER_FIELDS = (
+        AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION,
+        AHAField.FIELD_TYPES.INSTRUCTOR)
 
         # TODO: parallel function
         for field in MAPPER_FIELDS:
@@ -78,10 +88,12 @@ def export_group(request):
                 defaults={'aha_value': group['aha_data'][field]}
             )
 
-        task = export_to_aha.delay(aha_auth_data.username, aha_auth_data.password, group_data)
+        task = export_to_aha.delay(aha_auth_data.username,
+                                   aha_auth_data.password, group_data)
         tasks.append(task.id)
 
-    return Response({'details':  _("Tasks in progress"), 'tasks': tasks}, status=status.HTTP_200_OK)
+    return Response({'details': _("Tasks in progress"), 'tasks': tasks},
+                    status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -91,7 +103,7 @@ def check_tasks(request):
 
     except:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
-#TODO: some of taks can be SUCCESS, but other will be ERROR
+    # TODO: some of taks can be SUCCESS, but other will be ERROR
     failed_tasks_list = []
     for task in tasks:
         if AsyncResult(task).failed():
@@ -101,6 +113,3 @@ def check_tasks(request):
             return Response({'code': 'WAIT'})
 
     return Response({'code': 'SUCCESS'})
-
-
-

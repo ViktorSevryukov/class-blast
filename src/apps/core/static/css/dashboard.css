@@ -70,3 +70,8 @@ select{
 .pagination-nav{
     margin: 1rem;
 }
+
+.blurred{
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
+}

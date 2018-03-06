@@ -1,9 +1,9 @@
-from celery.result import AsyncResult
-
 from apps.auth_core.models import User
 from apps.core.celery import app
+from apps.core.models import EnrollWareGroup, EnrollWareCredentials, \
+    AHACredentials
+
 from scraper.aha.exporter import AHAExporter
-from apps.core.models import EnrollWareGroup, EnrollWareCredentials, AHACredentials
 from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
 
@@ -26,6 +26,7 @@ def export_to_aha(username, password, group_data):
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
     else:
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
+        # ew_group.available_to_export = False
 
     ew_group.save()
 
@@ -35,11 +36,15 @@ def import_enroll_groups(username, password, user_id):
     user = User.objects.get(id=user_id)
     importer = ClassImporter(username, password, user)
     importer.run()
+
+    user.set_available_to_export_groups()
+
     return {
         'username': username,
         'password': password,
         'user_id': user_id
     }
+
 
 @app.task
 def update_enroll_credentials(result):
@@ -51,7 +56,8 @@ def update_enroll_credentials(result):
         defaults={'password': result['password']}
     )
 
-#TODO: user auth model
+
+# TODO: user auth model
 @app.task
 def import_aha_fields(username, password, user_id):
     user = User.objects.get(id=user_id)
@@ -63,7 +69,8 @@ def import_aha_fields(username, password, user_id):
         'user_id': user_id
     }
 
-#TODO: use content type
+
+# TODO: use content type
 @app.task
 def update_aha_credentials(result):
     user = User.objects.get(id=result['user_id'])
@@ -73,5 +80,3 @@ def update_aha_credentials(result):
         user=user,
         defaults={'password': result['password']}
     )
-
-

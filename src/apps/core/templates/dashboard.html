@@ -2,133 +2,181 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% load extra_filters %}
 
 {% block content %}
-    {% if user.is_authenticated %}
-        {% csrf_token %}
-        <div class="table-wrapper">
-            <table id="manager-table" class="table table-striped">
-                <tr>
-                    <th></th>
-                    <th>Course</th>
-                    <th>AHA Course</th>
-                    <th>Location</th>
-                    <th>AHA Location</th>
-                    <th>Instructor</th>
-                    <th>AHA Instructor</th>
-                    <th>TC</th>
-                    <th>TS</th>
-                    <th>Roster Limit</th>
-                    <th>Cutoff</th>
-                    <th>Class Description</th>
-                    <th>Class Notes</th>
-                </tr>
+  {% if user.is_authenticated %}
+    {% csrf_token %}
+    <div class="table-wrapper">
+      <table id="manager-table" class="table table-striped">
+        <tr>
+          <th></th>
+          <th>Course</th>
+          <th>AHA Course</th>
+          <th>Location</th>
+          <th>AHA Location</th>
+          <th>Instructor</th>
+          <th>AHA Instructor</th>
+          <th>TC</th>
+          <th>TS</th>
+          <th>Roster Limit</th>
+          <th>Cutoff</th>
+          <th>Class Description</th>
+          <th>Class Notes</th>
+        </tr>
 
-                {% for ew_group in ew_groups %}
-                    <tr id="row-group-{{ ew_group.id }}">
-                        <td>
-                            <div class="form-check">
-                                <input id="check-{{ ew_group.id }}" class="group-check check-control"
-                                       type="checkbox" onclick="checkExportAvailable()">
-                            </div>
-                        </td>
-                        <td class="td-md"><span
-                                {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}
-                                class="text-danger" {% endif %}>{{ ew_group.course }}</span></td>
-                        <td class="td-md">
-                            <select id="aha-course-{{ ew_group.id }}" name="course" class="form-control">
-                                {% for option in aha_fields.course %}
-                                    <option
-                                            {% if option == ew_group.get_default_course %}
-                                                selected
-                                            {% endif %}
-                                                value="{{ option|get_value }}">
-                                        {{ option|get_text }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </td>
+        {% for ew_group in ew_groups %}
 
-                        <td class="td-md"><span>{{ ew_group.location }}</span></td>
-                        <td class="td-md">
-                            <select id="aha-location-{{ ew_group.id }}" name="location" class="form-control">
-                                {% for option in aha_fields.location %}
-                                    <option
-                                            {% if option == ew_group.get_default_location %}
-                                                selected
-                                            {% endif %}
-                                                value="{{ option|get_value }}">
-                                        {{ option|get_text }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </td>
+          <tr id="row-group-{{ ew_group.id }}"
+              class="{% if not ew_group.available_to_export %}blurred{% endif %}">
+            <td>
+              {% if ew_group.available_to_export %}
+                <div class="form-check">
+                  <input id="check-{{ ew_group.id }}"
+                         class="group-check check-control"
+                         type="checkbox" onclick="checkExportAvailable()">
+                </div>
+              {% endif %}
 
-                        <td class="td-md">{{ ew_group.instructor }}</td>
+            </td>
+            <td class="td-md"><span
+                    {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}
+                      class="text-danger" {% endif %}>{{ ew_group.course }}</span>
+            </td>
+            <td class="td-md">
+              <select
+                      {% if not ew_group.available_to_export %}
+                        disabled
+                      {% endif %}
+                        id="aha-course-{{ ew_group.id }}" name="course"
+                        class="form-control">
+                {% for option in aha_fields.course %}
+                  <option
+                          {% if option == ew_group.get_default_course %}
+                            selected
+                          {% endif %}
+                            value="{{ option|get_value }}">
+                    {{ option|get_text }}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
 
-                        <td class="td-md">
-                            <select id="aha-instructor-{{ ew_group.id }}" name="instructor" class="form-control">
-                                {% for option in aha_fields.instructor %}
-                                    <option
-                                            {% if option == ew_group.get_default_instructor %}
-                                                selected
-                                            {% endif %}
-                                                value="{{ option|get_value }}">
-                                        {{ option|get_text }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </td>
+            <td class="td-md"><span>{{ ew_group.location }}</span></td>
+            <td class="td-md">
+              <select
+                      {% if not ew_group.available_to_export %}
+                        disabled
+                      {% endif %}
+                        id="aha-location-{{ ew_group.id }}" name="location"
+                        class="form-control">
+                {% for option in aha_fields.location %}
+                  <option
+                          {% if option == ew_group.get_default_location %}
+                            selected
+                          {% endif %}
+                            value="{{ option|get_value }}">
+                    {{ option|get_text }}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
 
-                        <td class="td-md">
-                            <select id="aha-tc-{{ ew_group.id }}" name="training_center" class="form-control">
-                                {% for option in aha_fields.tc %}
-                                    <option value="{{ option|get_value }}">
-                                        {{ option|get_text }}
-                                    </option>
-                                {% endfor %}
-                            </select>
-                        </td>
+            <td class="td-md">{{ ew_group.instructor }}</td>
 
-                        <td class="td-md">
-                            <select id="aha-ts-{{ ew_group.id }}" name="training_site" class="form-control">
-                                {% for option in aha_fields.ts %}
-                                    <option value="{{ option|get_value }}">
-                                        {{ option|get_text }}
-                                    </option>
-                                {% endfor %}
+            <td class="td-md">
+              <select
+                      {% if not ew_group.available_to_export %}
+                        disabled
+                      {% endif %}
+                        id="aha-instructor-{{ ew_group.id }}"
+                        name="instructor"
+                        class="form-control">
+                {% for option in aha_fields.instructor %}
+                  <option
+                          {% if option == ew_group.get_default_instructor %}
+                            selected
+                          {% endif %}
+                            value="{{ option|get_value }}">
+                    {{ option|get_text }}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
 
+            <td class="td-md">
+              <select
+                      {% if not ew_group.available_to_export %}
+                        disabled
+                      {% endif %}
+                        id="aha-tc-{{ ew_group.id }}" name="training_center"
+                        class="form-control">
+                {% for option in aha_fields.tc %}
+                  <option value="{{ option|get_value }}">
+                    {{ option|get_text }}
+                  </option>
+                {% endfor %}
+              </select>
+            </td>
+
+            <td class="td-md">
+              <select
+                      {% if not ew_group.available_to_export %}
+                        disabled
+                      {% endif %}
+                        id="aha-ts-{{ ew_group.id }}" name="training_site"
+                        class="form-control">
+                {% for option in aha_fields.ts %}
+                  <option value="{{ option|get_value }}">
+                    {{ option|get_text }}
+                  </option>
+                {% endfor %}
 
               </select>
             </td>
 
             <td class="td-xs">
-              <input id="aha-roster-limit-{{ ew_group.id }}"
-                     class="input-sm form-control" name="roster_limit"
-                     value={{ ew_group.max_students }}>
+              <input
+                      {% if not ew_group.available_to_export %}
+                        disabled
+                      {% endif %}
+                        id="aha-roster-limit-{{ ew_group.id }}"
+                        class="input-sm form-control" name="roster_limit"
+                        value={{ ew_group.max_students }}>
             </td>
 
             <td class="td-sm">
-              <input id="aha-cutoff-date-{{ ew_group.id }}"
-                     class="input-sm form-control" name="cutoff_date"
-                     value={{ ew_group.get_cutoff_date }}>
+              <input
+                      {% if not ew_group.available_to_export %}
+                        disabled
+                      {% endif %}
+                        id="aha-cutoff-date-{{ ew_group.id }}"
+                        class="input-sm form-control" name="cutoff_date"
+                        value={{ ew_group.get_cutoff_date }}>
             </td>
 
             <td class="td-md">
-              <input id="aha-class-description-{{ ew_group.id }}"
-                     class="form-control"
-                     name="class_description" type="text"
-                     size="50" required>
+              <input
+
+                      {% if not ew_group.available_to_export %}
+                        disabled
+                      {% endif %}id="aha-class-description-{{ ew_group.id }}"
+                        class="form-control"
+                        name="class_description" type="text"
+                        size="50" required>
             </td>
 
             <td class="td-md">
-              <input id="aha-class-notes-{{ ew_group.id }}"
-                     class="form-control" name="class_notes" type="text"
-                     size="50">
+              <input
+
+                      {% if not ew_group.available_to_export %}
+                        disabled
+                      {% endif %}id="aha-class-notes-{{ ew_group.id }}"
+                        class="form-control" name="class_notes" type="text"
+                        size="50">
             </td>
 
           </tr>
@@ -139,70 +187,70 @@
 
     <!-- PAGINATION -->
     <nav class="pagination-nav">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.number !=  1 %}
-                    <li class="page-item">
-                    <a class="page-link" href="?page=1">
-                <span aria-hidden="true"><<</span>
-                <span class="sr-only">First</span>
-                </a>
-            </li>
+      <ul class="pagination justify-content-center">
+        {% if page_obj.number !=  1 %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1">
+              <span aria-hidden="true"><<</span>
+              <span class="sr-only">First</span>
+            </a>
+          </li>
 
-        &nbsp;
-            <li class="page-item">
-                {% if page_obj.has_previous %}
-                    <a class="page-link"
-                       href="?page={{ page_obj.previous_page_number }}">
-                {% else %}
-                    <a class="page-link" href="#">
-                {% endif %}
-                <span aria-hidden="true"><</span>
-                <span class="sr-only">Previous</span>
-                </a>
-            </li>
+          &nbsp;
+          <li class="page-item">
+            {% if page_obj.has_previous %}
+              <a class="page-link"
+                 href="?page={{ page_obj.previous_page_number }}">
+            {% else %}
+              <a class="page-link" href="#">
+            {% endif %}
+            <span aria-hidden="true"><</span>
+            <span class="sr-only">Previous</span>
+            </a>
+          </li>
         {% endif %}
-            {% for i in paginator.page_range %}
-                {% if page_obj.number == i %}
-                    <li class="page-item active"><a class="page-link"
-                                                    href="#">{{ i }}</a></li>
-                {% endif %}
-                {% with next=page_obj.number|add:"2" prev=page_obj.number|add:"-2" %}
-                    {% if i < page_obj.number and i >= prev  or i > page_obj.number and i <= next  %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ i }}">{{ i }}</a>
-                        </li>
-                    {% endif %}
-                {% endwith %}
-            {% endfor %}
+        {% for i in paginator.page_range %}
+          {% if page_obj.number == i %}
+            <li class="page-item active"><a class="page-link"
+                                            href="#">{{ i }}</a></li>
+          {% endif %}
+          {% with next=page_obj.number|add:"2" prev=page_obj.number|add:"-2" %}
+            {% if i < page_obj.number and i >= prev  or i > page_obj.number and i <= next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+              </li>
+            {% endif %}
+          {% endwith %}
+        {% endfor %}
 
         {% if page_obj.number !=  paginator.num_pages %}
-            <li class="page-item">
-                {% if page_obj.has_next %}
-                    <a class="page-link"
-                       href="?page={{ page_obj.next_page_number }}">
-                {% else %}
-                    <a class="page-link" href="#">
-                {% endif %}
-                <span aria-hidden="true">></span>
-                <span class="sr-only">Next</span>
-                </a>
-            </li>
-        &nbsp;
-            <li class="page-item">
-                    <a class="page-link" href="?page={{ paginator.num_pages }}">
-                <span aria-hidden="true">>></span>
-                <span class="sr-only">Last</span>
-                </a>
-            </li>
+          <li class="page-item">
+            {% if page_obj.has_next %}
+              <a class="page-link"
+                 href="?page={{ page_obj.next_page_number }}">
+            {% else %}
+              <a class="page-link" href="#">
+            {% endif %}
+            <span aria-hidden="true">></span>
+            <span class="sr-only">Next</span>
+            </a>
+          </li>
+          &nbsp;
+          <li class="page-item">
+            <a class="page-link" href="?page={{ paginator.num_pages }}">
+              <span aria-hidden="true">>></span>
+              <span class="sr-only">Last</span>
+            </a>
+          </li>
 
         {% endif %}
-        </ul>
+      </ul>
     </nav>
     <!-- /PAGINATION -->
     <div id="controls-panel">
 
       <div id="loader-wrapper">
-{#        <span>Process in progress... </span>#}
+        {#        <span>Process in progress... </span>#}
         <img src="{% static "img/loader.gif" %}"
              id="export-loader" class="loader">
       </div>

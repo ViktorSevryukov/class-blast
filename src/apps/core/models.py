@@ -90,6 +90,7 @@ class EnrollWareGroup(TimeStampedModel):
     instructor = models.CharField(_("instructor"), max_length=64, default="")
     max_students = models.IntegerField(_("max students"), default=0)
     status = models.CharField(_("status"), max_length=12, choices=STATUS_CHOICES, default=STATUS_CHOICES.UNSYNCED)
+    available_to_export = models.BooleanField(_("available to export"), default=False)
 
     class Meta(object):
         verbose_name = _("enroll group")

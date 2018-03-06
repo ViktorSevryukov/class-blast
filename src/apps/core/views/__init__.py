@@ -5,14 +5,15 @@ from django.views.generic.list import ListView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.db.models import Q
 
+from apps.auth_core.models import User
 from apps.core.forms import AHALoginForm, EnrollLoginForm
 from apps.core.models import EnrollWareGroup, AHAField, \
     EnrollWareCredentials, AHACredentials
-from apps.core.tasks import import_enroll_groups, update_enroll_credentials, import_aha_fields, update_aha_credentials
+from apps.core.tasks import import_enroll_groups, update_enroll_credentials, \
+    import_aha_fields, update_aha_credentials
 from celery import chain
 from scraper.aha.importer import AHAImporter
 from scraper.enrollware.importer import ClassImporter
-
 
 import logging
 
@@ -42,8 +43,10 @@ class ServicesLoginView(View):
 
             if service_type == "enroll":
                 # TODO: hide real user data
-                username = 'gentrain' if self.TEST_MODE else request.POST['username']
-                password = 'enrollware' if self.TEST_MODE else request.POST['password']
+                username = 'gentrain' if self.TEST_MODE else request.POST[
+                    'username']
+                password = 'enrollware' if self.TEST_MODE else request.POST[
+                    'password']
 
                 context = {
                     'enroll_form': form,
@@ -52,7 +55,8 @@ class ServicesLoginView(View):
                 }
 
                 res = chain(
-                    import_enroll_groups.s(username, password, request.user.id),
+                    import_enroll_groups.s(username, password,
+                                           request.user.id),
                     update_enroll_credentials.s()
                 )()
 
@@ -66,8 +70,10 @@ class ServicesLoginView(View):
 
                 return render(request, self.template_name, context)
             else:
-                username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else request.POST['username']
-                password = 'Thecpr1' if self.TEST_MODE else request.POST['password']
+                username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else \
+                request.POST['username']
+                password = 'Thecpr1' if self.TEST_MODE else request.POST[
+                    'password']
                 # TODO: hide real user data
                 res = chain(
                     import_aha_fields.s(username, password, request.user.id),
@@ -88,7 +94,6 @@ class ServicesLoginView(View):
 
 
 class DashboardView(LoginRequiredMixin, ListView):
-
     model = EnrollWareGroup
     template_name = 'dashboard.html'
     context_object_name = 'ew_groups'
@@ -98,14 +103,16 @@ class DashboardView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = self.model.objects.filter(
-            Q(status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED) | Q(status=EnrollWareGroup.STATUS_CHOICES.ERROR),
+            Q(status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED) | Q(
+                status=EnrollWareGroup.STATUS_CHOICES.ERROR),
             user_id=self.request.user.id,
         ).order_by('-modified')
         return qs
 
     def get_context_data(self, **kwargs):
         context = super(DashboardView, self).get_context_data(**kwargs)
-        aha_fields = {field.type: field.value for field in self.request.user.aha_fields.all()}
+        aha_fields = {field.type: field.value for field in
+                      self.request.user.aha_fields.all()}
         context['aha_fields'] = aha_fields
         return context
 
