@@ -130,18 +130,20 @@ class AHAExporter(AHABase):
         self.browser.find_element_by_xpath(time_button).click()
 
     def paste_roster_settings(self):
-        logger.info("Pasting roster settings:{}, {}".format(self.group_data['roster_limit'], self.group_data['cutoff_date']))
+        logger.info("Pasting roster setting:")
+        logger.info("Roster limit: {}".format(self.group_data['roster_limit']))
         value_roster_limit = self.group_data['roster_limit']
         element_limit = "//input[@id='numberOfStudents']"
         self.browser.find_element_by_xpath(element_limit).send_keys(value_roster_limit)
 
+        logger.info(("Cutoff Date: {}".format(self.group_data['cutoff_date'])))
         value_roster_date = self.group_data['cutoff_date']
         element_date = "//input[@id='enrollCutOffDate']"
         element = self.browser.find_element_by_xpath(element_date)
         self.browser.execute_script("arguments[0].value = '" + value_roster_date + "'", element)
 
     def paste_notes(self):
-        logger.info("Pasting notes: {}".format(self.group_data['notes']))
+        logger.info("Pasting notes: {}".format(self.group_data['class_notes']))
         class_notes = self.group_data['class_notes']
         element_notes = "//textarea[@id='notes']"
         self.browser.find_element_by_xpath(element_notes).send_keys(class_notes)
@@ -154,7 +156,7 @@ class AHAExporter(AHABase):
         self.login()
         self.go_to_add_class_page()
         self.paste_fields()
-        # self.save_button()
+        self.save_button()
 
 #
 # if __name__ == '__main__':
