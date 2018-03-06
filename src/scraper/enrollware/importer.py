@@ -74,7 +74,7 @@ class ClassImporter:
         self.existing_groups = list(EnrollWareGroup.objects.filter(user=user).values_list('group_id', flat=True))
 
     def run(self):
-        logger.info("\n\nSCRAPER LOGGER \n")
+        logger.info("EnrollWare Scraper starting")
         self.login()
         self.handle_classes()
         self.save_groups_to_db()
@@ -126,7 +126,7 @@ class ClassImporter:
 
     def handle_classes(self):
         classes_urls = self.get_classes_urls()
-        logger.info('Founded list urls count {}'.format(len(classes_urls)))
+        logger.info("Founded list urls count {}".format(len(classes_urls)))
         if len(classes_urls) == 0:
             return 0
         workers = min(self.MAX_WORKERS, len(classes_urls))
@@ -189,14 +189,17 @@ class ClassImporter:
 
     def get_group_id(self):
         url = self.browser.get_url()
+        logging.info("Enroll Importing group id:{}".format(self.get_group_id_from_url(url)))
         return self.get_group_id_from_url(url)
 
     def get_course(self):
         select_id = 'mainContent_Course'
+        logging.info("Enroll Importing course: {}".format(get_select_value_by_id(self.class_page, select_id)))
         return get_select_value_by_id(self.class_page, select_id)
 
     def get_location(self):
         select_id = 'mainContent_Location'
+        logging.info("Enroll Importing location: {}".format(get_select_value_by_id(self.class_page, select_id)))
         return get_select_value_by_id(self.class_page, select_id)
 
     def get_instructor(self):
@@ -205,6 +208,7 @@ class ClassImporter:
         if instructor == "--Choose--":
             return "Instructor doesn't selected"
         else:
+            logging.info("Enroll Importing instructor: {}".format(instructor))
             return instructor
 
     def get_class_times(self):
@@ -245,6 +249,8 @@ class ClassImporter:
             }
         }
 
+
+        logging.info("Enroll Importing class time: {}".format(class_time))
         return class_time
 
     # TODO: fix invalid group.max_students
@@ -252,9 +258,10 @@ class ClassImporter:
 
         input_id = 'mainContent_maxEnrollment'
         try:
-            return get_input_value_by_id(self.class_page, input_id)
+            return get_input_value_by_id(self.class_page, input_id), logging.info("Enroll Importing student limit: {}".format(get_input_value_by_id(self.class_page, input_id)))
         except:
-            return 0  # print("Links", self.browser.get_url())
+            return 0, logging.info("Enroll Importing student limit: 0")
+            # print("Links", self.browser.get_url())
 
 
 if __name__ == '__main__':

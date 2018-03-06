@@ -1,12 +1,17 @@
 import os
 import sys
 
-import logging
+
+import pickle
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
+import logging
+
+logger = logging.getLogger('aha_import')
 
 LINUX_PLATFORM = 'linux'
 MAC_PLATFORM = 'darwin'
@@ -49,7 +54,7 @@ class AHABase():
         return webdriver.PhantomJS()
 
     def login(self):
-        logger.info("Try to LogIn")
+        logger.info("Try to AHA LogIn")
         self.browser.get(self.URLS['login'])
         self.browser.implicitly_wait(10)
 
@@ -62,12 +67,13 @@ class AHABase():
 
         username_form.send_keys(self.username)
         password_form.send_keys(self.password)
+        logger.info("LogIn click, username: {}".format(self.username))
+        pickle.dump(self.browser.get_cookies(), open("cookies.pkl", "wb"))
         login_form.find_element_by_class_name("gigya-input-submit").click()
-        logger.info("LogIn click")
 
     def go_to_add_class_page(self):
         logger.info("Go to class page")
         WebDriverWait(self.browser, 5).until(
             EC.text_to_be_present_in_element((By.TAG_NAME, "strong"), "Welcome!"))
         self.browser.get(self.URLS['add_class'])
-        logger.info("Current URL:", self.browser.current_url)
+        logger.info("Current URL: {}".format(self.browser.current_url))

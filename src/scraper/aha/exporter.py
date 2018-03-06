@@ -4,6 +4,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 
 from scraper.aha.base import AHABase
 
+import logging
+
+logger = logging.getLogger('aha_export')
+
 SETTINGS = {
     'username': 'jason.j.boudreault@gmail.com',
     'password': 'Thecpr1'
@@ -48,23 +52,27 @@ class AHAExporter(AHABase):
         self.paste_notes()
 
     def paste_course(self):
+        logger.info("Pasting course: {}".format(self.group_data['course']))
         value = self.group_data['course']
         # element = "//select[@id='courseId']/option[text()='{}']".format(value)
         element = "//select[@id='courseId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
     def paste_language(self):
+        logger.info("Pasting language: {}".format(self.group_data['language']))
         value = self.group_data['language']
         element = "//select[@id='languageId']/option[text()='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
     def paste_tc(self):
+        logger.info("Pasting Training Center: {}".format(self.group_data['tc']))
         value = self.group_data['tc']
         # element = "//select[@id='tcId']/option[text()='{}']".format(value)
         element = "//select[@id='tcId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
     def paste_ts(self):
+        logger.info("Pasting Training Site: {}".format(self.group_data['ts']))
         value = self.group_data['ts']
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tsNames')))
         all_ts = self.browser.find_element_by_id('tcSiteId')
@@ -78,6 +86,7 @@ class AHAExporter(AHABase):
         # self.browser.find_element_by_xpath(element).click()
 
     def paste_instructor(self):
+        logger.info("Pasting instructor: {}".format(self.group_data['instructor']))
         value = self.group_data['instructor']
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'instructorId')))
         all_instructor = self.browser.find_element_by_id('instrNames')
@@ -88,12 +97,14 @@ class AHAExporter(AHABase):
                 break
 
     def paste_location(self):
+        logger.info("Pasting location: {}".format(self.group_data['location']))
         value = self.group_data['location']
         # element = "//select[@id='locationId']/option[text()='{}']".format(value)
         element = "//select[@id='locationId']/option[@value={}]".format(value)
         self.browser.find_element_by_xpath(element).click()
 
     def paste_date(self):
+        logger.info("Pasting date: {}".format(self.group_data['date']))
         value_date = self.group_data['date']
         element_date = "//input[@id='classStartDate']"
         element = self.browser.find_element_by_xpath(element_date)
@@ -101,10 +112,12 @@ class AHAExporter(AHABase):
         self.browser.execute_script("arguments[0].value = '" + value_date + "'", element)
         self.browser.find_element_by_xpath(element_date).send_keys('1/03/2018')
 
+        logger.info("Pasting description: {}".format(self.group_data['class_description']))
         class_description = self.group_data['class_description']
         element_description = "//input[@id='classMeetingDescr']"
         self.browser.find_element_by_xpath(element_description).send_keys(class_description)
 
+        logger.info("Pasting roster dated: {}".format(self.group_data['from'], self.group_data['to']))
         value_start = self.group_data['from']
         element_start = "//select[@id='classMeetingStartTime']/option[text()='{}']".format(value_start)
         self.browser.find_element_by_xpath(element_start).click()
@@ -117,6 +130,7 @@ class AHAExporter(AHABase):
         self.browser.find_element_by_xpath(time_button).click()
 
     def paste_roster_settings(self):
+        logger.info("Pasting roster settings:{}, {}".format(self.group_data['roster_limit'], self.group_data['cutoff_date']))
         value_roster_limit = self.group_data['roster_limit']
         element_limit = "//input[@id='numberOfStudents']"
         self.browser.find_element_by_xpath(element_limit).send_keys(value_roster_limit)
@@ -127,18 +141,20 @@ class AHAExporter(AHABase):
         self.browser.execute_script("arguments[0].value = '" + value_roster_date + "'", element)
 
     def paste_notes(self):
+        logger.info("Pasting notes: {}".format(self.group_data['notes']))
         class_notes = self.group_data['class_notes']
         element_notes = "//textarea[@id='notes']"
         self.browser.find_element_by_xpath(element_notes).send_keys(class_notes)
 
     def save_button(self):
+        logger.info("Finish pasting course: {}".format(self.group_data['course']))
         self.browser.execute_script("saveInfo('save','false')")
 
     def run(self):
         self.login()
         self.go_to_add_class_page()
         self.paste_fields()
-        self.save_button()
+        # self.save_button()
 
 #
 # if __name__ == '__main__':
