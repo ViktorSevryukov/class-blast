@@ -153,7 +153,8 @@ class ClassImporter:
             location=group_fields['location'],
             instructor=group_fields['instructor'],
             max_students=group_fields['max_students'],
-            status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED
+            status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
+            available_to_export=self.user.version == self.user.VERSIONS.PRO
         )
 
     def prepare_class_time(self, class_time, group_id):
