@@ -258,9 +258,11 @@ class ClassImporter:
 
         input_id = 'mainContent_maxEnrollment'
         try:
-            return get_input_value_by_id(self.class_page, input_id), logging.info("Enroll Importing student limit: {}".format(get_input_value_by_id(self.class_page, input_id)))
+            logging.info("Enroll Importing student limit: {}".format(get_input_value_by_id(self.class_page, input_id)))
+            return get_input_value_by_id(self.class_page, input_id)
         except:
-            return 0, logging.info("Enroll Importing student limit: 0")
+            logging.info("Enroll Importing student limit: 0")
+            return 0
             # print("Links", self.browser.get_url())
 
 
