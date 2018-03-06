@@ -46,14 +46,38 @@ class AHAExporter(AHABase):
         success, message = self.paste_course()
         if not success:
             return False, message
-        self.paste_language()
-        self.paste_tc()
-        self.paste_ts()
-        self.paste_instructor()
-        self.paste_location()
-        self.paste_date()
-        self.paste_roster_settings()
-        self.paste_notes()
+
+        success, message = self.paste_language()
+        if not success:
+            return False, message
+
+        success, message = self.paste_tc()
+        if not success:
+            return False, message
+
+        success, message = self.paste_ts()
+        if not success:
+            return False, message
+
+        success, message = self.paste_instructor()
+        if not success:
+            return False, message
+
+        success, message = self.paste_location()
+        if not success:
+            return False, message
+
+        success, message = self.paste_date()
+        if not success:
+            return False, message
+
+        success, message = self.paste_roster_settings()
+        if not success:
+            return False, message
+
+        success, message = self.paste_notes()
+        if not success:
+            return False, message
 
         return True, ""
 
@@ -211,7 +235,6 @@ class AHAExporter(AHABase):
         except:
             return False, self.ERROR_MESSAGE.format("saving")
         return True, ""
-
 
     def run(self):
         success, message = self.login()
