@@ -189,17 +189,17 @@ class ClassImporter:
 
     def get_group_id(self):
         url = self.browser.get_url()
-        logging.info("Enroll Importing group id:{}".format(self.get_group_id_from_url(url)))
+        logging.info("Group id:{}".format(self.get_group_id_from_url(url)))
         return self.get_group_id_from_url(url)
 
     def get_course(self):
         select_id = 'mainContent_Course'
-        logging.info("Enroll Importing course: {}".format(get_select_value_by_id(self.class_page, select_id)))
+        logging.info("Course: {}".format(get_select_value_by_id(self.class_page, select_id)))
         return get_select_value_by_id(self.class_page, select_id)
 
     def get_location(self):
         select_id = 'mainContent_Location'
-        logging.info("Enroll Importing location: {}".format(get_select_value_by_id(self.class_page, select_id)))
+        logging.info("Location: {}".format(get_select_value_by_id(self.class_page, select_id)))
         return get_select_value_by_id(self.class_page, select_id)
 
     def get_instructor(self):
@@ -250,7 +250,7 @@ class ClassImporter:
         }
 
 
-        logging.info("Enroll Importing class time: {}".format(class_time))
+        logging.info("Class time: {}".format(class_time))
         return class_time
 
     # TODO: fix invalid group.max_students
@@ -258,10 +258,10 @@ class ClassImporter:
 
         input_id = 'mainContent_maxEnrollment'
         try:
-            logging.info("Enroll Importing student limit: {}".format(get_input_value_by_id(self.class_page, input_id)))
+            logging.info("Student limit: {}".format(get_input_value_by_id(self.class_page, input_id)))
             return get_input_value_by_id(self.class_page, input_id)
         except:
-            logging.info("Enroll Importing student limit: 0")
+            logging.info("Student limit: 0")
             return 0
             # print("Links", self.browser.get_url())
 
