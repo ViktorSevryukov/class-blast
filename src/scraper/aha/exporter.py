@@ -225,11 +225,11 @@ class AHAExporter(AHABase):
         try:
             self.browser.find_element_by_xpath(element_notes).send_keys(class_notes)
         except:
-            return False, self.ERROR_MESSAGE.format("location")
+            return False, self.ERROR_MESSAGE.format("notes")
         return True, ""
 
     def save_button(self):
-        logger.info("Finish pasting course: {}".format(self.group_data['course']))
+        logger.info("Finish, click 'save': {}".format(self.group_data['course']))
         try:
             self.browser.execute_script("saveInfo('save','false')")
         except:
@@ -254,6 +254,7 @@ class AHAExporter(AHABase):
         if not success:
             return False, message
 
+        logger.info("Process ended")
         return True, ""
 #
 # if __name__ == '__main__':

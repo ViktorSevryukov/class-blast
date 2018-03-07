@@ -38,14 +38,21 @@ function stopChecking() {
 
 function handleResponse(data, msg, redirectUrl) {
 
+    if (data.code === 'WAIT')
+        return null;
 
-    if (data.code === 'SUCCESS') {
-        stopChecking();
-        alert(msg);
-        if (!redirectUrl)
-            location.reload();
-    }
+    var message = '';
 
+    if (data.code === 'FAILED')
+        message = msg + ' ended with errors, can not ' + msg + ' ' + data.count + ' groups';
+    else if (data.code === 'SUCCESS')
+        message = msg + ' successfully ended';
+
+    alert(message);
+
+    stopChecking();
+    if (!redirectUrl)
+        location.reload();
 }
 
 function getFieldId(name, groupId) {
@@ -128,7 +135,7 @@ function exportGroups() {
         success: function (data) {
             if (typeof data.tasks !== 'undefined') {
                 checkStatusInterval = setInterval(function () {
-                    check_tasks(data.tasks, 'Export success', null)
+                    check_tasks(data.tasks, 'export', null)
                 }, 5000);
             }
         },
@@ -160,7 +167,7 @@ function importFromEnroll(elementsToHide, elementsToShow) {
         success: function (data) {
             if (typeof data.tasks !== 'undefined') {
                 checkStatusInterval = setInterval(function () {
-                    check_tasks(data.tasks, 'Import success', null)
+                    check_tasks(data.tasks, 'import', null)
                 }, 5000);
             }
         },
@@ -188,6 +195,6 @@ function checkExportAvailable() {
     $(exportButton).prop("disabled", !checkedCount)
 }
 
-function showServicesLoginLoader(){
+function showServicesLoginLoader() {
     loaderWrapper.show();
 }

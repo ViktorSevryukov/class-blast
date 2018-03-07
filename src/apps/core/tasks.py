@@ -23,10 +23,12 @@ def export_to_aha(username, password, group_data):
     if not success:
         print("not ok - {}".format(message))
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
+        ew_group.save()
+        export_to_aha.update_state(state='FAILURE', meta={'exc': message})
     else:
+        print("ok")
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
         # ew_group.available_to_export = False
-
     ew_group.save()
 
 
@@ -37,6 +39,7 @@ def import_enroll_groups(username, password, user_id):
     success, message = importer.run()
     if not success:
         print("not ok - {}".format(message))
+        return False, message
     else:
         user.set_available_to_export_groups()
 
