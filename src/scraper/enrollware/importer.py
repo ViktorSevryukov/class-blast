@@ -62,6 +62,8 @@ class ClassImporter:
 
     MAX_WORKERS = 20
 
+    ERROR_MESSAGE = "{} failed"
+
     def __init__(self, username, password, user):
         self.username = username
         self.password = password
@@ -79,16 +81,26 @@ class ClassImporter:
 
     def run(self):
         logger.info("EnrollWare Scraper starting")
-        self.login()
+        success, message = self.login()
+        if not success:
+            return False, message
+
         self.handle_classes()
         self.save_groups_to_db()
+
+        return True, ""
 
     def login(self):
         self.browser.open(self.URLS['login'])
         self.browser.select_form('#login form')
         self.browser['username'] = self.username
         self.browser['password'] = self.password
-        self.browser.submit_selected()
+        try:
+            self.browser.submit_selected()
+        except:
+            return False, self.ERROR_MESSAGE.format("Auth {}".format(self.username))
+
+        return True, ""
 
     def get_group_id_from_url(self, url):
         group_id = int(parse.parse_qs(parse.urlparse(url).query)['id'][0])
