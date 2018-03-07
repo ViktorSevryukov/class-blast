@@ -31,6 +31,10 @@ def get_select_value_by_id(page, select_id):
     """
     select = page.find('select', {'id': select_id})
     option = select.find('option', selected=True)
+
+    if not option:
+        return ""
+
     return option.text
 
 
