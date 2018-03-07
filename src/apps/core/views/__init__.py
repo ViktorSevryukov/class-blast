@@ -20,7 +20,7 @@ import logging
 logger = logging.getLogger('aha_export')
 
 
-class ServicesLoginView(View):
+class ServicesLoginView(LoginRequiredMixin, View):
     template_name = 'services_login.html'
 
     TEST_MODE = False
