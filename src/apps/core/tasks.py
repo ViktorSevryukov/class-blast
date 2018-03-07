@@ -34,15 +34,17 @@ def export_to_aha(username, password, group_data):
 def import_enroll_groups(username, password, user_id):
     user = User.objects.get(id=user_id)
     importer = ClassImporter(username, password, user)
-    importer.run()
+    success, message = importer.run()
+    if not success:
+        print("not ok - {}".format(message))
+    else:
+        user.set_available_to_export_groups()
 
-    user.set_available_to_export_groups()
-
-    return {
-        'username': username,
-        'password': password,
-        'user_id': user_id
-    }
+        return {
+            'username': username,
+            'password': password,
+            'user_id': user_id
+        }
 
 
 @app.task
