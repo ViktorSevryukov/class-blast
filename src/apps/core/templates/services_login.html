@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block extra_css %}
-    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+  <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -10,11 +10,14 @@
     <h3 class="panel-title">Class Blast</h3>
 
 
-
     <div class="row">
       <div class="col-12 col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
         <!-- ENROLLWARE FORM -->
-        <form method="post">
+        <form class="
+                {% if success_auth %}
+                blurred
+                {% endif %}"
+              method="post">
           {% csrf_token %}
           <fieldset>
             <legend>Enrollware account</legend>
@@ -52,7 +55,12 @@
             {% endfor %}
           </fieldset>
           <div class="form-actions">
-            <button onclick="showServicesLoginLoader()" type="submit" class="btn btn-primary">Submit</button>
+            <button
+                    {% if success_auth %}
+                      disabled
+                    {% endif %}
+            " onclick="showServicesLoginLoader()" type="submit" class="btn
+            btn-primary">Submit</button>
           </div>
           <input type="hidden" name="service_type" value="enroll">
         </form>
@@ -61,64 +69,72 @@
 
       <div class="col-12 col-xs-12 col-sm-6 col-md-6 col-lg-6 col-xl-6">
         <!-- AHA FORM -->
-        <form method="post">
+        <form class="
+                {% if not success_auth %}
+                blurred
+                {% endif %}"
+              method="post">
           {% csrf_token %}
           <fieldset>
             <legend>AHA account</legend>
-            {% if success_auth %}
-              {% if aha_error_message %}
-                {{ aha_error_message }}
-              {% endif %}
 
-              {% if form.errors %}
-                <span>Error. Please try again.</span>
-                <hr>
-              {% endif %}
+            {% if aha_error_message %}
+              {{ aha_error_message }}
+            {% endif %}
 
-              {% for field in aha_form %}
+            {% if form.errors %}
+              <span>Error. Please try again.</span>
+              <hr>
+            {% endif %}
 
-                {% if field.errors %}
-                  <div class="control-group error">
-                    <label class="control-label">{{ field.label }}</label>
-                    <div class="controls">{{ field }}
-                      <span class="help-inline">
+            {% for field in aha_form %}
+
+              {% if field.errors %}
+                <div class="control-group error">
+                  <label class="control-label">{{ field.label }}</label>
+                  <div class="controls">{{ field }}
+                    <span class="help-inline">
                                     {% for error in  field.errors %}
                                       {{ error }}{% endfor %}
                                 </span>
-                    </div>
                   </div>
-                {% else %}
-                  <div class="control-group">
-                    <label class="control-label">{{ field.label }}</label>
-                    <div class="controls">{{ field }}
-                      {% if field.help_text %}
-                        <p class="help-inline">
-                          <small>{{ field.help_text }}</small>
-                        </p>
-                      {% endif %}
-                    </div>
+                </div>
+              {% else %}
+                <div class="control-group">
+                  <label class="control-label">{{ field.label }}</label>
+                  <div class="controls">{{ field }}
+                    {% if field.help_text %}
+                      <p class="help-inline">
+                        <small>{{ field.help_text }}</small>
+                      </p>
+                    {% endif %}
                   </div>
-                {% endif %}
+                </div>
+              {% endif %}
+            {% endfor %}
 
-              {% endfor %}
+          </fieldset>
 
-              </fieldset>
-
-              <div class="form-actions">
-                <button onclick="showServicesLoginLoader()" type="submit" class="btn btn-primary">Submit</button>
-              </div>
-            {% endif %}
+          <div class="form-actions">
+            <button
+                    {% if not success_auth %}
+                      disabled
+                    {% endif %}
+                      onclick="showServicesLoginLoader()" type="submit"
+                      class="btn btn-primary">Submit
+            </button>
+          </div>
           <input type="hidden" name="service_type" value="aha">
 
         </form>
         <!-- /AHA FORM -->
       </div>
     </div>
-        <div id="loader-wrapper">
-{#        <span>Process in progress... </span>#}
-        <img src="{% static "img/loader.gif" %}"
-             id="services-loader" class="loader">
-      </div>
+    <div id="loader-wrapper">
+      {#        <span>Process in progress... </span>#}
+      <img src="{% static "img/loader.gif" %}"
+           id="services-loader" class="loader">
+    </div>
 
 
   </div>
