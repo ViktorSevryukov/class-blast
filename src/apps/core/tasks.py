@@ -18,11 +18,10 @@ def export_to_aha(username, password, group_data):
     ew_group.status = EnrollWareGroup.STATUS_CHOICES.IN_PROGRESS
     ew_group.save()
     # TODO: handle error, show message
-    try:
-        print("TRY")
-        exporter.run()
-    except Exception as e:
-        print("not ok - {}".format(e))
+    print("TRY")
+    success, message = exporter.run()
+    if not success:
+        print("not ok - {}".format(message))
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
     else:
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
