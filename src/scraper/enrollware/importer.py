@@ -210,10 +210,11 @@ class ClassImporter:
         select_id = 'mainContent_instructorId'
         instructor = get_select_value_by_id(self.class_page, select_id)
         if instructor == "--Choose--":
+            logger.info("Instructor doesn't selected")
             return "Instructor doesn't selected"
-        else:
-            logging.info("Enroll Importing instructor: {}".format(instructor))
-            return instructor
+
+        logging.info("Instructor: {}".format(instructor))
+        return instructor
 
     def get_class_times(self):
 
