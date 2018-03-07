@@ -18,16 +18,17 @@ def export_to_aha(username, password, group_data):
     ew_group.status = EnrollWareGroup.STATUS_CHOICES.IN_PROGRESS
     ew_group.save()
     # TODO: handle error, show message
-    try:
-        print("TRY")
-        exporter.run()
-    except Exception as e:
-        print("not ok - {}".format(e))
+    print("TRY")
+    success, message = exporter.run()
+    if not success:
+        print("not ok - {}".format(message))
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
+        ew_group.save()
+        export_to_aha.update_state(state='FAILURE', meta={'exc': message})
     else:
+        print("ok")
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
         # ew_group.available_to_export = False
-
     ew_group.save()
 
 
@@ -35,15 +36,18 @@ def export_to_aha(username, password, group_data):
 def import_enroll_groups(username, password, user_id):
     user = User.objects.get(id=user_id)
     importer = ClassImporter(username, password, user)
-    importer.run()
+    success, message = importer.run()
+    if not success:
+        print("not ok - {}".format(message))
+        return False, message
+    else:
+        user.set_available_to_export_groups()
 
-    user.set_available_to_export_groups()
-
-    return {
-        'username': username,
-        'password': password,
-        'user_id': user_id
-    }
+        return {
+            'username': username,
+            'password': password,
+            'user_id': user_id
+        }
 
 
 @app.task

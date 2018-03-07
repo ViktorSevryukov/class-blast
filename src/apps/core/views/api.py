@@ -104,12 +104,53 @@ def check_tasks(request):
     except:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
     # TODO: some of taks can be SUCCESS, but other will be ERROR
-    failed_tasks_list = []
-    for task in tasks:
-        if AsyncResult(task).failed():
-            failed_tasks_list.append(task)
-            return Response({failed_tasks_list})
-        if not AsyncResult(task).ready():
-            return Response({'code': 'WAIT'})
 
-    return Response({'code': 'SUCCESS'})
+    failed_tasks, success_tasks, ready_tasks = [], [], []
+
+    for task in tasks:
+
+        # print(AsyncResult(task).state)
+
+        task_result = AsyncResult(task)
+
+        if task_result.failed():
+            failed_tasks.append(task)
+            # print(task_result.result)
+            # print(type(task_result.result))
+
+        if task_result.successful():
+            success_tasks.append(task)
+
+        if task_result.ready():
+            ready_tasks.append(task)
+
+    if len(tasks) == len(success_tasks):
+        return Response({'code': 'SUCCESS'})  # all task success
+
+    if len(tasks) != len(ready_tasks):
+        return Response({'code': 'WAIT'})
+
+    return Response({'code': 'FAILED', 'count': len(failed_tasks)})
+
+
+    # failed_tasks, success_tasks, ready_tasks = [], [], []
+    #
+    # for task in tasks:
+    #     task_result = AsyncResult(task)
+    #
+    #     if task_result.ready():
+    #         ready_tasks.append(task)
+    #         success, message = task_result.result
+    #
+    #         if success:
+    #             success_tasks.append(task)
+    #         else:
+    #             failed_tasks.append(task)
+    #
+    # if len(tasks) == len(success_tasks):
+    #     return Response({'code': 'SUCCESS'})  # all task success
+    #
+    # if len(tasks) != len(ready_tasks):
+    #     return Response({'code': 'WAIT'})
+    #
+    # return Response({'code': 'FAILED', 'count': len(failed_tasks)})

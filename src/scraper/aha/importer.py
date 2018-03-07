@@ -20,6 +20,8 @@ class AHAImporter(AHABase):
     Class for import information info from AHA site
     """
 
+    ERROR_MESSAGE = "Getting {} failed"
+
     XPATH_FILTERS = {
         'not_empty': "string-length(translate(normalize-space(text()), ' ', ''))>0"
     }
@@ -54,65 +56,138 @@ class AHAImporter(AHABase):
         self.browser.find_element_by_xpath(xpath).click()
 
     def get_course(self):
-        courses_list = self.get_options_by_select_id('courseId')
+        try:
+            courses_list = self.get_options_by_select_id('courseId')
+        except:
+            return False, self.ERROR_MESSAGE.format("course list")
+
         course_obj = AHAField(type=AHAField.FIELD_TYPES.COURSE, value=courses_list, user=self.user)
         logging.info("Courses: {}".format(course_obj.value))
-        return self.group_data.append(course_obj)
+        self.group_data.append(course_obj)
+
+        return True, ""
 
     def get_language(self):
-        languages_list = self.get_options_by_select_id('languageId')
+        try:
+            languages_list = self.get_options_by_select_id('languageId')
+        except:
+            return False, self.ERROR_MESSAGE.format("language")
+
         language_obj = AHAField(type=AHAField.FIELD_TYPES.LANGUAGE, value=languages_list, user=self.user)
         logging.info("Languages: {}".format(language_obj.value))
-        return self.group_data.append(language_obj)
+        self.group_data.append(language_obj)
+
+        return True, ""
 
     def get_location(self):
-        locations_list = self.get_options_by_select_id('locationId', remove_first=True)
+        try:
+            locations_list = self.get_options_by_select_id('locationId', remove_first=True)
+        except:
+            return False, self.ERROR_MESSAGE.format("location")
         location_obj = AHAField(type=AHAField.FIELD_TYPES.LOCATION, value=locations_list, user=self.user)
         logging.info("Locations: {}".format(location_obj.value))
-        return self.group_data.append(location_obj)
+        self.group_data.append(location_obj)
+
+        return True, ""
 
     def get_tc(self):
         #TODO: search TC for each Course
         self.click_on_first_option(select_id='courseId')
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tcNames')))
-        tc_list = self.get_options_by_select_id('tcId')
+        try:
+            tc_list = self.get_options_by_select_id('tcId')
+        except:
+            return False, self.ERROR_MESSAGE.format("tc list")
+
         tc_obj = AHAField(type=AHAField.FIELD_TYPES.TC, value=tc_list, user=self.user)
         logging.info("Training Centers: {}".format(tc_obj.value))
-        return self.group_data.append(tc_obj)
+        self.group_data.append(tc_obj)
+
+        return True, ""
 
     def get_ts(self):
         self.click_on_first_option(select_id='tcId')
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tsNames')))
-        ts_list = self.get_options_by_select_id('tcSiteId')
+        try:
+            ts_list = self.get_options_by_select_id('tcSiteId')
+        except:
+            return False, self.ERROR_MESSAGE.format("ts list")
+
         ts_obj = AHAField(type=AHAField.FIELD_TYPES.TS, value=ts_list, user=self.user)
         logging.info("Training Sites: {}".format(ts_obj.value))
-        return self.group_data.append(ts_obj)
+        self.group_data.append(ts_obj)
+
+        return True, ""
 
     def get_instructors(self):
-        instructor_list = self.get_options_by_select_id('instructorId')
+        try:
+            instructor_list = self.get_options_by_select_id('instructorId')
+        except:
+            return False, self.ERROR_MESSAGE.format("instructor list")
+
         instructor_obj = AHAField(type=AHAField.FIELD_TYPES.INSTRUCTOR, value=instructor_list, user=self.user)
         logging.info("Instructors: {}".format(len(instructor_list)))
-        return self.group_data.append(instructor_obj)
+        self.group_data.append(instructor_obj)
+
+        return True, ""
 
     def get_fields(self):
         logger.info("AHA Importing fields running")
-        self.get_course()
-        self.get_language()
-        self.get_location()
-        self.get_tc()
-        self.get_ts()
-        self.get_instructors()
+        success, message = self.get_course()
+        if not success:
+            return False, message
+
+        success, message = self.get_language()
+        if not success:
+            return False, message
+
+        success, message = self.get_location()
+        if not success:
+            return False, message
+
+        success, message = self.get_tc()
+        if not success:
+            return False, message
+
+        success, message = self.get_ts()
+        if not success:
+            return False, message
+
+        success, message = self.get_instructors()
+        if not success:
+            return False, message
+
+        return True, ""
 
     def save_to_db(self):
         logging.info("Finish AHA Importing, saving")
         AHAField.objects.filter(user=self.user).delete()
         AHAField.objects.bulk_create(self.group_data)
+        return True, ""
+
 
     def run(self):
-            self.login()
-            self.go_to_add_class_page()
-            self.get_fields()
-            self.save_to_db()
+        success, message = self.login()
+
+        if not success:
+            return False, message
+
+        success, message = self.go_to_add_class_page()
+
+        if not success:
+            return False, message
+
+        success, message = self.get_fields()
+
+        if not success:
+            return False, message
+
+        success, message = self.save_to_db()
+
+        if not success:
+            return False, message
+
+        return True, ""
 
 if __name__ == '__main__':
     importer = AHAImporter(SETTINGS['username'], SETTINGS['password'])
