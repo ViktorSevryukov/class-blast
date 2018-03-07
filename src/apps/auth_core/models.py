@@ -1,9 +1,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.db.models import Q
 
 from django.utils.translation import ugettext_lazy as _
 
 from model_utils import Choices
+
+from apps.core.models import EnrollWareGroup
 
 
 class User(AbstractUser):
@@ -29,14 +32,16 @@ class User(AbstractUser):
 
     def set_available_to_export_groups(self, force=False):
 
-        if not force and self.version == self.VERSIONS.LITE:
+        not_synced_q = ~Q(status=EnrollWareGroup.STATUS_CHOICES.SYNCED)
 
+        if not force and self.version == self.VERSIONS.LITE:
             has_available_to_export_group = self.enrollware_groups.filter(
                 available_to_export=True).exists()
 
             if not has_available_to_export_group:
                 try:
-                    last_group = self.enrollware_groups.latest('created')
+                    last_group = self.enrollware_groups.filter(
+                        not_synced_q).latest('created')
                 except:
                     return None
 
@@ -47,7 +52,8 @@ class User(AbstractUser):
             # if version == lite, set only one group available to export
             if self.version == self.VERSIONS.LITE:
                 try:
-                    last_group = self.enrollware_groups.latest('created')
+                    last_group = self.enrollware_groups.filter(
+                        not_synced_q).latest('created')
                 except:
                     return None
 
