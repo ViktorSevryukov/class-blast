@@ -76,31 +76,29 @@ class ClassImporter:
         self.class_page = None
         self.classes_data = []
         self.classes_times = []
-        #TODO: synced should be False or True, what we will do with synced groups?!
         self.existing_groups = list(EnrollWareGroup.objects.filter(user=user).values_list('group_id', flat=True))
 
     def run(self):
         logger.info("EnrollWare Scraper starting")
-        success, message = self.login()
-        if not success:
-            return False, message
+        try:
+            self.login()
+            self.check_logged_in()
+        except:
+            raise Exception("Sorry, your login data wrong, please try again")
 
-        self.handle_classes()
-        self.save_groups_to_db()
-
-        return True, ""
+        try:
+            self.handle_classes()
+            self.save_groups_to_db()
+        except:
+            raise Exception("Sorry, there is some trouble with import groups")
 
     def login(self):
+        logger.info("Try to LogIn with username {}".format(self.username))
         self.browser.open(self.URLS['login'])
         self.browser.select_form('#login form')
         self.browser['username'] = self.username
         self.browser['password'] = self.password
-        try:
-            self.browser.submit_selected()
-        except:
-            return False, self.ERROR_MESSAGE.format("Auth {}".format(self.username))
-
-        return True, ""
+        self.browser.submit_selected()
 
     def get_group_id_from_url(self, url):
         group_id = int(parse.parse_qs(parse.urlparse(url).query)['id'][0])
@@ -113,8 +111,6 @@ class ClassImporter:
         classes_urls = []
 
         for row in classes_rows:
-            # TODO: refactor table rows (in case of table structure be changed)
-
             url = self.ADMIN_URL_TPL.format(row.find('a').get('href'))
             group_id = self.get_group_id_from_url(url)
 
@@ -125,13 +121,19 @@ class ClassImporter:
             date_str += 'm'
             datetime_object = datetime.strptime(date_str, '%a %m/%d/%y %I:%M%p')
 
-            # TODO: correct time interval
-            # if (datetime.now() - datetime_object).days >= 0:
-            # print(datetime_object)
-
-            classes_urls.append(url)
+            if (datetime_object - datetime.now()).days >= 3:
+                classes_urls.append(url)
 
         return classes_urls
+
+    def check_logged_in(self):
+        current_url = self.browser.get_url()
+        logger.info(" check is logged in")
+
+        if self.URLS['classes_page'] != current_url:
+            logger.info("invalid credentials")
+            raise Exception('Sorry, it seems username or password not corrected')
+
 
     def handle_class(self, url):
         self.browser.open(url)
@@ -144,21 +146,12 @@ class ClassImporter:
         classes_urls = self.get_classes_urls()
         logger.info("Founded list urls count {}".format(len(classes_urls)))
         if len(classes_urls) == 0:
+            logger.info('new groups not found')
             return 0
         workers = min(self.MAX_WORKERS, len(classes_urls))
         with futures.ThreadPoolExecutor(workers) as executor:
             res = executor.map(self.handle_class, classes_urls)
         return len(list(res))
-
-        # TODO: uncomment when ready to work, now just parse one group
-        # Without threads begin
-        # for class_url in classes_urls:
-        #     # class_url = classes_urls[0]  # just for test
-        #     self.browser.open(class_url)
-        #     self.class_page = self.browser.get_current_page()
-        #     self.classes_data.append(self.get_fields())
-        # return self.classes_data
-        # Without threads end
 
     def prepare_group(self, group_fields):
 
@@ -191,8 +184,11 @@ class ClassImporter:
                                group_id=group_id)
 
     def save_groups_to_db(self):
-        EnrollWareGroup.objects.bulk_create(self.classes_data)
-        EnrollClassTime.objects.bulk_create(self.classes_times)
+        logger.info('try to save groups')
+
+        if self.classes_data:
+            EnrollWareGroup.objects.bulk_create(self.classes_data)
+            EnrollClassTime.objects.bulk_create(self.classes_times)
 
     def get_fields(self):
         return {
@@ -223,7 +219,7 @@ class ClassImporter:
         select_id = 'mainContent_instructorId'
         instructor = get_select_value_by_id(self.class_page, select_id)
         if instructor == "--Choose--":
-            logger.info("Instructor doesn't selected", self.get_course(), self.get_group_id())
+            logger.info("Instructor doesn't selected, {}, {}".format(self.get_course(), self.get_group_id()))
             return "Instructor doesn't selected"
 
         logging.info("Instructor: {}".format(instructor))
@@ -231,7 +227,6 @@ class ClassImporter:
 
     def get_class_times(self):
 
-        # TODO: see below
         """
         TODO: Need to parse list of several class times, now we get only first record.
         Maybe we can use '_cts{x}_' where 'x' == position of the row with 
@@ -271,7 +266,6 @@ class ClassImporter:
         logging.info("Class time: {}".format(class_time))
         return class_time
 
-    # TODO: fix invalid group.max_students
     def get_max_students(self):
 
         input_id = 'mainContent_maxEnrollment'
@@ -281,7 +275,6 @@ class ClassImporter:
         except:
             logging.info("Student limit: 0")
             return 0
-            # print("Links", self.browser.get_url())
 
 
 if __name__ == '__main__':
