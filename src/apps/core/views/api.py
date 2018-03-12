@@ -48,7 +48,7 @@ def export_group(request):
                 id=group['enroll_group_id'], available_to_export=True).first()
         except:
             return Response({'details': _("Invalid group id")},
-                    status=status.HTTP_400_BAD_REQUEST)
+                            status=status.HTTP_400_BAD_REQUEST)
 
         class_time = EnrollClassTime.objects.filter(
             group_id=enroll_group.group_id).first()
@@ -76,8 +76,8 @@ def export_group(request):
         # TODO: fix user literal
 
         MAPPER_FIELDS = (
-        AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION,
-        AHAField.FIELD_TYPES.INSTRUCTOR)
+            AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION,
+            AHAField.FIELD_TYPES.INSTRUCTOR)
 
         # TODO: parallel function
         for field in MAPPER_FIELDS:
@@ -114,7 +114,10 @@ def check_tasks(request):
         task_result = AsyncResult(task)
 
         if task_result.failed():
-            failed_tasks.append(task)
+            failed_tasks.append({
+                'task': task,
+                'message': task_result.info.args[0]
+            })
             # print(task_result.result)
             # print(type(task_result.result))
 
@@ -130,27 +133,4 @@ def check_tasks(request):
     if len(tasks) != len(ready_tasks):
         return Response({'code': 'WAIT'})
 
-    return Response({'code': 'FAILED', 'count': len(failed_tasks)})
-
-
-    # failed_tasks, success_tasks, ready_tasks = [], [], []
-    #
-    # for task in tasks:
-    #     task_result = AsyncResult(task)
-    #
-    #     if task_result.ready():
-    #         ready_tasks.append(task)
-    #         success, message = task_result.result
-    #
-    #         if success:
-    #             success_tasks.append(task)
-    #         else:
-    #             failed_tasks.append(task)
-    #
-    # if len(tasks) == len(success_tasks):
-    #     return Response({'code': 'SUCCESS'})  # all task success
-    #
-    # if len(tasks) != len(ready_tasks):
-    #     return Response({'code': 'WAIT'})
-    #
-    # return Response({'code': 'FAILED', 'count': len(failed_tasks)})
+    return Response({'code': 'FAILED', 'tasks': failed_tasks})

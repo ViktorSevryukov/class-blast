@@ -43,8 +43,13 @@ function handleResponse(data, msg, redirectUrl) {
 
     var message = '';
 
-    if (data.code === 'FAILED')
-        message = msg + ' ended with errors, can not ' + msg + ' ' + data.count + ' groups';
+    if (data.code === 'FAILED'){
+        message = msg + ' ended with errors, can not ' + msg + ' ' + data.tasks.length + ' groups';
+        for (var i in data.tasks){
+            message += '\n* ' + ' ' + data.tasks[i].message;
+        }
+    }
+
     else if (data.code === 'SUCCESS')
         message = msg + ' successfully ended';
 

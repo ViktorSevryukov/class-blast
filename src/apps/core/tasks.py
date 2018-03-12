@@ -19,17 +19,18 @@ def export_to_aha(username, password, group_data):
     ew_group.save()
     # TODO: handle error, show message
     print("TRY")
-    success, message = exporter.run()
-    if not success:
-        print("not ok - {}".format(message))
+    try:
+        exporter.run()
+    except Exception as msg:
+        print("not ok - {}".format(msg))
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.ERROR
         ew_group.save()
-        export_to_aha.update_state(state='FAILURE', meta={'exc': message})
+        raise Exception(msg)
     else:
         print("ok")
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
+        ew_group.save()
         # ew_group.available_to_export = False
-    ew_group.save()
 
 
 @app.task
