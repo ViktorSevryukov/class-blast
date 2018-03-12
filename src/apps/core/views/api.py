@@ -73,13 +73,10 @@ def export_group(request):
             'class_notes': group['aha_data']['class_notes']
         }
 
-        # TODO: fix user literal
-
         MAPPER_FIELDS = (
             AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION,
             AHAField.FIELD_TYPES.INSTRUCTOR)
 
-        # TODO: parallel function
         for field in MAPPER_FIELDS:
             Mapper.objects.update_or_create(
                 aha_field=AHAField.objects.filter(type=field).first(),
@@ -103,13 +100,10 @@ def check_tasks(request):
 
     except:
         return Response({}, status=status.HTTP_400_BAD_REQUEST)
-    # TODO: some of taks can be SUCCESS, but other will be ERROR
 
     failed_tasks, success_tasks, ready_tasks = [], [], []
 
     for task in tasks:
-
-        # print(AsyncResult(task).state)
 
         task_result = AsyncResult(task)
 
@@ -118,8 +112,6 @@ def check_tasks(request):
                 'task': task,
                 'message': task_result.info.args[0]
             })
-            # print(task_result.result)
-            # print(type(task_result.result))
 
         if task_result.successful():
             success_tasks.append(task)

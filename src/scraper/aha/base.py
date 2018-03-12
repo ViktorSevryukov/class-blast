@@ -52,11 +52,9 @@ class AHABase():
         return webdriver.PhantomJS()
 
     def login(self):
-        logger.info("Try to AHA LogIn")
+        logger.info("Try to AHA LogIn with username {}".format(self.username))
         self.browser.get(self.URLS['login'])
         self.browser.implicitly_wait(10)
-
-        #TODO: add wait for login form, or redirect right now to "add class URL'
 
         login_form = WebDriverWait(self.browser, 10).until(
         EC.presence_of_element_located((By.ID, "userScreDiv_content")))
@@ -66,7 +64,6 @@ class AHABase():
         password_form.send_keys(self.password)
         logger.info("LogIn click, username: {}".format(self.username))
         login_form.find_element_by_class_name("gigya-input-submit").click()
-
 
     def go_to_add_class_page(self):
         logger.info("Go to class page")

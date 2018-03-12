@@ -23,15 +23,12 @@ logger = logging.getLogger('aha_export')
 class ServicesLoginView(LoginRequiredMixin, View):
     template_name = 'services_login.html'
 
-    TEST_MODE = False
-
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
         aha_form = AHALoginForm()
         return render(request, self.template_name,
                       {'enroll_form': enroll_form, 'aha_form': aha_form})
 
-    # TODO: redirect in case both forms are filled, check another form filled then you are fill the one
     def post(self, request, *args, **kwargs):
         service_type = request.POST["service_type"]
         if service_type == "enroll":
@@ -42,11 +39,8 @@ class ServicesLoginView(LoginRequiredMixin, View):
         if form.is_valid():
 
             if service_type == "enroll":
-                # TODO: hide real user data
-                username = 'gentrain' if self.TEST_MODE else request.POST[
-                    'username']
-                password = 'enrollware' if self.TEST_MODE else request.POST[
-                    'password']
+                username = request.POST['username']
+                password = request.POST['password']
 
                 context = {
                     'enroll_form': form,
@@ -63,18 +57,14 @@ class ServicesLoginView(LoginRequiredMixin, View):
                 try:
                     res.parent.get()
                     context['success_auth'] = True
-                except:
+                except Exception as msg:
                     if res.parent.failed():
-                        context['enrollware_error_message'] = \
-                            "Sorry, your login data wrong, please try again"
+                        context['enrollware_error_message'] = msg
 
                 return render(request, self.template_name, context)
             else:
-                username = 'jason.j.boudreault@gmail.com' if self.TEST_MODE else \
-                request.POST['username']
-                password = 'Thecpr1' if self.TEST_MODE else request.POST[
-                    'password']
-                # TODO: hide real user data
+                username = request.POST['username']
+                password = request.POST['password']
                 res = chain(
                     import_aha_fields.s(username, password, request.user.id),
                     update_aha_credentials.s()
@@ -86,7 +76,8 @@ class ServicesLoginView(LoginRequiredMixin, View):
                     return render(request, self.template_name, {
                         'aha_error_message': "Sorry, your login data wrong, please try again",
                         'aha_form': form,
-                        'enroll_form': EnrollLoginForm()
+                        'enroll_form': EnrollLoginForm(),
+                        'success_auth': True
                     })
 
                 return redirect(reverse_lazy('dashboard:manage'))

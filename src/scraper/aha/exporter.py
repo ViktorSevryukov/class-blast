@@ -40,8 +40,6 @@ class AHAExporter(AHABase):
         super(AHAExporter, self).__init__(username, password, *args, **kwargs)
         self.group_data = group_data
 
-    # TODO: add schedule data items
-
     def paste_fields(self):
         self.paste_course()
         self.paste_language()
