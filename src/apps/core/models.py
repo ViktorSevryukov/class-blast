@@ -37,14 +37,11 @@ class AHAField(TimeStampedModel):
         verbose_name = _("aha field")
         verbose_name_plural = _("aha field")
 
-    #TODO: def get_default_value()
-
     def __str__(self):
         return "{type}".format(type=self.type)
 
 
 class EnrollClassTime(TimeStampedModel):
-    #TODO: maybe should use datefield, timefield
     date = models.CharField(_("date"), max_length=10, default="")
     start = models.CharField(_("start"), max_length=10, default="")
     end = models.CharField(_("end"), max_length=10, default="")
@@ -53,22 +50,6 @@ class EnrollClassTime(TimeStampedModel):
     class Meta(object):
         verbose_name = _("enroll class time")
         verbose_name_plural = _("enroll class times")
-
-    def __str__(self):
-        return "{type}".format(type=self.date)
-
-
-class AHAClassSchedule(TimeStampedModel):
-    class_description = models.CharField(_("class description"), max_length=256, default="")
-    occurrence = models.CharField(_("occurrence"), max_length=2, choices=AHA_OCCURRENCE_CHOICES, default="SN")
-    date = models.DateField(_("date"))
-    start = models.TimeField(_("start"))
-    end = models.TimeField(_("end"))
-    group = models.ForeignKey("AHAGroup", verbose_name=_("group"), on_delete=models.CASCADE)
-
-    class Meta(object):
-        verbose_name = _("aha class schedule")
-        verbose_name_plural = _("aha class schedules")
 
     def __str__(self):
         return "{type}".format(type=self.date)
@@ -112,7 +93,6 @@ class EnrollWareGroup(TimeStampedModel):
         day_before = datetime_object - timedelta(days=1)
         return datetime.strftime(day_before, '%m/%d/%Y')
 
-    # TODO: maybe cache defaults
     def get_default_course(self):
         mapper = Mapper.objects.filter(
             aha_field__type=AHAField.FIELD_TYPES.COURSE,
@@ -138,23 +118,6 @@ class EnrollWareGroup(TimeStampedModel):
 @receiver(post_delete, sender=EnrollWareGroup)
 def delete_times(sender, instance, using, **kwargs):
     EnrollClassTime.objects.filter(group_id=instance.group_id).delete()
-
-
-#TODO: We have no group_id at group creating
-class AHAGroup(TimeStampedModel):
-    course = models.CharField(_("course"), max_length=128, default="")
-    location = models.CharField(_("location"), max_length=128, default="")
-    instructor = models.CharField(_("instructor"), max_length=64, default="")
-    training_center = models.CharField(_("training center"), max_length=128, default="")
-    training_site = models.CharField(_("training site"), max_length=128, default="")
-    roster_limit = models.IntegerField(_("max students"), default=0)
-
-    class Meta(object):
-        verbose_name = _("aha group")
-        verbose_name_plural = _("aha groups")
-
-    def __str__(self):
-        return "{type}".format(type=self.course)
 
 
 class Mapper(TimeStampedModel):
