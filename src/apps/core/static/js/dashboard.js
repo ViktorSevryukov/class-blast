@@ -64,16 +64,39 @@ function getFieldId(name, groupId) {
     return htmlFields[name] + groupId;
 }
 
-function prepareFields(groupId) {
+function validateFields(groupId){
+
+    // validate roster limit field
+    var rosterLimitEl = $(getFieldId('rosterLimit', groupId));
+    if (isNaN(rosterLimitEl.val()) || rosterLimitEl.val().trim() === '') {
+        rosterLimitEl.focus();
+        return false
+    }
+
+    // validate cutoff date field
+    var dateRegExp = /\d{2}\/\d{2}\/\d{4}/;
+    var cutoffDateEl = $(getFieldId('cutoffDate', groupId));
+    if (cutoffDateEl.val().trim().match(dateRegExp) === null) {
+        cutoffDateEl.focus();
+        return false
+    }
 
     // validate description field
     var classDescrEl = $(getFieldId('classDescription', groupId));
-    if (classDescrEl.val() === '') {
+    if (classDescrEl.val().trim() === '') {
         classDescrEl.focus();
+        return false
+    }
+
+    return true
+}
+
+function prepareFields(groupId) {
+
+    if (validateFields(groupId) === false)
         return {
             is_valid: false
         };
-    }
 
     var fields = {
         'course': $(getFieldId('course', groupId)).val(),
@@ -81,10 +104,10 @@ function prepareFields(groupId) {
         'instructor': $(getFieldId('instructor', groupId)).val(),
         'tc': $(getFieldId('tc', groupId)).val(),
         'ts': $(getFieldId('ts', groupId)).val(),
-        'roster_limit': $(getFieldId('rosterLimit', groupId)).val(),
-        'cutoff_date': $(getFieldId('cutoffDate', groupId)).val(),
-        'class_description': classDescrEl.val(),
-        'class_notes': $(getFieldId('classNotes', groupId)).val()
+        'roster_limit': $(getFieldId('rosterLimit', groupId)).val().trim(),
+        'cutoff_date': $(getFieldId('cutoffDate', groupId)).val().trim(),
+        'class_description': $(getFieldId('classDescription', groupId)).val().trim(),
+        'class_notes': $(getFieldId('classNotes', groupId)).val().trim()
     };
     return {
         is_valid: true,
