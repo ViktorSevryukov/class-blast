@@ -223,7 +223,7 @@ class ClassImporter:
         select_id = 'mainContent_instructorId'
         instructor = get_select_value_by_id(self.class_page, select_id)
         if instructor == "--Choose--":
-            logger.info("Instructor doesn't selected")
+            logger.info("Instructor doesn't selected", self.get_course(), self.get_group_id())
             return "Instructor doesn't selected"
 
         logging.info("Instructor: {}".format(instructor))
