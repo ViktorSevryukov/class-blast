@@ -67,8 +67,4 @@ class User(AbstractUser):
                     return None
 
             if self.version == self.VERSIONS.PRO:
-                # TODO: remove try ?
-                try:
-                    self.enrollware_groups.update(available_to_export=True)
-                except:
-                    pass
+                self.enrollware_groups.update(available_to_export=True)
