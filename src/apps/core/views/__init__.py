@@ -72,9 +72,9 @@ class ServicesLoginView(LoginRequiredMixin, View):
 
                 try:
                     res.parent.get()
-                except:
+                except Exception as msg:
                     return render(request, self.template_name, {
-                        'aha_error_message': "Sorry, your login data wrong, please try again",
+                        'aha_error_message': msg,
                         'aha_form': form,
                         'enroll_form': EnrollLoginForm(),
                         'success_auth': True
