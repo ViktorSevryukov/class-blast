@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block content %}
-  {% if user.is_authenticated %}
+  {% if not request.user.version == request.user.VERSIONS.PRO %}
           <form action="/dashboard/payment/" method="POST">{% csrf_token %}
   <script
     src="https://checkout.stripe.com/checkout.js" class="stripe-button"
@@ -28,6 +28,7 @@
     data-locale="auto">
   </script>
 </form>
+  {% endif %}
     {% csrf_token %}
     <div class="table-wrapper">
       <table id="manager-table" class="table table-striped">
@@ -342,7 +343,6 @@
       </div>
     </div>
 
-  {% endif %}
 {% endblock %}
 
 
