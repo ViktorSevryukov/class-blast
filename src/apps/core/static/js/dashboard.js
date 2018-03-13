@@ -65,6 +65,20 @@ function getFieldId(name, groupId) {
 }
 
 function validateFields(groupId){
+    var selects = [
+        $(getFieldId('course', groupId)),
+        $(getFieldId('location', groupId)),
+        $(getFieldId('instructor', groupId)),
+        $(getFieldId('tc', groupId)),
+        $(getFieldId('ts', groupId))
+    ];
+
+    for (var i in selects){
+        if (selects[i].val() === ""){
+            selects[i].focus();
+            return false
+        }
+    }
 
     // validate roster limit field
     var rosterLimitEl = $(getFieldId('rosterLimit', groupId));

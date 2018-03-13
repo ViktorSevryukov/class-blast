@@ -56,6 +56,7 @@ def export_group(request):
         # TODO: use lookups
         aha_auth_data = AHACredentials.objects.filter(user=user).last()
 
+        # TODO: validate selects (can not be empty)
         group_data = {
             'enroll_id': enroll_group.id,
             'course': group['aha_data']['course'],

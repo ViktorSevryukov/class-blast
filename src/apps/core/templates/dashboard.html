@@ -59,6 +59,9 @@
                           {% endif %}
                             id="aha-course-{{ ew_group.id }}" name="course"
                             class="form-control">
+                    {% if aha_fields.course|length > 1 %}
+                      <option value="">-</option>
+                    {% endif %}
                     {% for option in aha_fields.course %}
                       <option
                               {% if option == ew_group.get_default_course %}
@@ -88,6 +91,10 @@
                           {% endif %}
                             id="aha-location-{{ ew_group.id }}" name="location"
                             class="form-control">
+
+                    {% if aha_fields.location|length > 1 %}
+                      <option value="">-</option>
+                    {% endif %}
                     {% for option in aha_fields.location %}
                       <option
                               {% if option == ew_group.get_default_location %}
@@ -116,6 +123,9 @@
                           id="aha-instructor-{{ ew_group.id }}"
                           name="instructor"
                           class="form-control">
+                  {% if aha_fields.instructor|length > 1 %}
+                    <option value="">-</option>
+                  {% endif %}
                   {% for option in aha_fields.instructor %}
                     <option
                             {% if option == ew_group.get_default_instructor %}
@@ -142,6 +152,10 @@
                             id="aha-tc-{{ ew_group.id }}"
                             name="training_center"
                             class="form-control">
+                    {% if aha_fields.tc|length > 1 %}
+                      <option value="">-</option>
+                    {% endif %}
+
                     {% for option in aha_fields.tc %}
                       <option value="{{ option|get_value }}">
                         {{ option|get_text }}
@@ -158,6 +172,9 @@
                           {% endif %}
                             id="aha-ts-{{ ew_group.id }}" name="training_site"
                             class="form-control">
+                    {% if aha_fields.ts|length > 1 %}
+                      <option value="">-</option>
+                    {% endif %}
                     {% for option in aha_fields.ts %}
                       <option value="{{ option|get_value }}">
                         {{ option|get_text }}
