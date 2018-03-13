@@ -124,7 +124,7 @@ function prepareFields(groupId) {
         'roster_limit': $(getFieldId('rosterLimit', groupId)).val().trim(),
         'cutoff_date': $(getFieldId('cutoffDate', groupId)).val().trim(),
         'class_description': $(getFieldId('classDescription', groupId)).val().trim(),
-        // 'class_notes': $(getFieldId('classNotes', groupId)).val().trim()
+        'class_notes': $(getFieldId('classNotes', groupId)).val().trim()
     };
     return {
         is_valid: true,
@@ -242,4 +242,23 @@ function checkExportAvailable() {
 
 function showServicesLoginLoader() {
     loaderWrapper.show();
+}
+
+function showDialog(groupId){
+
+    var dialog = $( "#dialog-descriptions-"+groupId ).dialog({
+        modal: true,
+        buttons: {
+        "Save": function() {
+          dialog.dialog( "close" );
+        },
+        Cancel: function() {
+          dialog.dialog( "close" );
+        }
+      }});
+}
+
+
+function updateDescriptionsPreview(el, groupId){
+    $('#aha-descriptions-preview-'+groupId)[0].value = $(el)[0].value
 }

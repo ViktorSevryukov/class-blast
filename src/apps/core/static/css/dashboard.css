@@ -91,3 +91,11 @@ td {
 .info-message {
     padding: 1rem;
 }
+
+.dialog-descriptions{
+    display: none;
+}
+
+.aha-descriptions-preview{
+    cursor: pointer;
+}
