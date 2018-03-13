@@ -1,3 +1,5 @@
+import stripe
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -121,5 +123,33 @@ class SyncView(LoginRequiredMixin, View):
             password = credentials.password
             importer = ClassImporter(username, password, request.user)
             importer.run()
+
+        return redirect(reverse_lazy('dashboard:manage'))
+
+
+class PaymentView(LoginRequiredMixin, View):
+    login_url = '/auth/login/'
+    redirect_field_name = ''
+    template_name = 'dashboard.html'
+
+    def post(self, request):
+        # Set your secret key: remember to change this to your live secret key in production
+        # See your keys here: https://dashboard.stripe.com/account/apikeys
+        stripe.api_key = settings.TEST_STRIPE_API_KEY
+
+        # Token is created using Checkout or Elements!
+        # Get the payment token ID submitted by the form:
+        token = request.POST['stripeToken']
+
+        # Charge the user's card:
+        charge = stripe.Charge.create(
+            amount=settings.TEST_STRIPE_AMOUNT,
+            currency="usd",
+            description="Pro plan charge",
+            source=token,
+        )
+        if charge.paid:
+            request.user.version = request.user.VERSIONS.PRO
+            request.user.save()
 
         return redirect(reverse_lazy('dashboard:manage'))

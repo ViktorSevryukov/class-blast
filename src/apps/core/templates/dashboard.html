@@ -9,6 +9,17 @@
 
 {% block content %}
   {% if user.is_authenticated %}
+          <form action="/dashboard/payment/" method="POST">{% csrf_token %}
+  <script
+    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+    data-key="pk_test_yD2VY8XsjaHMUrG1fRYMmTdP"
+    data-amount="999"
+    data-name="Demo Site"
+    data-description="Example charge"
+    data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+    data-locale="auto">
+  </script>
+</form>
     {% csrf_token %}
     <div class="table-wrapper">
       <table id="manager-table" class="table table-striped">

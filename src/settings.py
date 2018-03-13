@@ -201,3 +201,6 @@ LOGGING = {
         },
     },
 }
+
+TEST_STRIPE_API_KEY = "sk_test_Utq2YYmvaznN0CcXNYOX4vBV"
+TEST_STRIPE_AMOUNT = 999
