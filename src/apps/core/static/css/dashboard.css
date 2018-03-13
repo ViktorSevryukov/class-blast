@@ -87,3 +87,7 @@ td {
     filter: blur(2px);
     -webkit-filter: blur(2px);
 }
+
+.info-message {
+    padding: 1rem;
+}

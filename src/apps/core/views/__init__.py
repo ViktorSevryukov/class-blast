@@ -1,3 +1,5 @@
+import stripe
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -105,6 +107,17 @@ class DashboardView(LoginRequiredMixin, ListView):
         aha_fields = {field.type: field.value for field in
                       self.request.user.aha_fields.all()}
         context['aha_fields'] = aha_fields
+
+        if self.request.GET.get('success', None):
+            context['info_message'] = {
+                'title': 'Congratulations!',
+                'text': "You're about to free up a lot of your time. And be able to market your classes on other sites!"
+            }
+        else:
+            context['info_message'] = {
+                'title': 'Teach ClassBlast',
+                'text': "ClassBlast found your Enrollware classes. Everyone has their own naming format for their classes which are not the same as AHA’s naming format - we need you to teach ClassBlast how to work. Please map your class info with AHA’s options. Don’t worry, you only have to do  this once for each class."
+            }
         return context
 
 
@@ -121,5 +134,33 @@ class SyncView(LoginRequiredMixin, View):
             password = credentials.password
             importer = ClassImporter(username, password, request.user)
             importer.run()
+
+        return redirect(reverse_lazy('dashboard:manage'))
+
+
+class PaymentView(LoginRequiredMixin, View):
+    login_url = '/auth/login/'
+    redirect_field_name = ''
+    template_name = 'dashboard.html'
+
+    def post(self, request):
+        # Set your secret key: remember to change this to your live secret key in production
+        # See your keys here: https://dashboard.stripe.com/account/apikeys
+        stripe.api_key = settings.TEST_STRIPE_API_KEY
+
+        # Token is created using Checkout or Elements!
+        # Get the payment token ID submitted by the form:
+        token = request.POST['stripeToken']
+
+        # Charge the user's card:
+        charge = stripe.Charge.create(
+            amount=settings.TEST_STRIPE_AMOUNT,
+            currency="usd",
+            description="Pro plan charge",
+            source=token,
+        )
+        if charge.paid:
+            request.user.version = request.user.VERSIONS.PRO
+            request.user.save()
 
         return redirect(reverse_lazy('dashboard:manage'))

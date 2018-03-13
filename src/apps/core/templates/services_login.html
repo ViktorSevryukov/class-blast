@@ -5,6 +5,14 @@
   <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
 
+{% block info_message %}
+    <div class="info-message">
+         <h3>Let’s see what’s under the hood</h3>
+        <div>ClassBlast needs your login for both sites in order to do it’s magic. Don’t worry, your logins are not exposed, and honestly, you’re not that interesting.</div>
+    </div>
+
+{% endblock %}
+
 {% block content %}
   <div class="container text-center">
     <h3 class="panel-title">Class Blast</h3>
