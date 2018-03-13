@@ -107,6 +107,10 @@ class DashboardView(LoginRequiredMixin, ListView):
         aha_fields = {field.type: field.value for field in
                       self.request.user.aha_fields.all()}
         context['aha_fields'] = aha_fields
+        context['info_message'] = {
+            'title': 'Teach ClassBlast',
+            'text': 'ClassBlast found your Enrollware classes. Everyone has their own naming format for their classes which are not the same as AHA’s naming format - we need you to teach ClassBlast how to work. Please map your class info with AHA’s options. Don’t worry, you only have to do  this once for each class.'
+        }
         return context
 
 

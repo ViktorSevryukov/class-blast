@@ -7,6 +7,14 @@
 
 {% load extra_filters %}
 
+{% block info_message %}
+    <div class="info-message">
+        <h3>{{ info_message.title }}</h3>
+        <div>{{ info_message.text }}</div>
+    </div>
+
+{% endblock %}
+
 {% block content %}
   {% if user.is_authenticated %}
           <form action="/dashboard/payment/" method="POST">{% csrf_token %}
