@@ -10,7 +10,7 @@ admin.site.register(AHAField)
 
 
 class AdminEnrollWareGroup(admin.ModelAdmin):
-    list_display = ('course', 'status', 'group_id')
-    search_fields = ('course', 'status', 'group_id')
+    list_display = ('course', 'status', 'group_id', 'user')
+    search_fields = ('course', 'status', 'group_id', 'user')
 admin.site.register(EnrollWareGroup, AdminEnrollWareGroup)
 

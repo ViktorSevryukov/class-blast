@@ -16,7 +16,9 @@ class User(AbstractUser):
     )
 
     version = models.CharField(choices=VERSIONS,
-                               default=VERSIONS.LITE, max_length=8)
+                               default=VERSIONS.LITE, max_length=8,
+                               help_text=_("Users with Lite plan could sync one class only"),
+                               verbose_name=_("plan"))
 
     def __init__(self, *args, **kwargs):
         super(User, self).__init__(*args, **kwargs)
@@ -68,3 +70,11 @@ class User(AbstractUser):
 
             if self.version == self.VERSIONS.PRO:
                 self.enrollware_groups.update(available_to_export=True)
+
+    def get_full_name(self):
+        full_name = "{} {}".format(self.first_name, self.last_name).strip()
+        return full_name or self.username
+
+    def __str__(self):
+        return self.get_full_name()
+
