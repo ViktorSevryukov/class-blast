@@ -15,17 +15,18 @@
         <tr>
           <th></th>
           <th>Course</th>
-          <th>AHA Course</th>
+          {#          <th>AHA Course</th>#}
           <th>Location</th>
-          <th>AHA Location</th>
+          {#          <th>AHA Location</th>#}
           <th>Instructor</th>
-          <th>AHA Instructor</th>
-          <th>TC</th>
-          <th>TS</th>
+          {#          <th>AHA Instructor</th>#}
+          <th>TC, TS</th>
+          {#          <th>TS</th>#}
           <th>Roster Limit</th>
           <th>Cutoff</th>
-          <th>Class Description</th>
-          <th>Class Notes</th>
+          <th>Description/<br>Student Notes</th>
+          {#          <th>Class Description</th>#}
+          {#          <th>Class Notes</th>#}
         </tr>
 
         {% for ew_group in ew_groups %}
@@ -42,142 +43,177 @@
               {% endif %}
 
             </td>
-            <td class="td-md"><span
-                    {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}
-                      class="text-danger" {% endif %}>{{ ew_group.course }}</span>
-            </td>
+
             <td class="td-md">
-              <select
-                      {% if not ew_group.available_to_export %}
-                        disabled
-                      {% endif %}
-                        id="aha-course-{{ ew_group.id }}" name="course"
-                        class="form-control">
-                {% for option in aha_fields.course %}
-                  <option
-                          {% if option == ew_group.get_default_course %}
-                            selected
+              <div class="cell-div">
+                <!-- enroll course -->
+                <div
+                        {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}
+                          class="text-danger" {% endif %}>{{ ew_group.course }}</div>
+                <!-- /enroll course -->
+                <!-- aha course -->
+                <div>
+                  <select
+                          {% if not ew_group.available_to_export %}
+                            disabled
                           {% endif %}
-                            value="{{ option|get_value }}">
-                    {{ option|get_text }}
-                  </option>
-                {% endfor %}
-              </select>
+                            id="aha-course-{{ ew_group.id }}" name="course"
+                            class="form-control">
+                    {% for option in aha_fields.course %}
+                      <option
+                              {% if option == ew_group.get_default_course %}
+                                selected
+                              {% endif %}
+                                value="{{ option|get_value }}">
+                        {{ option|get_text }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <!-- /aha course -->
             </td>
+            <!-- /enroll course -->
 
-            <td class="td-md"><span>{{ ew_group.location }}</span></td>
             <td class="td-md">
-              <select
-                      {% if not ew_group.available_to_export %}
-                        disabled
-                      {% endif %}
-                        id="aha-location-{{ ew_group.id }}" name="location"
-                        class="form-control">
-                {% for option in aha_fields.location %}
-                  <option
-                          {% if option == ew_group.get_default_location %}
-                            selected
+              <div class="cell-div">
+                <!-- enroll location -->
+                <div>{{ ew_group.location }}</div>
+                <!-- /enroll location -->
+                <!-- aha location -->
+                <div>
+                  <select
+                          {% if not ew_group.available_to_export %}
+                            disabled
                           {% endif %}
-                            value="{{ option|get_value }}">
-                    {{ option|get_text }}
-                  </option>
-                {% endfor %}
-              </select>
+                            id="aha-location-{{ ew_group.id }}" name="location"
+                            class="form-control">
+                    {% for option in aha_fields.location %}
+                      <option
+                              {% if option == ew_group.get_default_location %}
+                                selected
+                              {% endif %}
+                                value="{{ option|get_value }}">
+                        {{ option|get_text }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <!-- /aha location -->
             </td>
 
-            <td class="td-md">{{ ew_group.instructor }}</td>
+            <td class="td-md">
+              <div class="cell-div">
+                <!-- enroll instructor -->
+                <div>{{ ew_group.instructor }}</div>
+                <!-- /enroll instructor -->
+                <!-- aha instructor -->
+                <div><select
+                        {% if not ew_group.available_to_export %}
+                          disabled
+                        {% endif %}
+                          id="aha-instructor-{{ ew_group.id }}"
+                          name="instructor"
+                          class="form-control">
+                  {% for option in aha_fields.instructor %}
+                    <option
+                            {% if option == ew_group.get_default_instructor %}
+                              selected
+                            {% endif %}
+                              value="{{ option|get_value }}">
+                      {{ option|get_text }}
+                    </option>
+                  {% endfor %}
+                </select>
+                </div>
+              </div>
+              <!-- /aha instructor -->
+            </td>
 
             <td class="td-md">
-              <select
-                      {% if not ew_group.available_to_export %}
-                        disabled
-                      {% endif %}
-                        id="aha-instructor-{{ ew_group.id }}"
-                        name="instructor"
-                        class="form-control">
-                {% for option in aha_fields.instructor %}
-                  <option
-                          {% if option == ew_group.get_default_instructor %}
-                            selected
+              <div class="cell-div">
+                <!-- TC -->
+                <div>
+                  <select
+                          {% if not ew_group.available_to_export %}
+                            disabled
                           {% endif %}
-                            value="{{ option|get_value }}">
-                    {{ option|get_text }}
-                  </option>
-                {% endfor %}
-              </select>
+                            id="aha-tc-{{ ew_group.id }}"
+                            name="training_center"
+                            class="form-control">
+                    {% for option in aha_fields.tc %}
+                      <option value="{{ option|get_value }}">
+                        {{ option|get_text }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <!-- /TC -->
+                <!-- TS -->
+                <div>
+                  <select
+                          {% if not ew_group.available_to_export %}
+                            disabled
+                          {% endif %}
+                            id="aha-ts-{{ ew_group.id }}" name="training_site"
+                            class="form-control">
+                    {% for option in aha_fields.ts %}
+                      <option value="{{ option|get_value }}">
+                        {{ option|get_text }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <!-- /TS -->
+              </div>
             </td>
-
-            <td class="td-md">
-              <select
-                      {% if not ew_group.available_to_export %}
-                        disabled
-                      {% endif %}
-                        id="aha-tc-{{ ew_group.id }}" name="training_center"
-                        class="form-control">
-                {% for option in aha_fields.tc %}
-                  <option value="{{ option|get_value }}">
-                    {{ option|get_text }}
-                  </option>
-                {% endfor %}
-              </select>
-            </td>
-
-            <td class="td-md">
-              <select
-                      {% if not ew_group.available_to_export %}
-                        disabled
-                      {% endif %}
-                        id="aha-ts-{{ ew_group.id }}" name="training_site"
-                        class="form-control">
-                {% for option in aha_fields.ts %}
-                  <option value="{{ option|get_value }}">
-                    {{ option|get_text }}
-                  </option>
-                {% endfor %}
-
-              </select>
-            </td>
-
             <td class="td-xs">
-              <input
-                      {% if not ew_group.available_to_export %}
-                        disabled
-                      {% endif %}
-                        id="aha-roster-limit-{{ ew_group.id }}"
-                        class="input-sm form-control" name="roster_limit"
-                        value={{ ew_group.max_students }}>
+              <div class="cell-div">
+                <input
+                        {% if not ew_group.available_to_export %}
+                          disabled
+                        {% endif %}
+                          id="aha-roster-limit-{{ ew_group.id }}"
+                          class="input-sm form-control" name="roster_limit"
+                          value={{ ew_group.max_students }}>
+              </div>
             </td>
 
             <td class="td-sm">
-              <input
-                      {% if not ew_group.available_to_export %}
-                        disabled
-                      {% endif %}
-                        id="aha-cutoff-date-{{ ew_group.id }}"
-                        class="input-sm form-control" name="cutoff_date"
-                        value={{ ew_group.get_cutoff_date }}>
+              <div class="cell-div">
+                <input
+                        {% if not ew_group.available_to_export %}
+                          disabled
+                        {% endif %}
+                          id="aha-cutoff-date-{{ ew_group.id }}"
+                          class="input-sm form-control" name="cutoff_date"
+                          value={{ ew_group.get_cutoff_date }}>
+              </div>
             </td>
 
-            <td class="td-md">
-              <input
+            <td class="td-sm">
+              <div class="cell-div">
+                <input
 
-                      {% if not ew_group.available_to_export %}
-                        disabled
-                      {% endif %}id="aha-class-description-{{ ew_group.id }}"
-                        class="form-control"
-                        name="class_description" type="text"
-                        size="50" required>
+                        {% if not ew_group.available_to_export %}
+                          disabled
+                        {% endif %}id="aha-class-description-{{ ew_group.id }}"
+                          class="form-control"
+                          name="class_description" type="text"
+                          size="50" required>
+              </div>
             </td>
 
-            <td class="td-md">
-              <input
-
-                      {% if not ew_group.available_to_export %}
-                        disabled
-                      {% endif %}id="aha-class-notes-{{ ew_group.id }}"
-                        class="form-control" name="class_notes" type="text"
-                        size="50">
-            </td>
+            {#            <td class="td-sm">#}
+            {#              <input#}
+            {##}
+            {#                      {% if not ew_group.available_to_export %}#}
+            {#                        disabled#}
+            {#                      {% endif %}id="aha-class-notes-{{ ew_group.id }}"#}
+            {#                        class="form-control" name="class_notes" type="text"#}
+            {#                        size="50">#}
+            {#            </td>#}
 
           </tr>
 
