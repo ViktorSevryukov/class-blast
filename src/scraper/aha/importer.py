@@ -121,4 +121,4 @@ class AHAImporter(AHABase):
             self.get_fields()
             self.save_to_db()
         except:
-            raise Exception("Sorry, some trouble in data import")
+            raise Exception("Sorry, some trouble with data import")
