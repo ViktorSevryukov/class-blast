@@ -10,6 +10,7 @@ const htmlFields = {
     classNotes: '#aha-class-notes-'
 };
 
+const managePage = location.protocol + '//' + location.host + '/dashboard/manage/';
 
 var checkStatusInterval = null;
 var exportControls = $('#export-controls');
@@ -48,12 +49,14 @@ function handleResponse(data, msg, redirectUrl) {
         for (var i in data.tasks){
             message += '\n* ' + ' ' + data.tasks[i].message;
         }
+        alert(message);
     }
 
-    else if (data.code === 'SUCCESS')
+    else if (data.code === 'SUCCESS') {
         message = msg + ' successfully ended';
-
-    alert(message);
+        alert(message);
+        location.href = managePage + '?success=1'
+    }
 
     stopChecking();
     if (!redirectUrl)
@@ -121,7 +124,7 @@ function prepareFields(groupId) {
         'roster_limit': $(getFieldId('rosterLimit', groupId)).val().trim(),
         'cutoff_date': $(getFieldId('cutoffDate', groupId)).val().trim(),
         'class_description': $(getFieldId('classDescription', groupId)).val().trim(),
-        'class_notes': $(getFieldId('classNotes', groupId)).val().trim()
+        // 'class_notes': $(getFieldId('classNotes', groupId)).val().trim()
     };
     return {
         is_valid: true,
