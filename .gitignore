@@ -3,3 +3,6 @@
 .idea
 *.log
 local_settings.py
+*.log.*
+db.sqlite3
+
