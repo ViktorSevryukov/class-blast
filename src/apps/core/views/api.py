@@ -76,12 +76,13 @@ def export_group(request):
 
         MAPPER_FIELDS = (
             AHAField.FIELD_TYPES.COURSE, AHAField.FIELD_TYPES.LOCATION,
-            AHAField.FIELD_TYPES.INSTRUCTOR)
+            AHAField.FIELD_TYPES.INSTRUCTOR, AHAField.FIELD_TYPES.CLASS_DESCRIPTION,
+            AHAField.FIELD_TYPES.CLASS_NOTES)
 
         for field in MAPPER_FIELDS:
             Mapper.objects.update_or_create(
                 aha_field=AHAField.objects.filter(type=field).first(),
-                enroll_value=getattr(enroll_group, field),
+                enroll_value=getattr(enroll_group, field, enroll_group.course),
                 user=user,
                 defaults={'aha_value': group['aha_data'][field]}
             )

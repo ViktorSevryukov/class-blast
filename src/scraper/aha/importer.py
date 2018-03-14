@@ -108,6 +108,13 @@ class AHAImporter(AHABase):
     def save_to_db(self):
         logging.info("Finish AHA Importing, saving")
         AHAField.objects.filter(user=self.user).delete()
+
+        description_field = AHAField(type=AHAField.FIELD_TYPES.CLASS_DESCRIPTION, value=[], user=self.user)
+        notes_field = AHAField(type=AHAField.FIELD_TYPES.CLASS_NOTES, value=[], user=self.user)
+
+        other_fields = [description_field, notes_field]
+        self.group_data.extend(other_fields)
+
         AHAField.objects.bulk_create(self.group_data)
 
     def run(self):
@@ -120,5 +127,6 @@ class AHAImporter(AHABase):
         try:
             self.get_fields()
             self.save_to_db()
-        except:
+        except Exception as msg:
+            logger.info("Error: {}".format(msg))
             raise Exception("Sorry, some trouble with data import")
