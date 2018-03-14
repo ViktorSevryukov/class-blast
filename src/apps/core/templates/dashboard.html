@@ -17,21 +17,6 @@
 
 {% block content %}
 
-  {% if not request.user.version == request.user.VERSIONS.PRO %}
-    <form action="/dashboard/payment/" method="POST">{% csrf_token %}
-      <script
-              src="https://checkout.stripe.com/checkout.js"
-              class="stripe-button"
-              data-key="pk_test_yD2VY8XsjaHMUrG1fRYMmTdP"
-              data-amount="999"
-              data-name="Demo Site"
-              data-description="Example charge"
-              data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
-              data-locale="auto">
-      </script>
-    </form>
-  {% endif %}
-  {% csrf_token %}
   <div class="table-wrapper">
     <table id="manager-table" class="table table-striped">
       <tr>
@@ -59,7 +44,7 @@
             {% if ew_group.available_to_export %}
               <div class="form-check">
                 <input id="check-{{ ew_group.id }}"
-                       class="check-control"
+                       class="group-check check-control"
                        type="checkbox"
                        onclick="checkExportAvailable()">
               </div>
