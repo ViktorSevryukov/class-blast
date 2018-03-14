@@ -88,7 +88,7 @@
                                     {% endif %}
                                     {% for option in aha_fields.course %}
                                         <option
-                                                {% if option == ew_group.get_default_course %}
+                                                {% if option|get_value == ew_group.get_default_course %}
                                                     selected
                                                 {% endif %}
                                                     value="{{ option|get_value }}">
@@ -122,7 +122,7 @@
                                     {% endif %}
                                     {% for option in aha_fields.location %}
                                         <option
-                                                {% if option == ew_group.get_default_location %}
+                                                {% if option|get_value == ew_group.get_default_location %}
                                                     selected
                                                 {% endif %}
                                                     value="{{ option|get_value }}">
@@ -153,7 +153,7 @@
                                 {% endif %}
                                 {% for option in aha_fields.instructor %}
                                     <option
-                                            {% if option == ew_group.get_default_instructor %}
+                                            {% if option|get_value == ew_group.get_default_instructor %}
                                                 selected
                                             {% endif %}
                                                 value="{{ option|get_value }}">
