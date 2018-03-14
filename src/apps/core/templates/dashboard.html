@@ -17,21 +17,6 @@
 
 {% block content %}
 
-  {% if not request.user.version == request.user.VERSIONS.PRO %}
-    <form action="/dashboard/payment/" method="POST">{% csrf_token %}
-      <script
-              src="https://checkout.stripe.com/checkout.js"
-              class="stripe-button"
-              data-key="pk_test_yD2VY8XsjaHMUrG1fRYMmTdP"
-              data-amount="999"
-              data-name="Demo Site"
-              data-description="Example charge"
-              data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
-              data-locale="auto">
-      </script>
-    </form>
-  {% endif %}
-  {% csrf_token %}
   <div class="table-wrapper">
     <table id="manager-table" class="table table-striped">
       <tr>
@@ -59,7 +44,7 @@
             {% if ew_group.available_to_export %}
               <div class="form-check">
                 <input id="check-{{ ew_group.id }}"
-                       class="check-control"
+                       class="group-check check-control"
                        type="checkbox"
                        onclick="checkExportAvailable()">
               </div>
@@ -245,7 +230,7 @@
                       {% endif %}id="aha-descriptions-preview-{{ ew_group.id }}"
                      class="form-control aha-descriptions-preview"
                      type="text"
-                     size="50" required readonly>
+                     size="50" required readonly value="{{ ew_group.get_default_description }}">
             </div>
           </td>
 
@@ -258,16 +243,37 @@
           <input onkeypress="updateDescriptionsPreview(this, {{ ew_group.id }})"
                  id="aha-class-description-{{ ew_group.id }}"
                  class="form-control" name="class_description" type="text"
-                 size="50">
+                 size="50" value="{{ ew_group.get_default_description }}">
           Student notes
           <input id="aha-class-notes-{{ ew_group.id }}"
                  class="form-control" name="class_notes" type="text"
-                 size="50">
+                 size="50" value="{{ ew_group.get_default_notes }}">
 
         </div>
         <!-- /dialog with description and student notes -->
       {% endfor %}
     </table>
+
+    <!-- PAYMENT BUTTON -->
+  {% if not request.user.version == request.user.VERSIONS.PRO %}
+    <div id="payment-button">
+      <form action="/dashboard/payment/" method="POST">{% csrf_token %}
+        <script
+                src="https://checkout.stripe.com/checkout.js"
+                class="stripe-button"
+                data-key="pk_test_yD2VY8XsjaHMUrG1fRYMmTdP"
+                data-amount="999"
+                data-name="Demo Site"
+                data-description="Example charge"
+                data-image="https://stripe.com/img/documentation/checkout/marketplace.png"
+                data-locale="auto">
+        </script>
+      </form>
+    </div>
+  {% endif %}
+  <!-- /PAYMENT BUTTON -->
+
+
   </div>
 
   <!-- PAGINATION -->

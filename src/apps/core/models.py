@@ -26,13 +26,16 @@ class AHAField(TimeStampedModel):
         ('instructor', 'INSTRUCTOR', _("Instructor")),
         ('tc', 'TC', _("Training Center")),
         ('ts', 'TS', _("Training Site")),
-        ('lang', 'LANGUAGE', _("Language"))
+        ('lang', 'LANGUAGE', _("Language")),
+        ('class_description', 'CLASS_DESCRIPTION', _("Class description")),
+        ('class_notes', 'CLASS_NOTES', _("Class notes"))
 
     )
 
     type = models.CharField(_("type"), max_length=64, choices=FIELD_TYPES, default="")
     value = ArrayField(models.CharField(_("value"), max_length=128, default=""))
     user = models.ForeignKey('auth_core.User', related_name='aha_fields', verbose_name=_("user"))
+
     class Meta(object):
         verbose_name = _("aha field")
         verbose_name_plural = _("aha field")
@@ -113,6 +116,20 @@ class EnrollWareGroup(TimeStampedModel):
             user=self.user,
             enroll_value=self.instructor).last()
         return mapper.aha_value if mapper else None
+
+    def get_default_description(self):
+        mapper = Mapper.objects.filter(
+            aha_field__type=AHAField.FIELD_TYPES.CLASS_DESCRIPTION,
+            user=self.user,
+            enroll_value=self.course).last()
+        return mapper.aha_value if mapper else ""
+
+    def get_default_notes(self):
+        mapper = Mapper.objects.filter(
+            aha_field__type=AHAField.FIELD_TYPES.CLASS_NOTES,
+            user=self.user,
+            enroll_value=self.course).last()
+        return mapper.aha_value if mapper else ""
 
 
 @receiver(post_delete, sender=EnrollWareGroup)

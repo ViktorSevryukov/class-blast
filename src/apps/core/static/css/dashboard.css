@@ -95,8 +95,8 @@ td {
 }
 
 .blurred {
-    filter: blur(2px);
-    -webkit-filter: blur(2px);
+    filter: blur(4px);
+    -webkit-filter: blur(4px);
 }
 
 .info-message {
@@ -118,3 +118,9 @@ td {
 .select-field {
     width: 100% !important;
 }
+
+/*#payment-button{*/
+    /*position: absolute;*/
+    /*left: 50%;*/
+    /*top: 100%;*/
+/*}*/
