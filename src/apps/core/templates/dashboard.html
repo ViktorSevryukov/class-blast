@@ -239,7 +239,7 @@
 
                     <td class="td-sm">
                         <div class="cell-div">
-                            <input onclick="showDialog({{ ew_group.id }})"
+                            <input onclick="clickOnPreview({{ ew_group.id }})"
                                     {% if not ew_group.available_to_export %}
                                    disabled
                                     {% endif %}id="aha-descriptions-preview-{{ ew_group.id }}"
@@ -252,7 +252,7 @@
                 </tr>
                 <!-- dialog with description and student notes -->
                 <div class="dialog-descriptions" id="dialog-descriptions-{{ ew_group.id }}" title="Description/ Student notes">
-                    Description {{ ew_group.id }}
+                    Description
                     <input onkeypress="updateDescriptionsPreview(this, {{ ew_group.id }})"
                             id="aha-class-description-{{ ew_group.id }}"
                            class="form-control" name="class_description" type="text"

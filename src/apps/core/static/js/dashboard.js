@@ -44,9 +44,9 @@ function handleResponse(data, msg, redirectUrl) {
 
     var message = '';
 
-    if (data.code === 'FAILED'){
+    if (data.code === 'FAILED') {
         message = msg + ' ended with errors, can not ' + msg + ' ' + data.tasks.length + ' groups';
-        for (var i in data.tasks){
+        for (var i in data.tasks) {
             message += '\n* ' + ' ' + data.tasks[i].message;
         }
         alert(message);
@@ -67,7 +67,7 @@ function getFieldId(name, groupId) {
     return htmlFields[name] + groupId;
 }
 
-function validateFields(groupId){
+function validateFields(groupId) {
     var selects = [
         $(getFieldId('course', groupId)),
         $(getFieldId('location', groupId)),
@@ -76,8 +76,8 @@ function validateFields(groupId){
         $(getFieldId('ts', groupId))
     ];
 
-    for (var i in selects){
-        if (selects[i].val() === ""){
+    for (var i in selects) {
+        if (selects[i].val() === "") {
             selects[i].focus();
             return false
         }
@@ -244,21 +244,40 @@ function showServicesLoginLoader() {
     loaderWrapper.show();
 }
 
-function showDialog(groupId){
+function clickOnPreview(groupId) {
 
-    var dialog = $( "#dialog-descriptions-"+groupId ).dialog({
-        modal: true,
-        buttons: {
-        "Save": function() {
-          dialog.dialog( "close" );
-        },
-        Cancel: function() {
-          dialog.dialog( "close" );
-        }
-      }});
+    var oldValues = {
+        description: $("#aha-class-description-" + groupId).val(),
+        notes: $("#aha-class-notes-" + groupId).val()
+    };
+
+    showDialog(groupId, oldValues);
 }
 
+function showDialog(groupId, oldValues) {
 
-function updateDescriptionsPreview(el, groupId){
-    $('#aha-descriptions-preview-'+groupId)[0].value = $(el)[0].value
+    var dialog = $("#dialog-descriptions-" + groupId).dialog({
+          open: function(event, ui) {
+        $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+    },
+        close: function() {
+              var description = $("#aha-class-description-" + groupId).val();
+             $('#aha-descriptions-preview-' + groupId).val(description)
+        },
+        modal: true,
+        buttons: {
+            "Save": function () {
+                dialog.dialog("close");
+            },
+            Cancel: function () {
+                $("#aha-class-description-" + groupId).val(oldValues.description);
+                $("#aha-class-notes-" + groupId).val(oldValues.notes);
+                dialog.dialog("close");
+            }
+        }
+    });
+}
+
+function updateDescriptionsPreview(el, groupId) {
+    $('#aha-descriptions-preview-' + groupId)[0].value = $(el)[0].value
 }
