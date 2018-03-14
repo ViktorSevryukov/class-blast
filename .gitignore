@@ -1,8 +1,8 @@
 /venv
 *.pyc
 .idea
+/logs
 *.log
 local_settings.py
-*.log.*
 db.sqlite3
 
