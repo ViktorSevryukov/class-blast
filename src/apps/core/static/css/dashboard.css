@@ -16,6 +16,10 @@ select {
     border-radius: 5px;
 }
 
+th {
+    text-align: center;
+}
+
 td {
     height: 7rem;
 }
@@ -46,12 +50,19 @@ td {
     width: 100%;
 }
 
+.form-check{
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
 .check-control {
-    -webkit-transform: scale(1.5);
-    -moz-transform: scale(1.5);
-    -ms-transform: scale(1.5);
-    -o-transform: scale(1.5);
-    transform: scale(1.5);
+    /*-webkit-transform: scale(1.5);*/
+    /*-moz-transform: scale(1.5);*/
+    /*-ms-transform: scale(1.5);*/
+    /*-o-transform: scale(1.5);*/
+    /*transform: scale(1.5);*/
 }
 
 #export-controls {
@@ -92,10 +103,18 @@ td {
     padding: 1rem;
 }
 
-.dialog-descriptions{
+.dialog-descriptions {
     display: none;
 }
 
-.aha-descriptions-preview{
+.aha-descriptions-preview {
     cursor: pointer;
+}
+
+.select-field-wrapper {
+    width: 100%;
+}
+
+.select-field {
+    width: 100% !important;
 }
