@@ -257,12 +257,12 @@ function clickOnPreview(groupId) {
 function showDialog(groupId, oldValues) {
 
     var dialog = $("#dialog-descriptions-" + groupId).dialog({
-          open: function(event, ui) {
-        $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
-    },
-        close: function() {
-              var description = $("#aha-class-description-" + groupId).val();
-             $('#aha-descriptions-preview-' + groupId).val(description)
+        open: function (event, ui) {
+            $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
+        },
+        close: function () {
+            var description = $("#aha-class-description-" + groupId).val();
+            $('#aha-descriptions-preview-' + groupId).val(description)
         },
         modal: true,
         buttons: {
