@@ -18,15 +18,25 @@ var exportButton = $('#export-button')
 var loaderWrapper = $('#loader-wrapper');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
+function initWidgets() {
+    $('.select-field').tooltip({
+     position: {
+        my: "center bottom-20",
+        at: "center top",
+        using: function( position, feedback ) {
+          $( this ).css( position );
+          $( "<div>" )
+            .addClass( "arrow" )
+            .addClass( feedback.vertical )
+            .addClass( feedback.horizontal )
+            .appendTo( this );
+        }
+      }
+    });
+    $('.aha-cutoff-date').datepicker();
+}
 
-            $('.select-field').tooltip({
-                position: {
-                    my: "left top",
-                    at: "right+5 top-5",
-                    collision: "none"
-                }
-            });
-
+initWidgets();
 checkExportAvailable();
 
 function csrfSafeMethod(method) {
@@ -292,4 +302,3 @@ function updateDescriptionsPreview(el, groupId) {
     $('#aha-descriptions-preview-' + groupId)[0].value = $(el)[0].value
 }
 
-$('.aha-cutoff-date').datepicker()
