@@ -18,6 +18,15 @@ var exportButton = $('#export-button')
 var loaderWrapper = $('#loader-wrapper');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
+
+            $('.select-field').tooltip({
+                position: {
+                    my: "left top",
+                    at: "right+5 top-5",
+                    collision: "none"
+                }
+            });
+
 checkExportAvailable();
 
 function csrfSafeMethod(method) {
@@ -79,6 +88,7 @@ function validateFields(groupId) {
     for (var i in selects) {
         if (selects[i].val() === "") {
             selects[i].focus();
+            selects[i].tooltip("open");
             return false
         }
     }
