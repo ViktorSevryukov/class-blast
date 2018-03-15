@@ -281,3 +281,5 @@ function showDialog(groupId, oldValues) {
 function updateDescriptionsPreview(el, groupId) {
     $('#aha-descriptions-preview-' + groupId)[0].value = $(el)[0].value
 }
+
+$('.aha-cutoff-date').datepicker()

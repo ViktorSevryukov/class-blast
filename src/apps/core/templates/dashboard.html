@@ -140,13 +140,13 @@
                         disabled
                       {% endif %}
                         id="aha-cutoff-date-{{ ew_group.id }}"
-                        class="input-sm form-control"
+                        class="input-sm form-control aha-cutoff-date"
                         name="cutoff_date"
                         value={{ ew_group.get_cutoff_date }}>
             </div>
           </td>
 
-          <td rowspan="2" class="td-sm background-white">
+          <td rowspan="2" class="td-md background-white">
             <div class="cell-div">
               <input onclick="clickOnPreview({{ ew_group.id }})"
                       {% if not ew_group.available_to_export %}
