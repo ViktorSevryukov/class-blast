@@ -76,7 +76,7 @@
             <!-- TC -->
             <div class="cell-div">
               <div class="select-field-wrapper">
-                <select
+                <select title="Please, select the Training Center"
                         {% if not ew_group.available_to_export %}
                           disabled
                         {% endif %}
@@ -96,7 +96,7 @@
               </div>
               <!-- TS -->
               <div class="select-field-wrapper">
-                <select
+                <select title="Please, select the Training Site"
                         {% if not ew_group.available_to_export %}
                           disabled
                         {% endif %}
@@ -174,7 +174,7 @@
             <div class="cell-div">
               <!-- aha course -->
               <div class="select-field-wrapper">
-                <select
+                <select title="Please, select the course"
                         {% if not ew_group.available_to_export %}
                           disabled
                         {% endif %}
@@ -202,7 +202,7 @@
             <div class="cell-div">
               <!-- aha location -->
               <div class="select-field-wrapper">
-                <select
+                <select title="Please, select the location"
                         {% if not ew_group.available_to_export %}
                           disabled
                         {% endif %}
@@ -230,7 +230,8 @@
           <td class="td-md {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}td-colored-error{% else %}td-colored{% endif %}">
             <div class="cell-div">
               <!-- aha instructor -->
-              <div class="select-field-wrapper"><select
+              <div class="select-field-wrapper">
+                <select title="Please, select the instructor"
                       {% if not ew_group.available_to_export %}
                         disabled
                       {% endif %}
