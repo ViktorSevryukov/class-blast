@@ -7,7 +7,8 @@ const htmlFields = {
     rosterLimit: '#aha-roster-limit-',
     cutoffDate: '#aha-cutoff-date-',
     classDescription: '#aha-class-description-',
-    classNotes: '#aha-class-notes-'
+    classNotes: '#aha-class-notes-',
+    descriptionsPreview: '#aha-descriptions-preview-'
 };
 
 const managePage = location.protocol + '//' + location.host + '/dashboard/manage/';
@@ -18,8 +19,9 @@ var exportButton = $('#export-button')
 var loaderWrapper = $('#loader-wrapper');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
-function initWidgets() {
-    $('.select-field').tooltip({
+
+function addTooltipToElement(el){
+    return $(el).tooltip({
      position: {
         my: "center bottom-20",
         at: "center top",
@@ -33,10 +35,14 @@ function initWidgets() {
         }
       }
     });
-    $('.aha-cutoff-date').datepicker();
 }
 
-initWidgets();
+function initWidgets() {
+    $('.aha-cutoff-date').datepicker();
+
+}
+
+
 checkExportAvailable();
 
 function csrfSafeMethod(method) {
@@ -98,7 +104,7 @@ function validateFields(groupId) {
     for (var i in selects) {
         if (selects[i].val() === "") {
             selects[i].focus();
-            selects[i].tooltip("open");
+            addTooltipToElement(selects[i]).tooltip("open")
             return false
         }
     }
@@ -121,7 +127,9 @@ function validateFields(groupId) {
     // validate description field
     var classDescrEl = $(getFieldId('classDescription', groupId));
     if (classDescrEl.val().trim() === '') {
-        classDescrEl.focus();
+        var previewDescrEl = $(getFieldId('descriptionsPreview', groupId));
+        previewDescrEl.focus();
+        addTooltipToElement(previewDescrEl).tooltip("open");
         return false
     }
 
@@ -302,3 +310,4 @@ function updateDescriptionsPreview(el, groupId) {
     $('#aha-descriptions-preview-' + groupId)[0].value = $(el)[0].value
 }
 
+initWidgets();

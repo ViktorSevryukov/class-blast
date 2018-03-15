@@ -153,7 +153,7 @@
                      disabled
                       {% endif %}id="aha-descriptions-preview-{{ ew_group.id }}"
                      class="form-control aha-descriptions-preview"
-                     type="text"
+                     type="text" title="Please, add class description"
                      size="50" required readonly
                      value="{{ ew_group.get_default_description }}">
             </div>
@@ -263,12 +263,12 @@
         <div class="dialog-descriptions"
              id="dialog-descriptions-{{ ew_group.id }}"
              title="Description/ Student notes">
-          Description
+          <span>Description <span class="text">*</span></span>
           <input onkeypress="updateDescriptionsPreview(this, {{ ew_group.id }})"
                  id="aha-class-description-{{ ew_group.id }}"
                  class="form-control" name="class_description" type="text"
                  size="50" value="{{ ew_group.get_default_description }}">
-          Student notes
+          <span>Student notes</span>
           <input id="aha-class-notes-{{ ew_group.id }}"
                  class="form-control" name="class_notes" type="text"
                  size="50" value="{{ ew_group.get_default_notes }}">
