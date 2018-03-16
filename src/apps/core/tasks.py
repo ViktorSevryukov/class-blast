@@ -31,7 +31,7 @@ def export_to_aha(username, password, group_data):
         ew_group.save()
         raise Exception(msg)
     else:
-        aha_export_logger.info("export success")
+        aha_export_logger.info("export ended")
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
         ew_group.save()
         # ew_group.available_to_export = False
