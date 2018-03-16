@@ -67,7 +67,7 @@
                     {% if success_auth %}
                       disabled
                     {% endif %}
-            " onclick="showServicesLoginLoader()" type="submit" class="btn
+            onclick="showServicesLoginLoader(this)" type="submit" class="btn
             btn-primary">Submit</button>
           </div>
           <input type="hidden" name="service_type" value="enroll">
@@ -128,7 +128,7 @@
                     {% if not success_auth %}
                       disabled
                     {% endif %}
-                      onclick="showServicesLoginLoader()" type="submit"
+                      onclick="showServicesLoginLoader(this)" type="submit"
                       class="btn btn-primary">Submit
             </button>
           </div>

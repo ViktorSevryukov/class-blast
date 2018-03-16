@@ -165,6 +165,22 @@ class AHAExporter(AHABase):
             "Finish, click 'save': {}".format(self.group_data['course']))
         self.browser.execute_script("saveInfo('save','false')")
 
+    def check_success_export(self):
+
+        try:
+            alert_div = WebDriverWait(self.browser, 10).until(
+                EC.presence_of_element_located((By.CLASS_NAME,
+                                                "alert-success")))
+        except:
+            alert_div = self.browser.find_element(By.CLASS_NAME,
+                                                  "alert-danger")
+            ul = alert_div.find_element(By.TAG_NAME, 'ul')
+            li_elements = ul.find_elements(By.TAG_NAME, 'li')
+
+            errors = [li.text for li in li_elements]
+
+            raise Exception('\n'.join(errors))
+
     def run(self):
         try:
             self.login()
@@ -176,7 +192,6 @@ class AHAExporter(AHABase):
         try:
             self.paste_fields()
             self.save_button()
-        except:
-            raise Exception('error while exporting')
-
-        logger.info("Export ended")
+            self.check_success_export()
+        except Exception as msg:
+            raise Exception('error while exporting: {}'.format(msg))
