@@ -268,8 +268,14 @@ function checkExportAvailable() {
     $(exportButton).prop("disabled", !checkedCount)
 }
 
-function showServicesLoginLoader() {
-    loaderWrapper.show();
+function showServicesLoginLoader(el) {
+
+    var serviceType = $(el).closest("form").find('input[name="service_type"]').val();
+
+    if ($("#"+serviceType+"_username").val() !== '' && $("#"+serviceType+"_password").val() !== '') {
+        $(el).hide();
+        loaderWrapper.show();
+    }
 }
 
 function clickOnPreview(groupId) {
