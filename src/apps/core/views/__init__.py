@@ -33,38 +33,39 @@ class ServicesLoginView(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
         service_type = request.POST["service_type"]
-        if service_type == "enroll":
-            form = EnrollLoginForm(request.POST)
-        else:
-            form = AHALoginForm(request.POST)
 
-        if form.is_valid():
+        enroll_form = EnrollLoginForm(
+            request.POST if service_type == 'enroll' else None)
+        aha_form = AHALoginForm(
+            request.POST if service_type == 'aha' else None)
 
-            if service_type == "enroll":
-                username = request.POST['username']
-                password = request.POST['password']
+        context = {
+            'enroll_form': enroll_form,
+            'aha_form': aha_form,
+            'success_auth': False
+        }
 
-                context = {
-                    'enroll_form': form,
-                    'aha_form': AHALoginForm(),
-                    'success_auth': False
-                }
+        if service_type == 'enroll' and enroll_form.is_valid():
+            username = request.POST['username']
+            password = request.POST['password']
 
-                res = chain(
-                    import_enroll_groups.s(username, password,
-                                           request.user.id),
-                    update_enroll_credentials.s()
-                )()
+            res = chain(
+                import_enroll_groups.s(username, password,
+                                       request.user.id),
+                update_enroll_credentials.s()
+            )()
 
-                try:
-                    res.parent.get()
-                    context['success_auth'] = True
-                except Exception as msg:
-                    if res.parent.failed():
-                        context['enrollware_error_message'] = msg
+            try:
+                res.parent.get()
+                context['success_auth'] = True
+            except Exception as msg:
+                if res.parent.failed():
+                    context['enrollware_error_message'] = msg
 
-                return render(request, self.template_name, context)
-            else:
+            return render(request, self.template_name, context)
+
+        if service_type == 'aha':
+            if aha_form.is_valid():
                 username = request.POST['username']
                 password = request.POST['password']
                 res = chain(
@@ -75,15 +76,15 @@ class ServicesLoginView(LoginRequiredMixin, View):
                 try:
                     res.parent.get()
                 except Exception as msg:
-                    return render(request, self.template_name, {
-                        'aha_error_message': msg,
-                        'aha_form': form,
-                        'enroll_form': EnrollLoginForm(),
-                        'success_auth': True
-                    })
-
+                    context['aha_error_message'] = msg,
+                    context['success_auth'] = True
+                    return render(request, self.template_name, context)
                 return redirect(reverse_lazy('dashboard:manage'))
-        return render(request, self.template_name, {'form': form})
+            else:
+                context['success_auth'] = True
+                return render(request, self.template_name, context)
+
+        return render(request, self.template_name, context)
 
 
 class DashboardView(LoginRequiredMixin, ListView):
