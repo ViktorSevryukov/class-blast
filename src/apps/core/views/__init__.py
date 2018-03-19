@@ -76,7 +76,7 @@ class ServicesLoginView(LoginRequiredMixin, View):
                 try:
                     res.parent.get()
                 except Exception as msg:
-                    context['aha_error_message'] = msg,
+                    context['aha_error_message'] = msg
                     context['success_auth'] = True
                     return render(request, self.template_name, context)
                 return redirect(reverse_lazy('dashboard:manage'))

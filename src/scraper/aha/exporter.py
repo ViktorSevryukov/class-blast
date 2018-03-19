@@ -192,6 +192,10 @@ class AHAExporter(AHABase):
 
         try:
             self.paste_fields()
+        except:
+            raise Exception('can not paste fields, try again')
+
+        try:
             self.save_button()
             self.check_success_export()
         except Exception as msg:
