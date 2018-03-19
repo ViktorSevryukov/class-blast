@@ -81,11 +81,20 @@ class EnrollWareGroup(TimeStampedModel):
         verbose_name_plural = _("enroll groups")
 
     def __str__(self):
-        return "{type}".format(type=self.course)
+        return self.get_course_title()
 
     @property
     def class_times(self):
         return EnrollClassTime.objects.filter(group_id=self.group_id)
+
+    def get_course_title(self):
+        return "{}: {}".format(self.course, self.get_class_time())
+
+    def get_class_time(self):
+        class_time = EnrollClassTime.objects.filter(group_id=self.group_id).first()
+        if class_time is None:
+            return ''
+        return "{} {}".format(class_time.date, class_time.start)
 
     def get_cutoff_date(self):
         obj = self.class_times.first()

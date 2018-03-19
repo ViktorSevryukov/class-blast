@@ -22,7 +22,7 @@
       <tr>
         <th></th>
         <th></th>
-        <th>Course</th>
+        <th colspan="2">Course</th>
         <th>Location</th>
         <th>Instructor</th>
         <th>TC, TS</th>
@@ -50,10 +50,17 @@
               <span class="service-name">Enrollware</span>
             </div>
           </td>
+          <td class="td-sm">
+            <div class="cell-div">
+              <!-- enroll date -->
+              <div>{{ ew_group.get_class_time}}</div>
+              <!-- /enroll date -->
+            </div>
+          </td>
           <td class="td-md">
             <div class="cell-div">
               <!-- enroll course -->
-              <div>{{ ew_group.course }}</div>
+              <div>{{ ew_group.course}}</div>
               <!-- /enroll course -->
             </div>
           </td>
@@ -170,7 +177,7 @@
               <span class="service-name">AHA</span>
             </div>
           </td>
-          <td class="td-md {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}td-colored-error{% else %}td-colored{% endif %}">
+          <td colspan="2" class="td-md {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}td-colored-error{% else %}td-colored{% endif %}">
             <div class="cell-div">
               <!-- aha course -->
               <div class="select-field-wrapper">
