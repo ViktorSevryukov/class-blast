@@ -67,8 +67,8 @@ class AHABase():
 
     def go_to_add_class_page(self):
         logger.info("Go to class page")
-        self.browser.implicitly_wait(5)
-        WebDriverWait(self.browser, 5).until(
+        self.browser.implicitly_wait(10)
+        WebDriverWait(self.browser, 10).until(
             EC.text_to_be_present_in_element((By.TAG_NAME, "strong"), "Welcome!"))
         self.browser.get(self.URLS['add_class'])
         logger.info("Current URL: {}".format(self.browser.current_url))
