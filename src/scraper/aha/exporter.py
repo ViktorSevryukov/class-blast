@@ -198,4 +198,4 @@ class AHAExporter(AHABase):
             self.save_button()
             self.check_success_export()
         except Exception as msg:
-            raise Exception('error while exporting: {}'.format(msg))
+            raise Exception('error while exporting group ({}) with {}: {}'.format(self.group_data['course'], self.username, msg))
