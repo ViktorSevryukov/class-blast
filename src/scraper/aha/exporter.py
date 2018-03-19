@@ -52,7 +52,6 @@ class AHAExporter(AHABase):
         self.paste_notes()
 
     def paste_course(self):
-        self.browser.implicitly_wait(5)
         logger.info("Pasting course: {}".format(self.group_data['course']))
         value = self.group_data['course']
         element = "//select[@id='courseId']/option[@value='{}']".format(value)
