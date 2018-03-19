@@ -11,8 +11,6 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 import logging
 
-logger = logging.getLogger('aha_import')
-
 LINUX_PLATFORM = 'linux'
 MAC_PLATFORM = 'darwin'
 
@@ -38,10 +36,11 @@ class AHABase():
         'add_class': 'https://ahainstructornetwork.americanheart.org/AHAECC/ecc.jsp?pid=ahaecc.addClass',
     }
 
-    def __init__(self, username, password, *args, **kwargs):
+    def __init__(self, username, password, logger_name, *args, **kwargs):
         self.username = username
         self.password = password
         self.browser = self.setup_browser()
+        self.logger = logging.getLogger(logger_name)
 
     @staticmethod
     def setup_browser():
@@ -52,7 +51,7 @@ class AHABase():
         return webdriver.PhantomJS()
 
     def login(self):
-        logger.info("Try to AHA LogIn with username {}".format(self.username))
+        self.logger.info("Try to AHA LogIn with username {}".format(self.username))
         self.browser.get(self.URLS['login'])
         self.browser.implicitly_wait(10)
 
@@ -62,13 +61,13 @@ class AHABase():
         password_form = login_form.find_element_by_class_name('gigya-input-password')
         username_form.send_keys(self.username)
         password_form.send_keys(self.password)
-        logger.info("LogIn click, username: {}".format(self.username))
+        self.logger.info("LogIn click, username: {}".format(self.username))
         login_form.find_element_by_class_name("gigya-input-submit").click()
 
     def go_to_add_class_page(self):
-        logger.info("Go to class page")
+        self.logger.info("Go to class page")
         self.browser.implicitly_wait(10)
         WebDriverWait(self.browser, 10).until(
             EC.text_to_be_present_in_element((By.TAG_NAME, "strong"), "Welcome!"))
         self.browser.get(self.URLS['add_class'])
-        logger.info("Current URL: {}".format(self.browser.current_url))
+        self.logger.info("Current URL: {}".format(self.browser.current_url))

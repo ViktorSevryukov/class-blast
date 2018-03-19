@@ -16,7 +16,7 @@ enroll_logger = logging.getLogger('enroll')
 
 @app.task
 def export_to_aha(username, password, group_data):
-    exporter = AHAExporter(username, password, group_data)
+    exporter = AHAExporter(username, password, group_data, logger_name='aha_export')
 
     aha_export_logger.info("AHA export task ...")
     ew_group = EnrollWareGroup.objects.filter(
@@ -75,7 +75,7 @@ def update_enroll_credentials(result):
 @app.task
 def import_aha_fields(username, password, user_id):
     user = User.objects.get(id=user_id)
-    importer = AHAImporter(username, password, user)
+    importer = AHAImporter(username, password, user, logger_name='aha_importer')
     aha_import_logger.info("AHA import start")
     try:
         importer.run()
