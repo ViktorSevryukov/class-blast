@@ -28,8 +28,14 @@ class ServicesLoginView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         enroll_form = EnrollLoginForm()
         aha_form = AHALoginForm()
-        return render(request, self.template_name,
-                      {'enroll_form': enroll_form, 'aha_form': aha_form})
+
+        context = {
+            'enroll_form': enroll_form,
+            'aha_form': aha_form,
+            'success_auth': self.request.GET.get('success', False)
+        }
+
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         service_type = request.POST["service_type"]
