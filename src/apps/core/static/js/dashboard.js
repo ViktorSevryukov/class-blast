@@ -11,11 +11,25 @@ const htmlFields = {
     descriptionsPreview: '#aha-descriptions-preview-'
 };
 
-const managePage = location.protocol + '//' + location.host + '/dashboard/manage/';
+const baseUrl = location.protocol + '//' + location.host;
+
+var servicesLoginPage = baseUrl + '/dashboard/services_login/';
+var managePage = baseUrl + '/dashboard/manage/';
 
 var checkStatusInterval = null;
+
+$('#enroll-form').on('submit', function (e) {
+    e.preventDefault();
+    loginToEnroll();
+});
+
+$('#aha-form').on('submit', function (e) {
+    e.preventDefault();
+    loginToAHA();
+});
+
 var exportControls = $('#export-controls');
-var exportButton = $('#export-button')
+var exportButton = $('#export-button');
 var loaderWrapper = $('#loader-wrapper');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
 
@@ -39,11 +53,8 @@ function addTooltipToElement(el) {
 
 function initWidgets() {
     $('.aha-cutoff-date').datepicker();
-
 }
 
-
-checkExportAvailable();
 
 function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
@@ -62,7 +73,7 @@ function stopChecking() {
         clearInterval(checkStatusInterval);
 }
 
-function handleResponse(data, msg, redirectUrl) {
+function handleResponse(data, serviceType, operationType, redirectUrl) {
 
     if (data.code === 'WAIT')
         return null;
@@ -70,22 +81,34 @@ function handleResponse(data, msg, redirectUrl) {
     var message = '';
 
     if (data.code === 'FAILED') {
-        message = msg + ' ended with errors, can not ' + msg + ' ' + data.tasks.length + ' groups';
+
+        var groupsCount = operationType === 'export' ? data.tasks.length : '';
+        message = operationType + ' ended with errors, can not ' + operationType + ' ' + groupsCount + ' groups';
         for (var i in data.tasks) {
             message += '\n* ' + ' ' + data.tasks[i].message;
         }
         alert(message);
+        if (serviceType === 'aha' && operationType === 'import') {
+            location.href = servicesLoginPage + '?success=1';
+            return
+        }
     }
 
     else if (data.code === 'SUCCESS') {
-        message = msg + ' successfully ended';
+        message = operationType + ' successfully ended';
         alert(message);
-        location.href = managePage + '?success=1'
+        if (serviceType === 'aha' && operationType === 'import') {
+            location.href = managePage;
+            return
+        }
+        location.href = redirectUrl + '?success=1';
+        return
     }
 
     stopChecking();
-    if (!redirectUrl)
-        location.reload();
+    location.href = redirectUrl;
+    // if (!redirectUrl)
+    //     location.reload();
 }
 
 function getFieldId(name, groupId) {
@@ -208,7 +231,7 @@ function exportGroups() {
         success: function (data) {
             if (typeof data.tasks !== 'undefined') {
                 checkStatusInterval = setInterval(function () {
-                    check_tasks(data.tasks, 'export', null)
+                    check_tasks(data.tasks, 'aha', 'export', null)
                 }, 5000);
             }
         },
@@ -219,10 +242,47 @@ function exportGroups() {
 function sync() {
     var elementsToHide = [exportControls];
     var elementsToShow = [loaderWrapper];
-    importFromEnroll(elementsToHide, elementsToShow)
+    importFrom('enroll', elementsToHide, elementsToShow, '', '', 'manage_page')
 }
 
-function importFromEnroll(elementsToHide, elementsToShow) {
+function loginToEnroll() {
+    var enrollLoginButton = $('#enroll-login');
+    var enrollUsername = $('#enroll_username').val();
+    var enrollPassword = $('#enroll_password').val();
+
+    if (enrollUsername !== '' && enrollPassword !== '') {
+        var elementsToHide = [enrollLoginButton];
+        var elementsToShow = [loaderWrapper];
+
+        importFrom('enroll', elementsToHide, elementsToShow, enrollUsername, enrollPassword, 'services_login')
+    }
+}
+
+function loginToAHA() {
+    var ahaLoginButton = $('#aha-login');
+    var ahaUsername = $('#aha_username').val();
+    var ahaPassword = $('#aha_password').val();
+
+    if (ahaUsername !== '' && ahaPassword !== '') {
+        var elementsToHide = [ahaLoginButton];
+        var elementsToShow = [loaderWrapper];
+
+        importFrom('aha', elementsToHide, elementsToShow, ahaUsername, ahaPassword, 'services_login')
+    }
+}
+
+function importFrom(serviceType, elementsToHide, elementsToShow, login, password, pageType) {
+
+    var redirectUrl = null;
+
+    if (pageType === 'manage_page') {
+        redirectUrl = managePage
+    }
+
+    if (pageType === 'services_login') {
+        redirectUrl = servicesLoginPage
+    }
+
 
     // hide elements
     for (var i in elementsToHide) {
@@ -234,13 +294,20 @@ function importFromEnroll(elementsToHide, elementsToShow) {
         elementsToShow[i].show()
     }
 
-    $.get({
-        url: '/api/v1/import/',
-        data: {},
+    var credentials = {
+        login: login,
+        password: password
+    };
+
+    var json_data = JSON.stringify(credentials);
+
+    $.post({
+        url: '/api/v1/import/'+serviceType+'/',
+        data: {'credentials': json_data},
         success: function (data) {
             if (typeof data.tasks !== 'undefined') {
                 checkStatusInterval = setInterval(function () {
-                    check_tasks(data.tasks, 'import', null)
+                    check_tasks(data.tasks, serviceType, 'import', redirectUrl)
                 }, 5000);
             }
         },
@@ -248,7 +315,7 @@ function importFromEnroll(elementsToHide, elementsToShow) {
     })
 }
 
-function check_tasks(tasks_list, msg, redirectUrl) {
+function check_tasks(tasks_list, serviceType, operationType, redirectUrl) {
 
     var json_data = JSON.stringify(tasks_list);
 
@@ -256,7 +323,7 @@ function check_tasks(tasks_list, msg, redirectUrl) {
         url: '/api/v1/check_tasks/',
         data: {'tasks': json_data},
         success: function (data) {
-            handleResponse(data, msg, redirectUrl);
+            handleResponse(data, serviceType, operationType, redirectUrl);
         },
         dataType: 'json'
     })
@@ -272,7 +339,7 @@ function showServicesLoginLoader(el) {
 
     var serviceType = $(el).closest("form").find('input[name="service_type"]').val();
 
-    if ($("#"+serviceType+"_username").val() !== '' && $("#"+serviceType+"_password").val() !== '') {
+    if ($("#" + serviceType + "_username").val() !== '' && $("#" + serviceType + "_password").val() !== '') {
         $(el).hide();
         loaderWrapper.show();
     }
@@ -317,3 +384,4 @@ function updateDescriptionsPreview(el, groupId) {
 }
 
 initWidgets();
+checkExportAvailable();

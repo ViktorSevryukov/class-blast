@@ -1,5 +1,6 @@
 import json
 
+from celery import chain
 from celery.result import AsyncResult
 from django.utils.translation import ugettext_lazy as _
 
@@ -10,25 +11,73 @@ from rest_framework.views import APIView
 
 from apps.core.models import EnrollWareGroup, EnrollClassTime, AHACredentials, \
     AHAField, Mapper
-from apps.core.tasks import export_to_aha, import_enroll_groups
+from apps.core.tasks import export_to_aha, import_enroll_groups, \
+    update_enroll_credentials, import_aha_fields, update_aha_credentials
 
 
 class ImportEnroll(APIView):
     permission_classes = (permissions.IsAuthenticated,)
 
-    def get(self, request, format=None):
-        credentials = request.user.enrollwarecredentials.first()
+    def post(self, request, format=None):
 
-        if credentials:
-            username = credentials.username
-            password = credentials.password
+        try:
+            credentials = json.loads(request.data['credentials'])
+        except:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-            task = import_enroll_groups.delay(username, password,
-                                              request.user.id)
-            return Response(
-                {'details': _("Task in progress"), 'tasks': [task.id]})
-        return Response({'details': _("Credentials not valid")},
-                        status=status.HTTP_400_BAD_REQUEST)
+        username = credentials.get('login', None)
+        password = credentials.get('password', None)
+
+        if not (username and password):
+            credentials = request.user.enrollwarecredentials.first()
+
+            if credentials:
+                username = credentials.username
+                password = credentials.password
+
+            if not (credentials and username and password):
+                return Response({'details': _("Credentials not valid")},
+                                status=status.HTTP_400_BAD_REQUEST)
+        res = chain(
+            import_enroll_groups.s(username, password,
+                                   request.user.id),
+            update_enroll_credentials.s()
+        )()
+
+        return Response(
+            {'details': _("Task in progress"), 'tasks': [res.parent.id]})
+
+
+class ImportAHA(APIView):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def post(self, request, format=None):
+
+        try:
+            credentials = json.loads(request.data['credentials'])
+        except:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+        username = credentials.get('login', None)
+        password = credentials.get('password', None)
+
+        if not (username and password):
+            credentials = request.user.ahacredentials.first()
+
+            if credentials:
+                username = credentials.username
+                password = credentials.password
+
+            if not (credentials and username and password):
+                return Response({'details': _("Credentials not valid")},
+                                status=status.HTTP_400_BAD_REQUEST)
+        res = chain(
+            import_aha_fields.s(username, password, request.user.id),
+            update_aha_credentials.s()
+        )()
+
+        return Response(
+            {'details': _("Task in progress"), 'tasks': [res.parent.id]})
 
 
 @api_view(['POST'])
