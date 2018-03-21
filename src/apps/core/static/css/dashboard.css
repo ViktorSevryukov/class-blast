@@ -139,6 +139,13 @@ th {
     /*transform: scale(1.5);*/
 }
 
+#controls-panel {
+    position: fixed;
+    bottom: 10px;
+    right: 0;
+    left: 0;
+}
+
 #export-controls {
     display: flex;
     justify-content: center;

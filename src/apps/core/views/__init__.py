@@ -97,7 +97,7 @@ class DashboardView(LoginRequiredMixin, ListView):
     model = EnrollWareGroup
     template_name = 'dashboard.html'
     context_object_name = 'ew_groups'
-    paginate_by = 10
+    # paginate_by = 10
     login_url = '/auth/login/'
     redirect_field_name = ''
 
