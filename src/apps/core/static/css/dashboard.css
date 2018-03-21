@@ -177,11 +177,11 @@ th {
     padding: 1rem;
 }
 
-.dialog-descriptions {
+.dialog {
     display: none;
 }
 
-.aha-descriptions-preview {
+.aha-preview {
     cursor: pointer;
 }
 

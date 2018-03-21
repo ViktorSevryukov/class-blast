@@ -7,8 +7,8 @@ const htmlFields = {
     rosterLimit: '#aha-roster-limit-',
     cutoffDate: '#aha-cutoff-date-',
     classDescription: '#aha-class-description-',
-    classNotes: '#aha-class-notes-',
-    descriptionsPreview: '#aha-descriptions-preview-'
+    classNotes: '#aha-class-note-',
+    descriptionsPreview: '#aha-description-preview-'
 };
 
 const baseUrl = location.protocol + '//' + location.host;
@@ -345,25 +345,21 @@ function showServicesLoginLoader(el) {
     }
 }
 
-function clickOnPreview(groupId) {
+function clickOnPreview(fieldType, groupId) {
 
-    var oldValues = {
-        description: $("#aha-class-description-" + groupId).val(),
-        notes: $("#aha-class-notes-" + groupId).val()
-    };
+    var oldValue = $("#aha-class-" + fieldType + "-" + groupId).val()
 
-    showDialog(groupId, oldValues);
+    showDialog(fieldType, groupId, oldValue);
 }
 
-function showDialog(groupId, oldValues) {
-
-    var dialog = $("#dialog-descriptions-" + groupId).dialog({
+function showDialog(fieldType, groupId, oldValue) {
+    var dialog = $("#dialog-"+ fieldType +"-" + groupId).dialog({
         open: function (event, ui) {
             $(".ui-dialog-titlebar-close", ui.dialog | ui).hide();
         },
         close: function () {
-            var description = $("#aha-class-description-" + groupId).val();
-            $('#aha-descriptions-preview-' + groupId).val(description)
+            var inputText = $("#aha-class-" + fieldType + "-" + groupId).val();
+            $('#aha-' + fieldType + '-preview-' + groupId).val(inputText);
         },
         modal: true,
         buttons: {
@@ -371,16 +367,19 @@ function showDialog(groupId, oldValues) {
                 dialog.dialog("close");
             },
             Cancel: function () {
-                $("#aha-class-description-" + groupId).val(oldValues.description);
-                $("#aha-class-notes-" + groupId).val(oldValues.notes);
+                $("#aha-class-" + fieldType + "-" + groupId).val(oldValue.value);
                 dialog.dialog("close");
             }
         }
     });
 }
 
-function updateDescriptionsPreview(el, groupId) {
-    $('#aha-descriptions-preview-' + groupId)[0].value = $(el)[0].value
+function updateDescriptionPreview(el, groupId) {
+    $('#aha-description-preview-' + groupId)[0].value = $(el)[0].value
+}
+
+function updateNotePreview(el, groupId) {
+    $('#aha-note-preview-' + groupId)[0].value = $(el)[0].value
 }
 
 initWidgets();
