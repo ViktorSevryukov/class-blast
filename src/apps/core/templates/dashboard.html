@@ -28,14 +28,15 @@
         <th>TC, TS</th>
         <th>Roster Limit</th>
         <th>Cutoff</th>
-        <th>Description/<br>Student Notes</th>
+        <th>Description</th>
+        <th>Student Notes</th>
       </tr>
       {% for ew_group in ew_groups %}
 
         <!-- Enroll Row -->
         <tr class="infinite-item row-group background-enroll {% if not ew_group.available_to_export %}blurred{% endif %}">
           <td rowspan="2" class="background-white">
-            {% if ew_group.available_to_export %}
+            {% if ew_group.available_to_export and not ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
               <div class="row-check">
                 <input id="check-{{ ew_group.id }}"
                        class="group-check check-control"
@@ -83,7 +84,8 @@
             <div class="cell-div">
               <div class="select-field-wrapper">
                 <select title="Please, select the Training Center"
-                        {% if not ew_group.available_to_export %}
+
+                        {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                         disabled
                         {% endif %}
                         id="aha-tc-{{ ew_group.id }}"
@@ -103,7 +105,7 @@
               <!-- TS -->
               <div class="select-field-wrapper">
                 <select title="Please, select the Training Site"
-                        {% if not ew_group.available_to_export %}
+                        {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                         disabled
                         {% endif %}
                         id="aha-ts-{{ ew_group.id }}"
@@ -128,7 +130,7 @@
           <td rowspan="2" class="td-xs background-white">
             <div class="cell-div">
               <input
-                      {% if not ew_group.available_to_export %}
+                      {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                         disabled
                       {% endif %}
                         type="number" min="0"
@@ -142,7 +144,7 @@
           <td rowspan="2" class="td-sm background-white">
             <div class="cell-div">
               <input
-                      {% if not ew_group.available_to_export %}
+                      {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                         disabled
                       {% endif %}
                         id="aha-cutoff-date-{{ ew_group.id }}"
@@ -154,14 +156,28 @@
 
           <td rowspan="2" class="td-sm background-white">
             <div class="cell-div">
-              <input onclick="clickOnPreview({{ ew_group.id }})"
-                      {% if not ew_group.available_to_export %}
+              <input onclick="clickOnPreview('description', {{ ew_group.id }})"
+                      {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                      disabled
-                      {% endif %}id="aha-descriptions-preview-{{ ew_group.id }}"
-                     class="form-control aha-descriptions-preview"
+                      {% endif %}
+                     id="aha-description-preview-{{ ew_group.id }}"
+                     class="form-control aha-preview"
                      type="text" title="Please, add class description"
                      size="50" required readonly
                      value="{{ ew_group.get_default_description }}">
+            </div>
+          </td>
+          <td rowspan="2" class="td-sm background-white">
+            <div class="cell-div">
+              <input onclick="clickOnPreview('note', {{ ew_group.id }})"
+                      {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
+                     disabled
+                      {% endif %}
+                     id="aha-note-preview-{{ ew_group.id }}"
+                     class="form-control aha-preview"
+                     type="text" title="Please, add class note"
+                     size="50" required readonly
+                     value="{{ ew_group.get_default_notes }}">
             </div>
           </td>
 
@@ -169,8 +185,8 @@
         <!-- /Enroll Row-->
 
         <!-- AHA Row -->
-        <tr class="infinite-item row-group {% if not ew_group.available_to_export %}blurred{% endif %}
-          {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}background-error{% else %}background-aha{% endif %}">
+        <tr class="row-group {% if not ew_group.available_to_export %}blurred{% endif %}
+                    {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}background-error{% elif ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}background-success{% else %}background-aha{% endif %}">
           <td>
             <div class="cell-div">
               <span class="service-name">AHA</span>
@@ -182,7 +198,7 @@
               <!-- aha course -->
               <div class="select-field-wrapper">
                 <select title="Please, select the course"
-                        {% if not ew_group.available_to_export %}
+                        {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                         disabled
                         {% endif %}
                         id="aha-course-{{ ew_group.id }}"
@@ -210,7 +226,7 @@
               <!-- aha location -->
               <div class="select-field-wrapper">
                 <select title="Please, select the location"
-                        {% if not ew_group.available_to_export %}
+                        {% if not ew_group.available_to_export or  ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                         disabled
                         {% endif %}
                         id="aha-location-{{ ew_group.id }}"
@@ -239,7 +255,7 @@
               <!-- aha instructor -->
               <div class="select-field-wrapper">
                 <select title="Please, select the instructor"
-                        {% if not ew_group.available_to_export %}
+                        {% if not ew_group.available_to_export or  ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                         disabled
                         {% endif %}
                         id="aha-instructor-{{ ew_group.id }}"
@@ -267,19 +283,24 @@
         <!-- /AHA Row-->
 
         <!-- dialog with description and student notes -->
-        <div class="dialog-descriptions"
-             id="dialog-descriptions-{{ ew_group.id }}"
-             title="Description/ Student notes">
-          <span>Description <span class="text">*</span></span>
-          <input onkeypress="updateDescriptionsPreview(this, {{ ew_group.id }})"
+        <div class="dialog"
+             id="dialog-description-{{ ew_group.id }}"
+             title="Description">
+          <span>Description <span class="text"></span></span>
+          <input onkeypress="updateDescriptionPreview(this, {{ ew_group.id }})"
                  id="aha-class-description-{{ ew_group.id }}"
                  class="form-control" name="class_description" type="text"
                  size="50" value="{{ ew_group.get_default_description }}">
-          <span>Student notes</span>
-          <input id="aha-class-notes-{{ ew_group.id }}"
-                 class="form-control" name="class_notes" type="text"
-                 size="50" value="{{ ew_group.get_default_notes }}">
+        </div>
 
+        <div class="dialog"
+             id="dialog-note-{{ ew_group.id }}"
+             title="Student note">
+          <span>Notes <span class="text"></span></span>
+          <input onkeypress="updateNotePreview(this, {{ ew_group.id }})"
+                 id="aha-class-note-{{ ew_group.id }}"
+                 class="form-control" name="class_note" type="text"
+                 size="50" value="{{ ew_group.get_default_notes }}">
         </div>
         <!-- /dialog with description and student notes -->
       {% endfor %}
@@ -325,8 +346,6 @@
       </div>
     {% endif %}
   </div>
-
-
 
   <div id="controls-panel">
 
