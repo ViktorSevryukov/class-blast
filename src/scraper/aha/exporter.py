@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
+from apps.core.models import AHAGroup, EnrollWareGroup
 from scraper.aha.base import AHABase
 
 import logging
@@ -25,7 +26,8 @@ TEST_DATA = {
     'to': "11:15 AM",
     'class_description': "test",
     'roster_limit': '15',
-    'roster_date': "14/02/2018"
+    'roster_date': "14/02/2018",
+    'class_notes': "string"
 }
 
 
@@ -181,6 +183,27 @@ class AHAExporter(AHABase):
 
             raise Exception('\n'.join(errors))
 
+    def save_aha_group_to_db(self):
+        try:
+            ew_group = EnrollWareGroup.objects.get(
+                id=self.group_data['enroll_id'])
+        except:
+            logger.info("enrollware group with id = {} not found ".format(
+                self.group_data['enroll_id']))
+        else:
+            # TODO: add course date
+            AHAGroup.objects.create(
+                enrollware_group=ew_group,
+                course=self.group_data['course'],
+                location=self.group_data['location'],
+                instructor=self.group_data['instructor'],
+                training_center=self.group_data['tc'],
+                training_site=self.group_data['ts'],
+                roster_limit=self.group_data['roster_limit'],
+                description=self.group_data['class_description'],
+                notes=self.group_data['class_notes']
+            )
+
     def run(self):
         try:
             self.login()
@@ -197,6 +220,7 @@ class AHAExporter(AHABase):
         try:
             self.save_button()
             self.check_success_export()
+            self.save_aha_group_to_db()
         except Exception as msg:
             # logger.info
             raise Exception('error while exporting group {}'.format(msg))

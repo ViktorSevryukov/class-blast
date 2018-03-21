@@ -18,7 +18,8 @@
 {% block content %}
 
   <div class="table-wrapper">
-    <table id="manager-table" class="infinite-container table table-striped">
+    <table id="manager-table"
+           class="infinite-container table table-striped">
       <tr>
         <th></th>
         <th></th>
@@ -96,7 +97,13 @@
                   {% endif %}
 
                   {% for option in aha_fields.tc %}
-                    <option value="{{ option|get_value }}">
+                    <option
+                            {% if ew_group.aha_group %}
+                              {% if option|get_value == ew_group.aha_group.training_center %}
+                                selected
+                                {% endif %}
+                            {% endif %}
+                            value="{{ option|get_value }}">
                       {{ option|get_text }}
                     </option>
                   {% endfor %}
@@ -115,7 +122,13 @@
                     <option value="">-</option>
                   {% endif %}
                   {% for option in aha_fields.ts %}
-                    <option value="{{ option|get_value }}">
+                    <option
+                            {% if ew_group.aha_group %}
+                              {% if option|get_value == ew_group.aha_group.training_site %}
+                                selected
+                                {% endif %}
+                            {% endif %}
+                            value="{{ option|get_value }}">
                       {{ option|get_text }}
                     </option>
                   {% endfor %}
@@ -137,7 +150,7 @@
                         id="aha-roster-limit-{{ ew_group.id }}"
                         class="input-sm form-control"
                         name="roster_limit"
-                        value={{ ew_group.max_students }}>
+                        value="{% if ew_group.aha_group %}{{ ew_group.aha_group.roster_limit }}{% else %}{{ ew_group.max_students }}{% endif %}">
             </div>
           </td>
 
@@ -150,7 +163,7 @@
                         id="aha-cutoff-date-{{ ew_group.id }}"
                         class="input-sm form-control aha-cutoff-date"
                         name="cutoff_date"
-                        value={{ ew_group.get_cutoff_date }}>
+                        value="{{ ew_group.get_cutoff_date }}">
             </div>
           </td>
 
@@ -162,9 +175,10 @@
                       {% endif %}
                      id="aha-description-preview-{{ ew_group.id }}"
                      class="form-control aha-preview"
-                     type="text" title="Please, add class description"
+                     type="text"
+                     title="Please, add class description"
                      size="50" required readonly
-                     value="{{ ew_group.get_default_description }}">
+                     value="{% if ew_group.aha_group %}{{ ew_group.aha_group.description }}{% else %}{{ ew_group.get_default_description }}{% endif %}">
             </div>
           </td>
           <td rowspan="2" class="td-sm background-white">
@@ -177,7 +191,7 @@
                      class="form-control aha-preview"
                      type="text" title="Please, add class note"
                      size="50" required readonly
-                     value="{{ ew_group.get_default_notes }}">
+                     value="{% if ew_group.aha_group %}{{ ew_group.aha_group.notes }}{% else %}{{ ew_group.get_default_notes }}{% endif %}">
             </div>
           </td>
 
@@ -185,7 +199,7 @@
         <!-- /Enroll Row-->
 
         <!-- AHA Row -->
-        <tr class="row-group {% if not ew_group.available_to_export %}blurred{% endif %}
+        <tr class="infinite-item row-group {% if not ew_group.available_to_export %}blurred{% endif %}
                     {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}background-error{% elif ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}background-success{% else %}background-aha{% endif %}">
           <td>
             <div class="cell-div">
@@ -209,10 +223,16 @@
                   {% endif %}
                   {% for option in aha_fields.course %}
                     <option
-                            {% if option|get_value == ew_group.get_default_course %}
-                              selected
+                            {% if ew_group.aha_group %}
+                              {% if option|get_value == ew_group.aha_group.course %}
+                                selected
+                              {% endif %}
+                            {% else %}
+                              {% if option|get_value == ew_group.get_default_course %}
+                                selected
+                              {% endif %}
                             {% endif %}
-                              value="{{ option|get_value }}">
+                                value="{{ option|get_value }}">
                       {{ option|get_text }}
                     </option>
                   {% endfor %}
@@ -238,10 +258,16 @@
                   {% endif %}
                   {% for option in aha_fields.location %}
                     <option
-                            {% if option|get_value == ew_group.get_default_location %}
-                              selected
+                            {% if ew_group.aha_group %}
+                              {% if option|get_value == ew_group.aha_group.location %}
+                                selected
+                              {% endif %}
+                            {% else %}
+                              {% if option|get_value == ew_group.get_default_location %}
+                                selected
+                              {% endif %}
                             {% endif %}
-                              value="{{ option|get_value }}">
+                                value="{{ option|get_value }}">
                       {{ option|get_text }}
                     </option>
                   {% endfor %}
@@ -266,10 +292,16 @@
                   {% endif %}
                   {% for option in aha_fields.instructor %}
                     <option
-                            {% if option|get_value == ew_group.get_default_instructor %}
-                              selected
+                            {% if ew_group.aha_group %}
+                              {% if option|get_value == ew_group.aha_group.instructor %}
+                                selected
+                              {% endif %}
+                            {% else %}
+                              {% if option|get_value == ew_group.get_default_instructor %}
+                                selected
+                              {% endif %}
                             {% endif %}
-                              value="{{ option|get_value }}">
+                                value="{{ option|get_value }}">
                       {{ option|get_text }}
                     </option>
                   {% endfor %}
@@ -289,8 +321,10 @@
           <span>Description <span class="text"></span></span>
           <input onkeypress="updateDescriptionPreview(this, {{ ew_group.id }})"
                  id="aha-class-description-{{ ew_group.id }}"
-                 class="form-control" name="class_description" type="text"
-                 size="50" value="{{ ew_group.get_default_description }}">
+                 class="form-control" name="class_description"
+                 type="text"
+                 size="50" value="{% if ew_group.aha_group %}{{ ew_group.aha_group.description }}{% else %}{{ ew_group.get_default_description }}{% endif %}
+">
         </div>
 
         <div class="dialog"
@@ -300,7 +334,8 @@
           <input onkeypress="updateNotePreview(this, {{ ew_group.id }})"
                  id="aha-class-note-{{ ew_group.id }}"
                  class="form-control" name="class_note" type="text"
-                 size="50" value="{{ ew_group.get_default_notes }}">
+                 size="50"
+                 value="{% if ew_group.aha_group %}{{ ew_group.aha_group.notes }}{% else %}{{ ew_group.get_default_notes }}{% endif %}">
         </div>
         <!-- /dialog with description and student notes -->
       {% endfor %}
@@ -315,7 +350,8 @@
         <img src="{% static "img/icons/lock-locked.png" %}">
         <div class="payment-form-wrapper">
           <span class="pay-text">Pay to sync all classes</span>
-          <form action="/dashboard/payment/" method="POST">{% csrf_token %}
+          <form action="/dashboard/payment/"
+                method="POST">{% csrf_token %}
             <script
                     src="https://checkout.stripe.com/checkout.js"
                     class="stripe-button"

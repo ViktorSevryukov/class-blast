@@ -19,7 +19,6 @@ AHA_OCCURRENCE_CHOICES = (
 
 
 class AHAField(TimeStampedModel):
-
     FIELD_TYPES = Choices(
         ('course', 'COURSE', _("Course")),
         ('location', 'LOCATION', _("Location")),
@@ -32,9 +31,12 @@ class AHAField(TimeStampedModel):
 
     )
 
-    type = models.CharField(_("type"), max_length=64, choices=FIELD_TYPES, default="")
-    value = ArrayField(models.CharField(_("value"), max_length=128, default=""))
-    user = models.ForeignKey('auth_core.User', related_name='aha_fields', verbose_name=_("user"))
+    type = models.CharField(_("type"), max_length=64, choices=FIELD_TYPES,
+                            default="")
+    value = ArrayField(
+        models.CharField(_("value"), max_length=128, default=""))
+    user = models.ForeignKey('auth_core.User', related_name='aha_fields',
+                             verbose_name=_("user"))
 
     class Meta(object):
         verbose_name = _("aha field")
@@ -58,8 +60,32 @@ class EnrollClassTime(TimeStampedModel):
         return "{type}".format(type=self.date)
 
 
-class EnrollWareGroup(TimeStampedModel):
+class AHAGroup(models.Model):
+    enrollware_group = models.OneToOneField('EnrollWareGroup', on_delete=models.CASCADE,
+                                     blank=True, null=True,
+                                     related_name='aha_group')
 
+    course = models.CharField(_("course"), max_length=128, default="")
+    location = models.CharField(_("location"), max_length=128, default="")
+    instructor = models.CharField(_("instructor"), max_length=64, default="")
+    training_center = models.CharField(_("training center"), max_length=128,
+                                       default="")
+    training_site = models.CharField(_("training site"), max_length=128,
+                                     default="")
+    roster_limit = models.IntegerField(_("max students"), default=0)
+    description = models.CharField(_("description"), max_length=1024,
+                                   default="")
+    notes = models.CharField(_("note"), max_length=1024, default="")
+
+    class Meta(object):
+        verbose_name = _("aha group")
+        verbose_name_plural = _("aha groups")
+
+    def str(self):
+        return "{type}".format(type=self.course)
+
+
+class EnrollWareGroup(TimeStampedModel):
     STATUS_CHOICES = Choices(
         ('unsynced', 'UNSYNCED', _("Unsynced")),
         ('synced', 'SYNCED', _("Synced")),
@@ -67,14 +93,19 @@ class EnrollWareGroup(TimeStampedModel):
         ('error', 'ERROR', _("Error"))
     )
 
-    user = models.ForeignKey('auth_core.User', related_name='enrollware_groups', verbose_name=_("user"))
+    user = models.ForeignKey('auth_core.User',
+                             related_name='enrollware_groups',
+                             verbose_name=_("user"))
     group_id = models.IntegerField(_("group id"))
     course = models.CharField(_("course"), max_length=128, default="")
     location = models.CharField(_("location"), max_length=128, default="")
     instructor = models.CharField(_("instructor"), max_length=64, default="")
     max_students = models.IntegerField(_("max students"), default=0)
-    status = models.CharField(_("status"), max_length=12, choices=STATUS_CHOICES, default=STATUS_CHOICES.UNSYNCED)
-    available_to_export = models.BooleanField(_("available to export"), default=False)
+    status = models.CharField(_("status"), max_length=12,
+                              choices=STATUS_CHOICES,
+                              default=STATUS_CHOICES.UNSYNCED)
+    available_to_export = models.BooleanField(_("available to export"),
+                                              default=False)
 
     class Meta(object):
         verbose_name = _("enroll group")
@@ -91,7 +122,8 @@ class EnrollWareGroup(TimeStampedModel):
         return "{}: {}".format(self.course, self.get_class_time())
 
     def get_class_time(self):
-        class_time = EnrollClassTime.objects.filter(group_id=self.group_id).first()
+        class_time = EnrollClassTime.objects.filter(
+            group_id=self.group_id).first()
         if class_time is None:
             return ''
         return "{} {}".format(class_time.date, class_time.start)
@@ -147,10 +179,13 @@ def delete_times(sender, instance, using, **kwargs):
 
 
 class Mapper(TimeStampedModel):
-    aha_field = models.ForeignKey("AHAField", verbose_name=_("aha field"), on_delete=models.CASCADE)
-    enroll_value = models.CharField(_("enroll value"), max_length=128, default="")
+    aha_field = models.ForeignKey("AHAField", verbose_name=_("aha field"),
+                                  on_delete=models.CASCADE)
+    enroll_value = models.CharField(_("enroll value"), max_length=128,
+                                    default="")
     aha_value = models.CharField(_("aha_value"), max_length=128, default="")
-    user = models.ForeignKey("auth_core.User",  related_name='mappers', verbose_name=_("user"), on_delete=models.CASCADE)
+    user = models.ForeignKey("auth_core.User", related_name='mappers',
+                             verbose_name=_("user"), on_delete=models.CASCADE)
 
     class Meta(object):
         verbose_name = _("mapper")
@@ -163,22 +198,20 @@ class Mapper(TimeStampedModel):
 class BaseCredentials(TimeStampedModel):
     username = models.CharField(_("username"), max_length=32, default="")
     password = models.CharField(_("password"), max_length=16, default="")
-    user = models.ForeignKey("auth_core.User", related_name='%(class)s', verbose_name=_("user"))
+    user = models.ForeignKey("auth_core.User", related_name='%(class)s',
+                             verbose_name=_("user"))
 
     class Meta:
         abstract = True
 
 
 class AHACredentials(BaseCredentials):
-
     class Meta:
         verbose_name = _("aha credential")
         verbose_name_plural = _("aha credentials")
 
 
 class EnrollWareCredentials(BaseCredentials):
-
     class Meta:
         verbose_name = _("enroll credential")
         verbose_name_plural = _("enroll credentials")
-
