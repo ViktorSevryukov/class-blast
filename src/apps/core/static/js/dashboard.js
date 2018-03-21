@@ -335,19 +335,9 @@ function checkExportAvailable() {
     $(exportButton).prop("disabled", !checkedCount)
 }
 
-function showServicesLoginLoader(el) {
-
-    var serviceType = $(el).closest("form").find('input[name="service_type"]').val();
-
-    if ($("#" + serviceType + "_username").val() !== '' && $("#" + serviceType + "_password").val() !== '') {
-        $(el).hide();
-        loaderWrapper.show();
-    }
-}
-
 function clickOnPreview(fieldType, groupId) {
 
-    var oldValue = $("#aha-class-" + fieldType + "-" + groupId).val()
+    var oldValue = $("#aha-class-" + fieldType + "-" + groupId).val();
 
     showDialog(fieldType, groupId, oldValue);
 }
@@ -367,7 +357,7 @@ function showDialog(fieldType, groupId, oldValue) {
                 dialog.dialog("close");
             },
             Cancel: function () {
-                $("#aha-class-" + fieldType + "-" + groupId).val(oldValue.value);
+                $("#aha-class-" + fieldType + "-" + groupId).val(oldValue);
                 dialog.dialog("close");
             }
         }
