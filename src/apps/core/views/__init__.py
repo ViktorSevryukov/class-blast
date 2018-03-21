@@ -97,16 +97,12 @@ class DashboardView(LoginRequiredMixin, ListView):
     model = EnrollWareGroup
     template_name = 'dashboard.html'
     context_object_name = 'ew_groups'
-    paginate_by = 10
+    # paginate_by = 10
     login_url = '/auth/login/'
     redirect_field_name = ''
 
     def get_queryset(self):
-        qs = self.model.objects.filter(
-            Q(status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED) | Q(
-                status=EnrollWareGroup.STATUS_CHOICES.ERROR),
-            user_id=self.request.user.id,
-        ).order_by('-modified')
+        qs = self.model.objects.filter(user_id=self.request.user.id).order_by('-modified')
         return qs
 
     def get_context_data(self, **kwargs):
