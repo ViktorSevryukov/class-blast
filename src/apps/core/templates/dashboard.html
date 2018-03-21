@@ -84,7 +84,7 @@
             <div class="cell-div">
               <div class="select-field-wrapper">
                 <select title="Please, select the Training Center"
-                        {% if ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
+                        {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                           disabled
                         {% endif %}
                           id="aha-tc-{{ ew_group.id }}"
@@ -104,7 +104,7 @@
               <!-- TS -->
               <div class="select-field-wrapper">
                 <select title="Please, select the Training Site"
-                        {% if ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
+                        {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                           disabled
                         {% endif %}
                           id="aha-ts-{{ ew_group.id }}"
@@ -129,7 +129,7 @@
           <td rowspan="2" class="td-xs background-white">
             <div class="cell-div">
               <input
-                      {% if ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
+                      {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                         disabled
                       {% endif %}
                         type="number" min="0"
@@ -143,7 +143,7 @@
           <td rowspan="2" class="td-sm background-white">
             <div class="cell-div">
               <input
-                      {% if ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
+                      {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                         disabled
                       {% endif %}
                         id="aha-cutoff-date-{{ ew_group.id }}"
@@ -156,7 +156,7 @@
           <td rowspan="2" class="td-sm background-white">
             <div class="cell-div">
               <input onclick="clickOnPreview({{ ew_group.id }})"
-                      {% if ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
+                      {% if not ew_group.available_to_export or ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}
                      disabled
                       {% endif %}id="aha-descriptions-preview-{{ ew_group.id }}"
                      class="form-control aha-descriptions-preview"
