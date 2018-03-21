@@ -219,3 +219,7 @@ th {
     margin-left: 1rem;
     position: absolute;
 }
+
+.next-page-loading{
+    text-align: center;
+}
