@@ -77,6 +77,10 @@ th {
     background-color: white;
 }
 
+.background-success {
+    background-color: #9effc5!important;
+}
+
 .background-enroll{
     background-color: #fffbca!important;
 }

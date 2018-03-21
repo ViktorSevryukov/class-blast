@@ -102,11 +102,7 @@ class DashboardView(LoginRequiredMixin, ListView):
     redirect_field_name = ''
 
     def get_queryset(self):
-        qs = self.model.objects.filter(
-            Q(status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED) | Q(
-                status=EnrollWareGroup.STATUS_CHOICES.ERROR),
-            user_id=self.request.user.id,
-        ).order_by('-modified')
+        qs = self.model.objects.filter(user_id=self.request.user.id).order_by('-modified')
         return qs
 
     def get_context_data(self, **kwargs):
