@@ -73,6 +73,7 @@ class AHAGroup(models.Model):
     training_site = models.CharField(_("training site"), max_length=128,
                                      default="")
     roster_limit = models.IntegerField(_("max students"), default=0)
+    cutoff_date = models.CharField(_("cutoff date"), max_length=10, default="")
     description = models.CharField(_("description"), max_length=1024,
                                    default="")
     notes = models.CharField(_("note"), max_length=1024, default="")
