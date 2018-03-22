@@ -315,7 +315,7 @@
         <!-- /AHA Row-->
 
         <!-- dialog with description and student notes -->
-        <div class="dialog"
+        <div class="dialog infinite-item"
              id="dialog-description-{{ ew_group.id }}"
              title="Description">
           <span>Description <span class="text"></span></span>
@@ -327,7 +327,7 @@
 ">
         </div>
 
-        <div class="dialog"
+        <div class="dialog infinite-item"
              id="dialog-note-{{ ew_group.id }}"
              title="Student note">
           <span>Notes <span class="text"></span></span>
@@ -423,6 +423,7 @@
               $('#export-controls').hide();
           },
           onAfterPageLoad: function ($items) {
+              initWidgets();
               $('.next-page-loading').hide();
               $('#export-controls').show();
           }
