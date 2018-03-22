@@ -185,7 +185,7 @@
         <!-- /Enroll Row-->
 
         <!-- AHA Row -->
-        <tr class="row-group {% if not ew_group.available_to_export %}blurred{% endif %}
+        <tr class="infinite-item row-group {% if not ew_group.available_to_export %}blurred{% endif %}
                     {% if ew_group.status == ew_group.STATUS_CHOICES.ERROR %}background-error{% elif ew_group.status == ew_group.STATUS_CHOICES.SYNCED %}background-success{% else %}background-aha{% endif %}">
           <td>
             <div class="cell-div">
@@ -335,19 +335,20 @@
 
   </div>
 
-  <div class="next-page-loading" style="display: none;">
-    <img src="{% static "img/loader.gif" %}"
-         id="infinite-loader" class="loader">
 
-    {% if page_obj.has_next %}
-      <div>
-        <a class="infinite-more-link"
-           href="?page={{ page_obj.next_page_number }}">more</a>
-      </div>
-    {% endif %}
-  </div>
 
   <div id="controls-panel">
+    <div class="next-page-loading">
+      <img src="{% static "img/loader.gif" %}"
+           id="infinite-loader" class="loader">
+
+      {% if page_obj.has_next %}
+        <div>
+          <a class="infinite-more-link"
+             href="?page={{ page_obj.next_page_number }}">more</a>
+        </div>
+      {% endif %}
+    </div>
 
     <div id="loader-wrapper">
       {#        <span>Process in progress... </span>#}
@@ -383,9 +384,11 @@
           element: $('.infinite-container')[0],
           onBeforePageLoad: function () {
               $('.next-page-loading').show();
+              $('#export-controls').hide();
           },
           onAfterPageLoad: function ($items) {
               $('.next-page-loading').hide();
+              $('#export-controls').show();
           }
       });
   </script>
