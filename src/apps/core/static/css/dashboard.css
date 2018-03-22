@@ -79,6 +79,10 @@ th {
     height: 4rem;
 }
 
+.synced-row td{
+    height: 5rem!important;
+}
+
 .background-white {
     background-color: white;
 }
@@ -242,4 +246,12 @@ th {
 .next-page-loading {
     display: none;
     text-align: center;
+}
+
+textarea {
+    resize: none;
+}
+
+input[type="number"] {
+   width: 60px;
 }

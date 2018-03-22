@@ -1,3 +1,5 @@
+import ast
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -84,6 +86,41 @@ class AHAGroup(models.Model):
 
     def str(self):
         return "{type}".format(type=self.course)
+
+    @staticmethod
+    def normalize_value(value):
+        return value.strip()
+
+    def get_verbose(self, field):
+
+        str_fields = ['description', 'notes']
+
+        mapper = {
+            'course': AHAField.FIELD_TYPES.COURSE,
+            'location': AHAField.FIELD_TYPES.LOCATION,
+            'training_center': AHAField.FIELD_TYPES.TC,
+            'training_site': AHAField.FIELD_TYPES.TS,
+            'instructor': AHAField.FIELD_TYPES.INSTRUCTOR,
+        }
+
+        value = self.normalize_value(getattr(self, field))
+
+        if field in str_fields:
+            return value
+
+        user = self.enrollware_group.user
+        try:
+            aha_field = AHAField.objects.get(user_id=user.id, type=mapper[field])
+        except AHAField.DoesNotExist:
+            return ''
+
+        print("BEFORE: {}".format(aha_field.value))
+
+        for item in aha_field.value:
+            print(aha_field.value)
+            item = ast.literal_eval(item)
+            if item['value'] == value:
+                return item['text']
 
 
 class EnrollWareGroup(TimeStampedModel):
