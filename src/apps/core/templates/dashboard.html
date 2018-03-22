@@ -163,7 +163,7 @@
                         id="aha-cutoff-date-{{ ew_group.id }}"
                         class="input-sm form-control aha-cutoff-date"
                         name="cutoff_date"
-                        value="{{ ew_group.get_cutoff_date }}">
+                        value="{% if ew_group.aha_group %}{{ ew_group.aha_group.cutoff_date }}{% else %}{{ ew_group.get_cutoff_date }}{% endif %}">
             </div>
           </td>
 

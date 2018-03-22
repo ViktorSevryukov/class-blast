@@ -199,6 +199,7 @@ class AHAExporter(AHABase):
                 instructor=self.group_data['instructor'],
                 training_center=self.group_data['tc'],
                 training_site=self.group_data['ts'],
+                cutoff_date=self.group_data['cutoff_date'],
                 roster_limit=self.group_data['roster_limit'],
                 description=self.group_data['class_description'],
                 notes=self.group_data['class_notes']
