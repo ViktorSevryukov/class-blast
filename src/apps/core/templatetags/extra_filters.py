@@ -16,5 +16,7 @@ def get_value(dictionary):
 
 @register.simple_tag
 def call_method(obj, method_name, *args):
+    if not obj:
+        return ''
     method = getattr(obj, method_name)
     return method(*args)
