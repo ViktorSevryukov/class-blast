@@ -1,3 +1,5 @@
+from django.utils import timezone
+
 from apps.auth_core.models import User
 from apps.core.celery import app
 from apps.core.models import EnrollWareGroup, EnrollWareCredentials, \
@@ -33,6 +35,7 @@ def export_to_aha(username, password, group_data):
     else:
         aha_export_logger.info("export ended")
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
+        ew_group.sync_date = timezone.now()
         ew_group.save()
         # ew_group.available_to_export = False
 

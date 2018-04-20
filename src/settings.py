@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'selenium',
     'django_extensions',
     'rest_framework',
+    'rangefilter',
 
     'apps.base',
     'apps.auth_core',
