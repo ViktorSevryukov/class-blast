@@ -18,6 +18,13 @@ enroll_logger = logging.getLogger('enroll')
 
 @app.task
 def export_to_aha(username, password, group_data):
+    """
+    Export selected Group to AHA service
+    :param username: AHA account username
+    :param password: AHA account password
+    :param group_data: selected data
+    :return: Group status
+    """
     exporter = AHAExporter(username, password, group_data, logger_name='aha_export')
 
     aha_export_logger.info("AHA export task ...")
@@ -37,11 +44,16 @@ def export_to_aha(username, password, group_data):
         ew_group.status = EnrollWareGroup.STATUS_CHOICES.SYNCED
         ew_group.sync_date = timezone.now()
         ew_group.save()
-        # ew_group.available_to_export = False
 
 
 @app.task
 def import_enroll_groups(username, password, user_id):
+    """
+    Import Courses(Groups) from EnrollWare service
+    :param username: EnrollWare username
+    :param password: EnrollWare password
+    :param user_id: current user
+    """
     user = User.objects.get(id=user_id)
     importer = ClassImporter(username, password, user)
     enroll_logger.info("Enroll import start")
@@ -53,9 +65,7 @@ def import_enroll_groups(username, password, user_id):
         raise Exception(msg)
     else:
         user.set_available_to_export_groups()
-
         enroll_logger.info("import success")
-
         return {
             'username': username,
             'password': password,
@@ -65,6 +75,10 @@ def import_enroll_groups(username, password, user_id):
 
 @app.task
 def update_enroll_credentials(result):
+    """
+    Update credentials for EnrollWare service
+    :param result: username, password
+    """
     user = User.objects.get(id=result['user_id'])
 
     EnrollWareCredentials.objects.update_or_create(
@@ -87,7 +101,6 @@ def import_aha_fields(username, password, user_id):
         raise Exception(msg)
 
     aha_import_logger.info("import success")
-
     return {
         'username': username,
         'password': password,
@@ -98,6 +111,10 @@ def import_aha_fields(username, password, user_id):
 # TODO: use content type
 @app.task
 def update_aha_credentials(result):
+    """
+    Update credentials for AHA service
+    :param result: username, password
+    """
     user = User.objects.get(id=result['user_id'])
 
     AHACredentials.objects.update_or_create(

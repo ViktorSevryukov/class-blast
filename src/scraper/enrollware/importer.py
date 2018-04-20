@@ -1,8 +1,8 @@
 import logging
 import mechanicalsoup
 
-from concurrent import futures
 from urllib import parse
+from concurrent import futures
 
 from apps.core.models import *
 
