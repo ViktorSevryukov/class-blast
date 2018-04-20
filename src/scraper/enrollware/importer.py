@@ -1,26 +1,15 @@
-import time
+import logging
 import mechanicalsoup
-from urllib import parse
 
+from urllib import parse
 from concurrent import futures
-from datetime import datetime, timedelta
+
 
 from apps.core.models import *
 
-import logging
 
 logger = logging.getLogger('enroll')
 
-SETTINGS = {
-    'username': 'gentrain',
-    'password': 'enrollware'
-}
-
-
-# SETTINGS = {
-#     'username': 'v.akins',
-#     'password': 'password1234'
-# }
 
 def get_select_value_by_id(page, select_id):
     """
@@ -105,6 +94,7 @@ class ClassImporter:
         return group_id
 
     def get_classes_urls(self):
+
         self.browser.open(self.URLS['classes_page'])
         classes_page = self.browser.get_current_page()
         classes_rows = classes_page.find('table', {'id': 'upcmgclstbl'}).find('tbody').find_all('tr')
@@ -275,11 +265,3 @@ class ClassImporter:
         except:
             logging.info("Student limit: 0")
             return 0
-
-
-if __name__ == '__main__':
-    importer = ClassImporter(SETTINGS['username'], SETTINGS['password'])
-    t0 = time.time()
-    importer.run()
-
-    print(time.time() - t0, ' seconds')
