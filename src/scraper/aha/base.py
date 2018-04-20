@@ -1,15 +1,14 @@
 import os
 import sys
-
-
-import pickle
+import logging
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-import logging
+
+"""Settings for local testing on Linux/Mac with Chrome driver"""
 
 LINUX_PLATFORM = 'linux'
 MAC_PLATFORM = 'darwin'
@@ -31,42 +30,67 @@ class AHABase():
     Base class for export and import data from AHA
     """
 
+    # Pages to scrap
     URLS = {
         'login': 'https://sso.heart.org/account.html',
         'add_class': 'https://ahainstructornetwork.americanheart.org/AHAECC/ecc.jsp?pid=ahaecc.addClass',
     }
 
     def __init__(self, username, password, logger_name, *args, **kwargs):
+        """
+        Init
+        :param username: AHA account username 
+        :param password: AHA account password
+        :param logger_name: logger name to use
+        """
         self.username = username
         self.password = password
-        self.browser = self.setup_browser()
+        self.browser = self._setup_browser()
         self.logger = logging.getLogger(logger_name)
 
     @staticmethod
-    def setup_browser():
+    def _setup_browser():
+        """
+        Prepare webdriver
+        Usually use headless Chrome or PhantomJS
+        :return: 
+        """
+        # Can uncomment code below for local testing
         # options = webdriver.ChromeOptions()
         # options.add_argument('headless')
         # return webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
-        #TODO: try to use Chrome, need to install Chrome binary on server
+        # TODO: try to use headless Chrome on server, need to install binary
         return webdriver.PhantomJS()
 
-    def login(self):
+    def _login(self):
+        """
+        Try to login to AHA site
+        :return: 
+        """
         self.logger.info("Try to AHA LogIn with username {}".format(self.username))
         self.browser.get(self.URLS['login'])
+
+        # wait until JS and DOM elements are loaded
         self.browser.implicitly_wait(10)
 
         login_form = WebDriverWait(self.browser, 10).until(
         EC.presence_of_element_located((By.ID, "userScreDiv_content")))
+        # paste credentials and try to login
         username_form = login_form.find_element_by_class_name('gigya-input-text')
         password_form = login_form.find_element_by_class_name('gigya-input-password')
         username_form.send_keys(self.username)
         password_form.send_keys(self.password)
         self.logger.info("LogIn click, username: {}".format(self.username))
+        # click on 'login' button
         login_form.find_element_by_class_name("gigya-input-submit").click()
 
-    def go_to_add_class_page(self):
+    def _go_to_add_class_page(self):
+        """
+        Redirect to class page to add new class
+        :return: 
+        """
         self.logger.info("Go to class page")
-        self.browser.implicitly_wait(10)
+        self.browser.implicitly_wait(10)  # wait for JS and DOM elements
         WebDriverWait(self.browser, 10).until(
             EC.text_to_be_present_in_element((By.TAG_NAME, "strong"), "Welcome!"))
         self.browser.get(self.URLS['add_class'])
