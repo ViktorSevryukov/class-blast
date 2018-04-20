@@ -165,7 +165,9 @@ class EnrollWareGroup(TimeStampedModel):
 
     @property
     def class_times(self):
-        # Mapping class time with EnrollWare Group instance
+        """
+        Mapping class time with EnrollWare Group instance
+        """
         return EnrollClassTime.objects.filter(group_id=self.group_id)
 
     def get_course_title(self):

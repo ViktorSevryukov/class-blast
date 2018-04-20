@@ -35,7 +35,7 @@ class User(AbstractUser):
     def has_services_credentials(self):
         """
         Check for credentials exist
-        :return: credencials
+        :return: credentials
         """
         return self.ahacredentials.exists() and self.enrollwarecredentials.exists()
 
