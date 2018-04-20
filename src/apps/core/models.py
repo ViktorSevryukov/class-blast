@@ -145,6 +145,8 @@ class EnrollWareGroup(TimeStampedModel):
     available_to_export = models.BooleanField(_("available to export"),
                                               default=False)
 
+    sync_date = models.DateTimeField(_("sync date"), null=True)
+
     class Meta(object):
         verbose_name = _("enroll group")
         verbose_name_plural = _("enroll groups")

@@ -8,3 +8,4 @@ django-model-utils==3.1.1
 djangorestframework==3.7.7
 Celery==4.1.0
 stripe==1.79.1
+django-admin-rangefilter
