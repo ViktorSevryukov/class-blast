@@ -15,9 +15,12 @@ admin.site.register(AHAGroup)
 
 class AdminEnrollWareGroup(admin.ModelAdmin):
 
-    list_display = ('course', 'status', 'group_id', 'user', 'sync_date')
-    search_fields = ('course', 'status', 'group_id', 'user')
-    list_filter = ('status', ('user', RelatedDropdownFilter), ('sync_date', DateRangeFilter))
+    list_display = ('course', 'status', 'group_id', 'user',
+                    'get_class_time', 'sync_date',)
+    readonly_fields = ('get_class_time',)
+    search_fields = ('course', 'status', 'group_id', 'user',)
+    list_filter = ('status', ('user', RelatedDropdownFilter),
+                   ('sync_date', DateRangeFilter),)
 
 admin.site.register(EnrollWareGroup, AdminEnrollWareGroup)
 
