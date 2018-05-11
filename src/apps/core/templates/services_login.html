@@ -68,7 +68,7 @@
                       disabled
                     {% endif %}
                    id="enroll-login" class="btn
-            btn-primary" value="Submit"/>
+            btn-primary" value="Login"/>
           </div>
           <input type="hidden" name="service_type" value="enroll">
         </form>
@@ -129,7 +129,7 @@
                       disabled
                     {% endif %}
                       type="submit"
-                      class="btn btn-primary">Submit
+                      class="btn btn-primary">Login
             </button>
           </div>
           <input type="hidden" name="service_type" value="aha">
@@ -137,6 +137,17 @@
         </form>
         <!-- /AHA FORM -->
       </div>
+
+      <div>
+        <!-- SKIP FORM -->
+          <form>
+            {% if not success_auth %}
+                blurred
+            {% endif %}
+          </form>
+        <!-- /SKIP FORM -->
+      </div>
+
     </div>
     <div id="loader-wrapper">
       {#        <span>Process in progress... </span>#}
