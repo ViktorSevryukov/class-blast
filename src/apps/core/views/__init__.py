@@ -90,6 +90,10 @@ class ServicesLoginView(LoginRequiredMixin, View):
                 context['success_auth'] = True
                 return render(request, self.template_name, context)
 
+        if service_type == 'skip':
+            context['success_auth'] = True
+            return render(request, self.template_name, context)
+
         return render(request, self.template_name, context)
 
 
