@@ -447,10 +447,11 @@
                 onclick="exportGroups()">Export to AHA
         </button>
       </div>
+    <!-- UPLOAD FILE -->
       <div>
-        <form method="post" enctype="multipart/form-data">{% csrf_token %}
-           <input type="file" name="csv_file" />
-           <input type="submit" value="Upload" onclick="importGroup()"/>
+        <form method="post" action="/dashboard/import_groups/" enctype="multipart/form-data">{% csrf_token %}
+           <input type="file" name="csv_file" required />
+           <input type="submit" value="Upload"/>
         </form>
       </div>
     </div>

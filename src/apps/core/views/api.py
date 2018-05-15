@@ -12,7 +12,6 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.core.forms import EnrollWareGroupUploadForm
 from apps.core.models import EnrollWareGroup, EnrollClassTime, AHACredentials, \
     AHAField, Mapper
 from apps.core.tasks import export_to_aha, import_enroll_groups, \
@@ -181,56 +180,3 @@ def check_tasks(request):
         return Response({'code': 'WAIT'})
 
     return Response({'code': 'FAILED', 'tasks': failed_tasks})
-
-
-# @api_view(['POST'])
-def import_csv():
-
-    with open('test.csv') as csvfile:
-        reader = csv.DictReader(csvfile)
-
-        for row in reader:
-            user = User.objects.get(username=row['user'])
-            group_id = row['group_id']
-            course = row['course']
-            location = ['location']
-            instructor = ['instructor']
-            max_students = ['max_students']
-            status = row['status']
-            available_to_export = ['available_to_export']
-            sync_date = ['sync_date']
-
-            # TODO: pass parameters
-            defaults = {
-                'start': 1
-            }
-
-            EnrollClassTime.objects.get_or_create(group_id=group_id,
-                                                            date=row['class_time.date'],
-                                                            start=row[ 'class_time.start'],
-                                                            end=row['class_time.end']
-                                                            )
-
-
-            new_ew_group = EnrollWareGroup(user=user,
-                                           group_id=group_id,
-                                           course=course,
-                                           location=location,
-                                           instructor=instructor,
-                                           max_students=max_students,
-                                           status=status,
-                                           available_to_export=available_to_export,
-                                           sync_date=sync_date
-                                           )
-            new_ew_group.save()
-
-
-def upload_file(request):
-    if request.method == 'POST':
-        form = EnrollWareGroupUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            form.save()
-            return HttpResponseRedirect('/dashboard/manage/')
-    else:
-        form = EnrollWareGroupUploadForm()
-    return render_to_response('dashboard.html', {'form': form})
