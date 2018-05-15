@@ -432,12 +432,15 @@
            id="export-loader" class="loader">
     </div>
 
+
     <div id="export-controls">
-      <div class="import-form">
-        <button class="btn btn-primary" id="sync-button"
-                onclick="sync()">Import from Enrollware
-        </button>
-      </div>
+      {% if not request.user.has_enroll_credentials %}
+        <div class="import-form">
+          <button class="btn btn-primary" id="sync-button"
+                  onclick="sync()">Import from Enrollware
+          </button>
+        </div>
+      {% endif %}
 
       <div class="export-form">
         <button disabled class="btn btn-primary" id="export-button"
