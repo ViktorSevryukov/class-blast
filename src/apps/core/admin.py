@@ -17,23 +17,11 @@ admin.site.register(AHAGroup)
 
 class AdminEnrollWareGroup(admin.ModelAdmin):
     list_display = ('course', 'status', 'group_id', 'user',
-                    'get_class_time', 'sync_date',)
-    readonly_fields = ('get_class_time',)
+                    'get_class_time_date', 'sync_date',)
+    readonly_fields = ('get_class_time_date',)
     search_fields = ('course', 'status', 'group_id', 'user',)
     list_filter = ('status', ('user', RelatedDropdownFilter),
                    ('sync_date', DateRangeFilter),)
-    actions = [export_as_csv_action("CSV Export", fields=['user',
-                                                          'group_id',
-                                                          'course',
-                                                          'location',
-                                                          'instructor',
-                                                          'max_students',
-                                                          'status',
-                                                          'available_to_export',
-                                                          'sync_date',
-                                                          'get_class_time']
-                                    )
-               ]
 
     actions = [export_as_csv_action("CSV Export",
                                     fields=[('User', 'user'),
@@ -43,6 +31,9 @@ class AdminEnrollWareGroup(admin.ModelAdmin):
                                             ('Max students', 'max_students'),
                                             ('Status', 'status'),
                                             ('Sync date', 'sync_date'),
-                                            ('Class time', 'get_class_time')])]
+                                            ('Class time date', 'get_class_time_date'),
+                                            ('Class time start', 'get_class_time_start'),
+                                            ('Class time end', 'get_class_time_end')
+                                            ])]
 
 admin.site.register(EnrollWareGroup, AdminEnrollWareGroup)

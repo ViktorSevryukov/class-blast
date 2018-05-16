@@ -1,6 +1,7 @@
 import codecs
 import csv
 import io
+import uuid
 
 import stripe
 from django.conf import settings
@@ -183,30 +184,37 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
 
     def post(self, request):
         file = request.FILES['csv_file']
+        file_group_id = uuid.uuid4()
+
+        if request.user.version == User.VERSIONS.PRO:
+            available_to_export = True
+        else:
+            available_to_export = False
 
         if request.FILES:
             decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
             for row in csv.DictReader(io_string, delimiter=','): #TODO: Does we need to create new group or update existing
+
                 obj, created = EnrollClassTime.objects.get_or_create(
-                    group_id=row['group_id'],
-                    date=row['class_time.date'],
-                    start=row['class_time.start'],
-                    end=row['class_time.end']
+                    group_id=file_group_id,
+                    date=row['Class time date'],
+                    start=row['Class time start'],
+                    end=row['Class time end']
                     )
-                print(obj, created)
+                print(obj, created, file_group_id)
 
                 group = EnrollWareGroup.objects.get_or_create(
-                    user=User.objects.get(username=row['user']),
-                    group_id=row['group_id'],
-                    course=row['course'],
-                    location=row['location'],
-                    instructor=row['instructor'],
-                    max_students=row['max_students'],
+                    user=User.objects.get(username=row['User']),
+                    group_id=file_group_id,
+                    course=row['Course'],
+                    location=row['Location'],
+                    instructor=row['Instructor'],
+                    max_students=row['Max students'],
                     status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
-                    available_to_export=True, #TODO: Available to export True or False (payment)
+                    available_to_export=available_to_export
                 )
-                print(group)
+                print(group, available_to_export, file_group_id)
 
         return redirect(
             reverse_lazy('dashboard:manage'))

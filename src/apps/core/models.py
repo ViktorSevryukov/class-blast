@@ -52,7 +52,7 @@ class EnrollClassTime(TimeStampedModel):
     date = models.CharField(_("date"), max_length=10, default="")
     start = models.CharField(_("start"), max_length=10, default="")
     end = models.CharField(_("end"), max_length=10, default="")
-    group_id = models.IntegerField(_("group id"))
+    group_id = models.CharField(_("group id"), max_length=128, default="")
 
     class Meta(object):
         verbose_name = _("enroll class time")
@@ -134,7 +134,7 @@ class EnrollWareGroup(TimeStampedModel):
     user = models.ForeignKey('auth_core.User',
                              related_name='enrollware_groups',
                              verbose_name=_("user"))
-    group_id = models.IntegerField(_("group id"))
+    group_id = models.CharField(_("group id"), max_length=128, default="")
     course = models.CharField(_("course"), max_length=128, default="")
     location = models.CharField(_("location"), max_length=128, default="")
     instructor = models.CharField(_("instructor"), max_length=64, default="")
@@ -159,16 +159,32 @@ class EnrollWareGroup(TimeStampedModel):
         return EnrollClassTime.objects.filter(group_id=self.group_id)
 
     def get_course_title(self):
-        return "{}: {}".format(self.course, self.get_class_time())
+        return "{}: {}".format(self.course, self.get_class_time_date())
 
-    def get_class_time(self):
+    def get_class_time_date(self):
         class_time = EnrollClassTime.objects.filter(
             group_id=self.group_id).first()
         if class_time is None:
             return ''
-        return "{} {}".format(class_time.date, class_time.start)
+        return "{}".format(class_time.date)
 
-    get_class_time.short_description = _('Class Time')
+    def get_class_time_start(self):
+        class_time = EnrollClassTime.objects.filter(
+            group_id=self.group_id).first()
+        if class_time is None:
+            return ''
+        return "{}".format(class_time.start)
+
+    def get_class_time_end(self):
+        class_time = EnrollClassTime.objects.filter(
+            group_id=self.group_id).first()
+        if class_time is None:
+            return ''
+        return "{}".format(class_time.end)
+
+
+
+    get_class_time_date.short_description = _('Class Time')
 
     def get_cutoff_date(self):
         obj = self.class_times.first()
