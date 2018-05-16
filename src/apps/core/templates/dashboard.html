@@ -16,6 +16,43 @@
 {% endblock %}
 
 {% block content %}
+  <div class="filters">
+
+    <form method="get">
+    <label for="enroll_location">Location</label>
+      <select id="enroll_location" name="enroll_location" class="form-control">
+      <option value="" selected>All</option>
+        {% for location in enroll_locations %}
+          <option
+                  {% if selected_location == location %}
+                    selected
+                  {% endif %} value="{{ location }}">{{ location }}
+          </option>
+        {% endfor %}
+      </select>
+    <label for="enroll_course">Course</label>
+      <select id="enroll_course" name="enroll_course" class="form-control">
+      <option value="" selected>All</option>
+        {% for course in enroll_courses %}
+          <option
+                  {% if selected_course == course %}
+                    selected {% endif %}
+                    value="{{ course }}">{{ course }}</option>
+        {% endfor %}
+      </select>
+    <div>
+      Only synced classes: <input class="" type="checkbox" name="synced" {% if synced %}checked{% endif %}>
+    </div>
+      <button class="filter-submit btn btn-primary" type="submit">Filter</button>
+    </form>
+
+  </div>
+
+  {% if not ew_groups %}
+    <div class="text-center">
+      <span class="text-center bold-message">Groups not found</span>
+    </div>
+  {% else %}
 
   <div class="table-wrapper">
     <table id="manager-table"
@@ -389,7 +426,7 @@
 
         <img src="{% static "img/icons/lock-locked.png" %}">
         <div class="payment-form-wrapper">
-          <span class="pay-text">Pay to sync all classes</span>
+          <span class="bold-message">Pay to sync all classes</span>
           <form action="/dashboard/payment/"
                 method="POST">{% csrf_token %}
             <script
@@ -410,7 +447,7 @@
     <!-- /PAYMENT BUTTON -->
 
   </div>
-
+  {% endif %}
 
 
   <div id="controls-panel">

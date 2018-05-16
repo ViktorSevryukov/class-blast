@@ -61,6 +61,10 @@ select {
     width: auto !important;
 }
 
+.filters{
+    margin: 1rem;
+}
+
 .table-wrapper {
     overflow-x: auto;
     width: calc(100% - 2rem);
@@ -228,10 +232,14 @@ th {
     margin: 5rem;
 }
 
-.pay-text {
+.bold-message {
     font-weight: bold;
     font-size: 1.5rem;
     margin-bottom: 2rem;
+}
+
+.filter-submit{
+    margin: 0.5rem 0;
 }
 
 .credential_input {

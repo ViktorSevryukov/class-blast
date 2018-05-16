@@ -111,16 +111,43 @@ class DashboardView(LoginRequiredMixin, ListView):
     redirect_field_name = ''
 
     def get_queryset(self):
-        qs = self.model.objects.filter(user_id=self.request.user.id).\
-            order_by('created')
+        q_params = Q(user_id=self.request.user.id)
+
+        # get values to filter classes
+        selected_location = self.request.GET.get('enroll_location', None)
+        selected_course = self.request.GET.get('enroll_course', None)
+        only_synced = self.request.GET.get('synced', False)
+
+        if selected_course:
+            q_params &= Q(course=selected_course)
+        if selected_location:
+            q_params &= Q(location=selected_location)
+        if only_synced:
+            q_params &= Q(status=self.model.STATUS_CHOICES.SYNCED)
+        else:
+            q_params &= ~Q(status=self.model.STATUS_CHOICES.SYNCED)
+
+        qs = self.model.objects.filter(q_params).order_by('-modified')
         return qs
 
     def get_context_data(self, **kwargs):
         context = super(DashboardView, self).get_context_data(**kwargs)
         aha_fields = {field.type: field.value for field in
                       self.request.user.aha_fields.all()}
-        context['aha_fields'] = aha_fields
 
+        # filters data
+        selected_location = self.request.GET.get('enroll_location', None)
+        selected_course = self.request.GET.get('enroll_course', None)
+        only_synced = self.request.GET.get('synced', False)
+
+        context['synced'] = only_synced
+        context['selected_location'] = selected_location
+        context['selected_course'] = selected_course
+        context['enroll_locations'] = EnrollWareGroup.get_locations()
+        context['enroll_courses'] = EnrollWareGroup.get_courses()
+
+
+        context['aha_fields'] = aha_fields
         if self.request.GET.get('success', None):
             context['info_message'] = {
                 'title': 'Congratulations!',
