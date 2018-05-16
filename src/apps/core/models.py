@@ -63,9 +63,10 @@ class EnrollClassTime(TimeStampedModel):
 
 
 class AHAGroup(models.Model):
-    enrollware_group = models.OneToOneField('EnrollWareGroup', on_delete=models.CASCADE,
-                                     blank=True, null=True,
-                                     related_name='aha_group')
+    enrollware_group = models.OneToOneField('EnrollWareGroup',
+                                            on_delete=models.CASCADE,
+                                            blank=True, null=True,
+                                            related_name='aha_group')
 
     course = models.CharField(_("course"), max_length=128, default="")
     location = models.CharField(_("location"), max_length=128, default="")
@@ -110,7 +111,8 @@ class AHAGroup(models.Model):
 
         user = self.enrollware_group.user
         try:
-            aha_field = AHAField.objects.get(user_id=user.id, type=mapper[field])
+            aha_field = AHAField.objects.get(user_id=user.id,
+                                             type=mapper[field])
         except AHAField.DoesNotExist:
             return ''
 
@@ -153,6 +155,24 @@ class EnrollWareGroup(TimeStampedModel):
 
     def __str__(self):
         return self.get_course_title()
+
+    @classmethod
+    def get_locations(cls):
+        """
+        Get list of available enrollware locations
+        :return: 
+        """
+        return cls.objects.distinct('location').values_list('location',
+                                                            flat=True)
+
+    @classmethod
+    def get_courses(cls):
+        """
+        Get list of available enrollware class types
+        :return: 
+        """
+        return cls.objects.distinct('course').values_list('course',
+                                                          flat=True)
 
     @property
     def class_times(self):
