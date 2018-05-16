@@ -186,11 +186,6 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
         file = request.FILES['csv_file']
         file_group_id = uuid.uuid4()
 
-        if request.user.version == User.VERSIONS.PRO:
-            available_to_export = True
-        else:
-            available_to_export = False
-
         if request.FILES:
             decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
@@ -213,7 +208,7 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
                     instructor=row['Instructor'],
                     max_students=row['Max students'],
                     status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
-                    available_to_export=available_to_export
+                    available_to_export=True
                 )
 
         return redirect(
