@@ -182,8 +182,6 @@ class EnrollWareGroup(TimeStampedModel):
             return ''
         return "{}".format(class_time.end)
 
-
-
     get_class_time_date.short_description = _('Class Time')
 
     def get_cutoff_date(self):

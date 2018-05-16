@@ -22,8 +22,7 @@ def export_as_csv_action(description="Export selected objects as CSV file",
             field_names = [field[1] for field in fields]
 
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=%s.csv' % str(
-            opts).replace('.', '_')
+        response['Content-Disposition'] = 'attachment; filename=Class-Blast Group by %s.csv' % str(request.user)
 
         writer = unicodecsv.writer(response, encoding='utf-8')
         if header:
