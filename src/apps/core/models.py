@@ -188,6 +188,8 @@ class EnrollWareGroup(TimeStampedModel):
             return ''
         return "{} {}".format(class_time.date, class_time.start)
 
+    get_class_time.short_description = _('Class Time')
+
     def get_cutoff_date(self):
         obj = self.class_times.first()
         if obj is None:

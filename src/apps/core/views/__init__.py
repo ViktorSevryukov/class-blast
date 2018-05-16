@@ -102,7 +102,6 @@ class DashboardView(LoginRequiredMixin, ListView):
     redirect_field_name = ''
 
     def get_queryset(self):
-
         q_params = Q(user_id=self.request.user.id)
 
         # get values to filter classes
