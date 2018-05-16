@@ -73,9 +73,7 @@
           <input type="hidden" name="service_type" value="enroll">
         </form>
         <!-- /ENROLLWARE FORM -->
-{#      </div>#}
-{#    #}
-          <div>
+          <div class="skip-form">
             <!-- SKIP FORM -->
               <form id="skip-enroll-form" class="
                     {% if success_auth %}
@@ -89,8 +87,7 @@
                         {% if success_auth %}
                           disabled
                         {% endif %}
-                       id="skip-enroll-login" class="btn
-                btn-primary" value="SKIP"/>
+                       id="skip-enroll-login" class="btn btn-secondary" value="Skip"/>
               </div>
               <input type="hidden" name="service_type" value="skip">
             </form>
