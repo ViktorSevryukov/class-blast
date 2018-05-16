@@ -13,10 +13,13 @@ def export_as_csv_action(description="Export selected objects as CSV file",
     def export_as_csv(modeladmin, request, queryset):
         opts = modeladmin.model._meta
 
+        fields_verbose = []
+
         if not fields:
             field_names = [field.name for field in opts.fields]
         else:
-            field_names = fields
+            fields_verbose = [field[0] for field in fields]
+            field_names = [field[1] for field in fields]
 
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=%s.csv' % str(
@@ -24,7 +27,11 @@ def export_as_csv_action(description="Export selected objects as CSV file",
 
         writer = unicodecsv.writer(response, encoding='utf-8')
         if header:
-            writer.writerow(field_names)
+            if fields_verbose:
+                writer.writerow(fields_verbose)
+            else:
+                writer.writerow(field_names)
+
         for obj in queryset:
             row = [getattr(obj, field)() if callable(
                 getattr(obj, field)) else getattr(obj, field) for field in
