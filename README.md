@@ -3,6 +3,11 @@
 
 **Class-Blast** created to parse data from one service and bring it to another.
 
+## Features
+- Celery tasks supported
+- Payment account system
+- Account credentials system
+- Mapper model
 
 ## Features
 - Celery tasks supported

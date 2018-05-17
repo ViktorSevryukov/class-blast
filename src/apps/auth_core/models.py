@@ -10,6 +10,9 @@ from apps.core.models import EnrollWareGroup
 
 
 class User(AbstractUser):
+    """
+    User for authorization in the application
+    """
     VERSIONS = Choices(
         ('lite', 'LITE', _("Lite")),
         ('pro', 'PRO', _("Pro"))
@@ -39,7 +42,6 @@ class User(AbstractUser):
         return self.ahacredentials.exists()
 
     def set_available_to_export_groups(self, force=False):
-
         not_synced_q = ~Q(status=EnrollWareGroup.STATUS_CHOICES.SYNCED)
 
         if not force and self.version == self.VERSIONS.LITE:

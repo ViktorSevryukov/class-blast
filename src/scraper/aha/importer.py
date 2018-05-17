@@ -1,3 +1,5 @@
+import logging
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -5,14 +7,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from apps.core.models import AHAField
 from scraper.aha.base import AHABase
 
-import logging
 
 logger = logging.getLogger('aha_import')
-
-SETTINGS = {
-    'username': 'jason.j.boudreault@gmail.com',
-    'password': 'Thecpr1'
-}
 
 
 class AHAImporter(AHABase):
@@ -22,21 +18,35 @@ class AHAImporter(AHABase):
 
     ERROR_MESSAGE = "Getting {} failed"
 
+    # filter to get non-empty values from element
     XPATH_FILTERS = {
         'not_empty': "string-length(translate(normalize-space(text()), ' ', ''))>0"
     }
 
+    # template using when trying to get options from 'select' tag
     XPATH_TPLS = {
         'select': "//select[@id='{select_id}']/option[{filter}]"
     }
 
     def __init__(self, username, password, user, *args, **kwargs):
+        """
+        Init
+        :param username: AHA account username 
+        :param password: AHA account password
+        :param user: current user 
+        """
         super(AHAImporter, self).__init__(username, password, *args, **kwargs)
         self.user = user
         self.group_data = []
 
-    def get_options_by_select_id(self, select_id, remove_first=False):
-        # get non-empty options from select element
+    def _get_options_by_select_id(self, select_id, remove_first=False):
+        """
+        Get non-empty options from select element
+        :param select_id: id of 'select' tag
+        :param remove_first: True, if need to remove first option in select
+        (ex. '--select something--' option)
+        :return: 
+        """
         xpath = self.XPATH_TPLS['select'].format(select_id=select_id, filter=self.XPATH_FILTERS['not_empty'])
         options = self.browser.find_elements_by_xpath(xpath)
         values_list = []
@@ -51,61 +61,97 @@ class AHAImporter(AHABase):
             values_list.append(element_dict)
         return values_list
 
-    def click_on_first_option(self, select_id):
+    def _click_on_first_option(self, select_id):
+        """
+        Need to click on any option to show hidden elements
+        :param select_id: id of 'select' element to click on it
+        :return: 
+        """
         xpath = self.XPATH_TPLS['select'].format(select_id=select_id, filter=self.XPATH_FILTERS['not_empty'])
         self.browser.find_element_by_xpath(xpath).click()
 
-    def get_course(self):
-        courses_list = self.get_options_by_select_id('courseId')
+    def _get_course(self):
+        """
+        Get list of available courses
+        :return: 
+        """
+        courses_list = self._get_options_by_select_id('courseId')
         course_obj = AHAField(type=AHAField.FIELD_TYPES.COURSE, value=courses_list, user=self.user)
         logging.info("Courses: {}".format(course_obj.value))
         self.group_data.append(course_obj)
 
-    def get_language(self):
-        languages_list = self.get_options_by_select_id('languageId')
+    def _get_language(self):
+        """
+        Get list of available languages
+        :return: 
+        """
+        languages_list = self._get_options_by_select_id('languageId')
         language_obj = AHAField(type=AHAField.FIELD_TYPES.LANGUAGE, value=languages_list, user=self.user)
         logging.info("Languages: {}".format(language_obj.value))
         self.group_data.append(language_obj)
 
-    def get_location(self):
-        locations_list = self.get_options_by_select_id('locationId', remove_first=True)
+    def _get_location(self):
+        """
+        Get list of available locations
+        :return: 
+        """
+        locations_list = self._get_options_by_select_id('locationId', remove_first=True)
         location_obj = AHAField(type=AHAField.FIELD_TYPES.LOCATION, value=locations_list, user=self.user)
         logging.info("Locations: {}".format(location_obj.value))
         self.group_data.append(location_obj)
 
-    def get_tc(self):
-        #TODO: search TC for each Course
-        self.click_on_first_option(select_id='courseId')
+    def _get_tc(self):
+        """
+        Get list of available training centers
+        :return: 
+        """
+        self._click_on_first_option(select_id='courseId')
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tcNames')))
-        tc_list = self.get_options_by_select_id('tcId')
+        tc_list = self._get_options_by_select_id('tcId')
         tc_obj = AHAField(type=AHAField.FIELD_TYPES.TC, value=tc_list, user=self.user)
         logging.info("Training Centers: {}".format(tc_obj.value))
         self.group_data.append(tc_obj)
 
-    def get_ts(self):
-        self.click_on_first_option(select_id='tcId')
+    def _get_ts(self):
+        """
+        Get list of available training sites
+        :return: 
+        """
+        self._click_on_first_option(select_id='tcId')
         WebDriverWait(self.browser, 5).until(EC.presence_of_element_located((By.ID, 'tsNames')))
-        ts_list = self.get_options_by_select_id('tcSiteId')
+        ts_list = self._get_options_by_select_id('tcSiteId')
         ts_obj = AHAField(type=AHAField.FIELD_TYPES.TS, value=ts_list, user=self.user)
         logging.info("Training Sites: {}".format(ts_obj.value))
         self.group_data.append(ts_obj)
 
-    def get_instructors(self):
-        instructor_list = self.get_options_by_select_id('instructorId')
+    def _get_instructors(self):
+        """
+        Get list of available instructors
+        :return: 
+        """
+        instructor_list = self._get_options_by_select_id('instructorId')
         instructor_obj = AHAField(type=AHAField.FIELD_TYPES.INSTRUCTOR, value=instructor_list, user=self.user)
         logging.info("Instructors: {}".format(len(instructor_list)))
         self.group_data.append(instructor_obj)
 
-    def get_fields(self):
+    def _get_fields(self):
+        """
+        Method to get all needed values 
+        :return: 
+        """
         logger.info("AHA Importing fields running")
-        self.get_course()
-        self.get_language()
-        self.get_location()
-        self.get_tc()
-        self.get_ts()
-        self.get_instructors()
+        self._get_course()
+        self._get_language()
+        self._get_location()
+        self._get_tc()
+        self._get_ts()
+        self._get_instructors()
 
-    def save_to_db(self):
+    def _save_to_db(self):
+        """
+        Save received values to database
+        :return: 
+        """
         logging.info("Finish AHA Importing, saving")
         AHAField.objects.filter(user=self.user).delete()
 
@@ -118,15 +164,21 @@ class AHAImporter(AHABase):
         AHAField.objects.bulk_create(self.group_data)
 
     def run(self):
+        """
+        Start import process
+        :return: 
+        """
+        # try to login and go to 'add class' page
         try:
-            self.login()
-            self.go_to_add_class_page()
+            self._login()
+            self._go_to_add_class_page()
         except:
             raise Exception("Sorry, your login data wrong, please try again")
 
+        # try to get needed values from AHA and save it to databaase
         try:
-            self.get_fields()
-            self.save_to_db()
+            self._get_fields()
+            self._save_to_db()
         except Exception as msg:
             logger.info("Error: {}".format(msg))
             raise Exception("Sorry, some trouble with data import")

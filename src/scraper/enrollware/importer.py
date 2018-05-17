@@ -1,52 +1,13 @@
-import time
+import logging
 import mechanicalsoup
-from urllib import parse
 
+from urllib import parse
 from concurrent import futures
-from datetime import datetime, timedelta
 
 from apps.core.models import *
 
-import logging
 
 logger = logging.getLogger('enroll')
-
-SETTINGS = {
-    'username': 'gentrain',
-    'password': 'enrollware'
-}
-
-
-# SETTINGS = {
-#     'username': 'v.akins',
-#     'password': 'password1234'
-# }
-
-def get_select_value_by_id(page, select_id):
-    """
-    Get selected option value from tag <select> with specific id attribute
-    :param page: soup object. Page to search on
-    :param select_id: id of searching <select> tag
-    :return: string
-    """
-    select = page.find('select', {'id': select_id})
-    option = select.find('option', selected=True)
-
-    if not option:
-        return ""
-
-    return option.text
-
-
-def get_input_value_by_id(page, input_id):
-    """
-    Get value from tag <input> with specific id attribute
-    :param page: soup object. Page to search on
-    :param input_id: id of searching <select> tag
-    :return: string
-    """
-    input_el = page.find('input', {'id': input_id})
-    return input_el['value']
 
 
 class ClassImporter:
@@ -55,6 +16,7 @@ class ClassImporter:
     """
     ADMIN_URL_TPL = 'https://www.enrollware.com/admin/{}'
 
+    # pages to parse
     URLS = {
         'login': ADMIN_URL_TPL.format('login.aspx'),
         'classes_page': ADMIN_URL_TPL.format('class-list.aspx')
@@ -65,6 +27,12 @@ class ClassImporter:
     ERROR_MESSAGE = "{} failed"
 
     def __init__(self, username, password, user):
+        """
+        Init importer class
+        :param username: Enrollware account username
+        :param password: Enrollware account password
+        :param user: current user
+        """
         self.username = username
         self.password = password
         self.user = user
@@ -78,21 +46,58 @@ class ClassImporter:
         self.classes_times = []
         self.existing_groups = list(EnrollWareGroup.objects.filter(user=user).values_list('group_id', flat=True))
 
+    @staticmethod
+    def _get_select_value_by_id(page, select_id):
+        """
+        Get selected option value from tag <select> with specific id attribute
+        :param page: soup object. Page to search on
+        :param select_id: id of searching <select> tag
+        :return: string
+        """
+        select = page.find('select', {'id': select_id})
+        option = select.find('option', selected=True)
+
+        if not option:
+            return ""
+
+        return option.text
+
+    @staticmethod
+    def _get_input_value_by_id(page, input_id):
+        """
+        Get value from tag <input> with specific id attribute
+        :param page: soup object. Page to search on
+        :param input_id: id of searching <select> tag
+        :return: string
+        """
+        input_el = page.find('input', {'id': input_id})
+        return input_el['value']
+
     def run(self):
+        """
+        Start import process from Enrollware
+        :return: 
+        """
         logger.info("EnrollWare Scraper starting")
+        # try to login
         try:
-            self.login()
-            self.check_logged_in()
+            self._login()
+            self._check_logged_in()
         except:
             raise Exception("Sorry, your login data wrong, please try again")
 
+        # try to get info from classes
         try:
-            self.handle_classes()
-            self.save_groups_to_db()
+            self._handle_classes()
+            self._save_groups_to_db()
         except:
             raise Exception("Sorry, there is some trouble with import groups")
 
-    def login(self):
+    def _login(self):
+        """
+        Login to site
+        :return: 
+        """
         logger.info("Try to LogIn with username {}".format(self.username))
         self.browser.open(self.URLS['login'])
         self.browser.select_form('#login form')
@@ -100,19 +105,30 @@ class ClassImporter:
         self.browser['password'] = self.password
         self.browser.submit_selected()
 
-    def get_group_id_from_url(self, url):
+    @staticmethod
+    def _get_group_id_from_url(url):
+        """
+        Get group id from url
+        :param url: current url
+        :return: 
+        """
         group_id = int(parse.parse_qs(parse.urlparse(url).query)['id'][0])
         return group_id
 
-    def get_classes_urls(self):
+    def _get_classes_urls(self):
+        """
+        Get classes urls to parse groups info
+        :return: 
+        """
         self.browser.open(self.URLS['classes_page'])
         classes_page = self.browser.get_current_page()
-        classes_rows = classes_page.find('table', {'id': 'upcmgclstbl'}).find('tbody').find_all('tr')
+        classes_rows = classes_page.find('table', {'id': 'upcmgclstbl'})\
+            .find('tbody').find_all('tr')
         classes_urls = []
 
         for row in classes_rows:
             url = self.ADMIN_URL_TPL.format(row.find('a').get('href'))
-            group_id = self.get_group_id_from_url(url)
+            group_id = self._get_group_id_from_url(url)
 
             if group_id in self.existing_groups:
                 continue
@@ -123,10 +139,13 @@ class ClassImporter:
 
             if (datetime_object - datetime.now()).days >= 3:
                 classes_urls.append(url)
-
         return classes_urls
 
-    def check_logged_in(self):
+    def _check_logged_in(self):
+        """
+        Check is user logged in
+        :return: 
+        """
         current_url = self.browser.get_url()
         logger.info(" check is logged in")
 
@@ -134,27 +153,39 @@ class ClassImporter:
             logger.info("invalid credentials")
             raise Exception('Sorry, it seems username or password not corrected')
 
-
-    def handle_class(self, url):
+    def _handle_class(self, url):
+        """
+        Get all needed data from class page
+        :param url: url of current parsing class 
+        :return: 
+        """
         self.browser.open(url)
         self.class_page = self.browser.get_current_page()
-        fields = self.get_fields()
-        self.classes_times.append(self.prepare_class_time(fields['class_times'], fields['group_id']))
-        self.classes_data.append(self.prepare_group(fields))
+        fields = self._get_fields()
+        self.classes_times.append(self._prepare_class_time(fields['class_times'], fields['group_id']))
+        self.classes_data.append(self._prepare_group(fields))
 
-    def handle_classes(self):
-        classes_urls = self.get_classes_urls()
+    def _handle_classes(self):
+        """
+        Get all needed data from all classes
+        :return: 
+        """
+        classes_urls = self._get_classes_urls()
         logger.info("Founded list urls count {}".format(len(classes_urls)))
         if len(classes_urls) == 0:
             logger.info('new groups not found')
             return 0
         workers = min(self.MAX_WORKERS, len(classes_urls))
         with futures.ThreadPoolExecutor(workers) as executor:
-            res = executor.map(self.handle_class, classes_urls)
+            res = executor.map(self._handle_class, classes_urls)
         return len(list(res))
 
-    def prepare_group(self, group_fields):
-
+    def _prepare_group(self, group_fields):
+        """
+        Prepare group data to save in database (EnrollwareGroup)
+        :param group_fields: 
+        :return: 
+        """
         return EnrollWareGroup(
             user=self.user,
             group_id=group_fields['group_id'],
@@ -166,7 +197,13 @@ class ClassImporter:
             available_to_export=self.user.version == self.user.VERSIONS.PRO
         )
 
-    def prepare_class_time(self, class_time, group_id):
+    def _prepare_class_time(self, class_time, group_id):
+        """
+        Parse class time from class page
+        :param class_time: class time in enrollware format
+        :param group_id: id of current group
+        :return: 
+        """
         start_time = "{}:{} {}".format(
             class_time['from']['hour'],
             class_time['from']['minute'],
@@ -183,41 +220,65 @@ class ClassImporter:
                                end=end_time,
                                group_id=group_id)
 
-    def save_groups_to_db(self):
+    def _save_groups_to_db(self):
+        """
+        Create objects in database (EnrollWareGroups, EnrollClassTime)
+        :return: 
+        """
         logger.info('try to save groups')
 
         if self.classes_data:
             EnrollWareGroup.objects.bulk_create(self.classes_data)
             EnrollClassTime.objects.bulk_create(self.classes_times)
 
-    def get_fields(self):
+    def _get_fields(self):
+        """
+        Get all needed values from class page 
+        :return: 
+        """
         return {
-            'group_id': self.get_group_id(),
-            'course': self.get_course(),
-            'location': self.get_location(),
-            'instructor': self.get_instructor(),
-            'class_times': self.get_class_times(),
-            'max_students': self.get_max_students(),
+            'group_id': self._get_group_id(),
+            'course': self._get_course(),
+            'location': self._get_location(),
+            'instructor': self._get_instructor(),
+            'class_times': self._get_class_times(),
+            'max_students': self._get_max_students(),
         }
 
-    def get_group_id(self):
+    def _get_group_id(self):
+        """
+        Get group id
+        :return: 
+        """
         url = self.browser.get_url()
-        logging.info("Group id:{}".format(self.get_group_id_from_url(url)))
-        return self.get_group_id_from_url(url)
+        logging.info("Group id:{}".format(self._get_group_id_from_url(url)))
+        return self._get_group_id_from_url(url)
 
-    def get_course(self):
+    def _get_course(self):
+        """
+        Get course value
+        :return: 
+        """
         select_id = 'mainContent_Course'
-        logging.info("Course: {}".format(get_select_value_by_id(self.class_page, select_id)))
-        return get_select_value_by_id(self.class_page, select_id)
+        logging.info("Course: {}".format(self._get_select_value_by_id(self.class_page, select_id)))
+        return self._get_select_value_by_id(self.class_page, select_id)
 
-    def get_location(self):
+    def _get_location(self):
+        """
+        Get location value
+        :return: 
+        """
         select_id = 'mainContent_Location'
-        logging.info("Location: {}".format(get_select_value_by_id(self.class_page, select_id)))
-        return get_select_value_by_id(self.class_page, select_id)
+        logging.info("Location: {}".format(self._get_select_value_by_id(self.class_page, select_id)))
+        return self._get_select_value_by_id(self.class_page, select_id)
 
-    def get_instructor(self):
+    def _get_instructor(self):
+        """
+        Get instructor value
+        :return: 
+        """
         select_id = 'mainContent_instructorId'
-        instructor = get_select_value_by_id(self.class_page, select_id)
+        instructor = self._get_select_value_by_id(self.class_page, select_id)
         if instructor == "--Choose--":
             logger.info("No instructor, {}, {}".format(self.get_course(), self.get_group_id()))
             return "No instructor"
@@ -225,8 +286,7 @@ class ClassImporter:
         logging.info("Instructor: {}".format(instructor))
         return instructor
 
-    def get_class_times(self):
-
+    def _get_class_times(self):
         """
         TODO: Need to parse list of several class times, now we get only first record.
         Maybe we can use '_cts{x}_' where 'x' == position of the row with 
@@ -235,51 +295,45 @@ class ClassImporter:
         """
 
         class_time = {
-            'date': get_input_value_by_id(
+            'date': self._get_input_value_by_id(
                 self.class_page, 'mainContent_startDate'
             ),
             'from': {
-                'hour': get_select_value_by_id(
+                'hour': self._get_select_value_by_id(
                     self.class_page, 'mainContent_startHour'
                 ),
-                'minute': get_select_value_by_id(
+                'minute': self._get_select_value_by_id(
                     self.class_page, 'mainContent_startMinute'
                 ),
-                'am_pm': get_select_value_by_id(
+                'am_pm': self._get_select_value_by_id(
                     self.class_page, 'mainContent_startAMPM'
                 )
             },
             'to': {
-                'hour': get_select_value_by_id(
+                'hour': self._get_select_value_by_id(
                     self.class_page, 'mainContent_endHour'
                 ),
-                'minute': get_select_value_by_id(
+                'minute': self._get_select_value_by_id(
                     self.class_page, 'mainContent_endMinute'
                 ),
-                'am_pm': get_select_value_by_id(
+                'am_pm': self._get_select_value_by_id(
                     self.class_page, 'mainContent_endAMPM'
                 )
             }
         }
 
-
         logging.info("Class time: {}".format(class_time))
         return class_time
 
-    def get_max_students(self):
-
+    def _get_max_students(self):
+        """
+        Get 'max students' value
+        :return: 
+        """
         input_id = 'mainContent_maxEnrollment'
         try:
-            logging.info("Student limit: {}".format(get_input_value_by_id(self.class_page, input_id)))
-            return get_input_value_by_id(self.class_page, input_id)
+            logging.info("Student limit: {}".format(self._get_input_value_by_id(self.class_page, input_id)))
+            return self._get_input_value_by_id(self.class_page, input_id)
         except:
             logging.info("Student limit: 0")
             return 0
-
-
-if __name__ == '__main__':
-    importer = ClassImporter(SETTINGS['username'], SETTINGS['password'])
-    t0 = time.time()
-    importer.run()
-
-    print(time.time() - t0, ' seconds')

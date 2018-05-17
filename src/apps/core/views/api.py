@@ -19,6 +19,9 @@ from apps.core.tasks import export_to_aha, import_enroll_groups, \
 
 
 class ImportEnroll(APIView):
+    """
+    Import fields from EnrollWare service using EnrollWare credentials
+    """
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, format=None):
@@ -52,6 +55,9 @@ class ImportEnroll(APIView):
 
 
 class ImportAHA(APIView):
+    """
+    Import fields from AHA service using AHA credentials
+    """
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, format=None):
@@ -85,6 +91,9 @@ class ImportAHA(APIView):
 
 @api_view(['POST'])
 def export_group(request):
+    """
+    Export fields to AHA service using AHA credentials and mapped values
+    """
     try:
         groups = json.loads(request.data['groups'])
     except:
@@ -149,6 +158,9 @@ def export_group(request):
 
 @api_view(['POST'])
 def check_tasks(request):
+    """
+    Checking tasks status
+    """
     try:
         tasks = json.loads(request.data['tasks'])
 
