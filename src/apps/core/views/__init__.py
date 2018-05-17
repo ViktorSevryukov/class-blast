@@ -23,6 +23,9 @@ logger = logging.getLogger('aha_export')
 
 
 class ServicesLoginView(LoginRequiredMixin, View):
+    """
+    View for authorization on services from which data will be parsed
+    """
     template_name = 'services_login.html'
 
     def get(self, request, *args, **kwargs):
@@ -94,6 +97,9 @@ class ServicesLoginView(LoginRequiredMixin, View):
 
 
 class DashboardView(LoginRequiredMixin, ListView):
+    """
+    Main page for working with classes list
+    """
     model = EnrollWareGroup
     template_name = 'dashboard.html'
     context_object_name = 'ew_groups'
@@ -170,6 +176,9 @@ class SyncView(LoginRequiredMixin, View):
 
 
 class PaymentView(LoginRequiredMixin, View):
+    """
+    Stripe default settings View
+    """
     login_url = '/auth/login/'
     redirect_field_name = ''
     template_name = 'dashboard.html'

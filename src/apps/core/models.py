@@ -21,6 +21,9 @@ AHA_OCCURRENCE_CHOICES = (
 
 
 class AHAField(TimeStampedModel):
+    """
+    Types of AHA Group fields
+    """
     FIELD_TYPES = Choices(
         ('course', 'COURSE', _("Course")),
         ('location', 'LOCATION', _("Location")),
@@ -63,6 +66,10 @@ class EnrollClassTime(TimeStampedModel):
 
 
 class AHAGroup(models.Model):
+    """
+    Model of AHA Group received from AHA service
+    """
+
     enrollware_group = models.OneToOneField('EnrollWareGroup',
                                             on_delete=models.CASCADE,
                                             blank=True, null=True,
@@ -126,6 +133,9 @@ class AHAGroup(models.Model):
 
 
 class EnrollWareGroup(TimeStampedModel):
+    """
+    Instance of EnrollWare Group received from EnrollWare service
+    """
     STATUS_CHOICES = Choices(
         ('unsynced', 'UNSYNCED', _("Unsynced")),
         ('synced', 'SYNCED', _("Synced")),
@@ -176,6 +186,9 @@ class EnrollWareGroup(TimeStampedModel):
 
     @property
     def class_times(self):
+        """
+        Mapping class time with EnrollWare Group instance
+        """
         return EnrollClassTime.objects.filter(group_id=self.group_id)
 
     def get_course_title(self):
@@ -241,6 +254,9 @@ def delete_times(sender, instance, using, **kwargs):
 
 
 class Mapper(TimeStampedModel):
+    """
+    Mapping EnrollWare and AHA values
+    """
     aha_field = models.ForeignKey("AHAField", verbose_name=_("aha field"),
                                   on_delete=models.CASCADE)
     enroll_value = models.CharField(_("enroll value"), max_length=128,

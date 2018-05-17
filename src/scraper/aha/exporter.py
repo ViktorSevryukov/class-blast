@@ -1,3 +1,5 @@
+import logging
+
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -5,16 +7,11 @@ from selenium.webdriver.support.ui import WebDriverWait
 from apps.core.models import AHAGroup, EnrollWareGroup
 from scraper.aha.base import AHABase
 
-import logging
 
 logger = logging.getLogger('aha_export')
 
-SETTINGS = {
-    'username': 'jason.j.boudreault@gmail.com',
-    'password': 'Thecpr1'
-}
-
-TEST_DATA = {
+"""
+EXAMPLE_DATA_TO_EXPORT = {
     'course': "Airway Management Course",
     'language': "English",
     'location': "Above Bar CPR Office ",
@@ -29,44 +26,67 @@ TEST_DATA = {
     'roster_date': "14/02/2018",
     'class_notes': "string"
 }
+"""
 
 
 class AHAExporter(AHABase):
     """
-    Class for import information info from AHA site
+    Class for export information info from AHA site
     """
 
     ERROR_MESSAGE = "Pasting {} failed"
 
     def __init__(self, username, password, group_data, *args, **kwargs):
+        """
+        Init
+        :param username: AHA account username 
+        :param password: AHA account password
+        :param group_data: group data to export 
+        """
         super(AHAExporter, self).__init__(username, password, *args, **kwargs)
         self.group_data = group_data
 
-    def paste_fields(self):
-        self.paste_course()
-        self.paste_language()
-        self.paste_tc()
-        self.paste_ts()
-        self.paste_instructor()
-        self.paste_location()
-        self.paste_date()
-        self.paste_roster_settings()
-        self.paste_notes()
+    def _paste_fields(self):
+        """
+        Paste all fields to create new class
+        :return: 
+        """
+        self._paste_course()
+        self._paste_language()
+        self._paste_tc()
+        self._paste_ts()
+        self._paste_instructor()
+        self._paste_location()
+        self._paste_date()
+        self._paste_roster_settings()
+        self._paste_notes()
 
-    def paste_course(self):
+    def _paste_course(self):
+        """
+        Paste 'course' value
+        :return: 
+        """
         logger.info("Pasting course: {}".format(self.group_data['course']))
         value = self.group_data['course']
         element = "//select[@id='courseId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
-    def paste_language(self):
+    def _paste_language(self):
+        """
+        Paste 'language' value
+        :return: 
+        """
         logger.info("Pasting language: {}".format(self.group_data['language']))
         value = self.group_data['language']
         element = "//select[@id='languageId']/option[text()='{}']".format(
             value)
         self.browser.find_element_by_xpath(element).click()
 
-    def paste_tc(self):
+    def _paste_tc(self):
+        """
+        Paste 'training center' value
+        :return: 
+        """
         logger.info(
             "Pasting Training Center: {}".format(self.group_data['tc']))
         value = self.group_data['tc']
@@ -74,7 +94,11 @@ class AHAExporter(AHABase):
         element = "//select[@id='tcId']/option[@value='{}']".format(value)
         self.browser.find_element_by_xpath(element).click()
 
-    def paste_ts(self):
+    def _paste_ts(self):
+        """
+        Paste 'training site' value
+        :return: 
+        """
         logger.info("Pasting Training Site: {}".format(self.group_data['ts']))
         value = self.group_data['ts']
         WebDriverWait(self.browser, 5).until(
@@ -86,10 +110,11 @@ class AHAExporter(AHABase):
                 element.click()
                 break
 
-                # element = "//select[@id='tcSiteId']/option[text()='{}']".format(value)
-                # self.browser.find_element_by_xpath(element).click()
-
-    def paste_instructor(self):
+    def _paste_instructor(self):
+        """
+        Paste 'instructor' value
+        :return: 
+        """
         logger.info(
             "Pasting instructor: {}".format(self.group_data['instructor']))
         value = self.group_data['instructor']
@@ -103,13 +128,21 @@ class AHAExporter(AHABase):
                 element.click()
                 break
 
-    def paste_location(self):
+    def _paste_location(self):
+        """
+        Paste 'location' value
+        :return: 
+        """
         logger.info("Pasting location: {}".format(self.group_data['location']))
         value = self.group_data['location']
         element = "//select[@id='locationId']/option[@value={}]".format(value)
         self.browser.find_element_by_xpath(element).click()
 
-    def paste_date(self):
+    def _paste_date(self):
+        """
+        Paste 'date' value (class start date)
+        :return: 
+        """
         logger.info("Pasting date: {}".format(self.group_data['date']))
         value_date = self.group_data['date']
         element_date = "//input[@id='classStartDate']"
@@ -140,7 +173,11 @@ class AHAExporter(AHABase):
         time_button = "//a[@id='buttonSubmitClassTime']"
         self.browser.find_element_by_xpath(time_button).click()
 
-    def paste_roster_settings(self):
+    def _paste_roster_settings(self):
+        """
+        Paste roster stiings
+        :return: 
+        """
         logger.info("Pasting roster setting:")
         logger.info("Roster limit: {}".format(self.group_data['roster_limit']))
         value_roster_limit = self.group_data['roster_limit']
@@ -155,20 +192,31 @@ class AHAExporter(AHABase):
         self.browser.execute_script(
             "arguments[0].value = '" + value_roster_date + "'", element)
 
-    def paste_notes(self):
+    def _paste_notes(self):
+        """
+        Paste 'notes' value
+        :return: 
+        """
         logger.info("Pasting notes: {}".format(self.group_data['class_notes']))
         class_notes = self.group_data['class_notes']
         element_notes = "//textarea[@id='notes']"
         self.browser.find_element_by_xpath(element_notes).send_keys(
             class_notes)
 
-    def save_button(self):
+    def _save_button(self):
+        """
+        Click on 'save' to save class
+        :return: 
+        """
         logger.info(
             "Finish, click 'save': {}".format(self.group_data['course']))
         self.browser.execute_script("saveInfo('save','false')")
 
-    def check_success_export(self):
-
+    def _check_success_export(self):
+        """
+        Check if class successfully created
+        :return: 
+        """
         try:
             alert_div = WebDriverWait(self.browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME,
@@ -183,7 +231,11 @@ class AHAExporter(AHABase):
 
             raise Exception('\n'.join(errors))
 
-    def save_aha_group_to_db(self):
+    def _save_aha_group_to_db(self):
+        """
+        Create exported AHA group in database
+        :return: 
+        """
         try:
             ew_group = EnrollWareGroup.objects.get(
                 id=self.group_data['enroll_id'])
@@ -191,7 +243,6 @@ class AHAExporter(AHABase):
             logger.info("enrollware group with id = {} not found ".format(
                 self.group_data['enroll_id']))
         else:
-            # TODO: add course date
             AHAGroup.objects.create(
                 enrollware_group=ew_group,
                 course=self.group_data['course'],
@@ -206,22 +257,29 @@ class AHAExporter(AHABase):
             )
 
     def run(self):
+        """
+        Run process of export groups to AHA
+        :return: 
+        """
+
+        # try to login and redirect to add class page
         try:
-            self.login()
-            self.go_to_add_class_page()
+            self._login()
+            self._go_to_add_class_page()
         except:
             raise Exception(
                 'login failed (username/password incorrect or AHA service unavailable)')
 
+        # try to paste all fields
         try:
-            self.paste_fields()
+            self._paste_fields()
         except:
             raise Exception('can not paste fields, try again')
 
+        # try to save class on AHA and save info in database
         try:
-            self.save_button()
-            self.check_success_export()
-            self.save_aha_group_to_db()
+            self._save_button()
+            self._check_success_export()
+            self._save_aha_group_to_db()
         except Exception as msg:
-            # logger.info
             raise Exception('error while exporting group {}'.format(msg))

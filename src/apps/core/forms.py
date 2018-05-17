@@ -2,6 +2,9 @@ from django import forms
 
 
 class EnrollLoginForm(forms.Form):
+    """
+    Login Form for Enroll service
+    """
     username = forms.CharField(label='Username', max_length=50,
                                widget=forms.TextInput(
                                    attrs={'id': 'enroll_username',
@@ -12,6 +15,9 @@ class EnrollLoginForm(forms.Form):
 
 
 class AHALoginForm(forms.Form):
+    """
+    Login Form for AHA service
+    """
     username = forms.CharField(label='Username', max_length=50,
                                widget=forms.TextInput(
                                    attrs={'id': 'aha_username',
