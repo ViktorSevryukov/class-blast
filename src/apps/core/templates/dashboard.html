@@ -483,7 +483,7 @@
 
       {% if request.user.version == request.user.VERSIONS.PRO %}
       <div>
-        <form method="post" action="/dashboard/import_groups/" enctype="multipart/form-data">
+        <form method="post" action="/dashboard/import_groups/" enctype="multipart/form-data">{% csrf_token %}
            <input class="btn btn-primary" id="dashboard-button" type="file" name="csv_file" required />
            <input class="btn btn-primary" id="dashboard-button" type="submit" value="Upload"/>
         </form>
