@@ -1,3 +1,8 @@
+import codecs
+import csv
+import io
+import uuid
+
 import stripe
 from django.conf import settings
 from django.shortcuts import render, redirect
@@ -10,7 +15,7 @@ from django.db.models import Q
 from apps.auth_core.models import User
 from apps.core.forms import AHALoginForm, EnrollLoginForm
 from apps.core.models import EnrollWareGroup, AHAField, \
-    EnrollWareCredentials, AHACredentials
+    EnrollWareCredentials, AHACredentials, EnrollClassTime
 from apps.core.tasks import import_enroll_groups, update_enroll_credentials, \
     import_aha_fields, update_aha_credentials
 from celery import chain
@@ -92,6 +97,10 @@ class ServicesLoginView(LoginRequiredMixin, View):
             else:
                 context['success_auth'] = True
                 return render(request, self.template_name, context)
+
+        if service_type == 'skip':
+            context['success_auth'] = True
+            return render(request, self.template_name, context)
 
         return render(request, self.template_name, context)
 
@@ -204,3 +213,39 @@ class PaymentView(LoginRequiredMixin, View):
             request.user.save()
 
         return redirect(reverse_lazy('dashboard:manage'))
+
+
+class ImportGroupsFromCSV(LoginRequiredMixin, View):
+    template_name = 'dashboard.html'
+
+    def post(self, request):
+        file = request.FILES['csv_file']
+        file_group_id = uuid.uuid4()
+
+        if request.FILES:
+            decoded_file = file.read().decode('utf-8')
+            io_string = io.StringIO(decoded_file)
+            for row in csv.DictReader(io_string, delimiter=','):
+
+            #TODO: Does we need to create new group or update existing
+
+                EnrollClassTime.objects.get_or_create(
+                    group_id=file_group_id,
+                    date=row['Class time date'],
+                    start=row['Class time start'],
+                    end=row['Class time end']
+                    )
+
+                EnrollWareGroup.objects.get_or_create(
+                    user=User.objects.get(username=row['User']),
+                    group_id=file_group_id,
+                    course=row['Course'],
+                    location=row['Location'],
+                    instructor=row['Instructor'],
+                    max_students=row['Max students'],
+                    status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
+                    available_to_export=True
+                )
+
+        return redirect(
+            reverse_lazy('dashboard:manage'))

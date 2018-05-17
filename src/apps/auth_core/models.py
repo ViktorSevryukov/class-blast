@@ -33,11 +33,13 @@ class User(AbstractUser):
         super(User, self).save(*args, **kwargs)
 
     def has_services_credentials(self):
-        """
-        Check for credentials exist
-        :return: credentials
-        """
-        return self.ahacredentials.exists() and self.enrollwarecredentials.exists()
+        return self.has_enroll_credentials() and self.has_aha_credentials()
+
+    def has_enroll_credentials(self):
+        return self.enrollwarecredentials.exists()
+
+    def has_aha_credentials(self):
+        return self.ahacredentials.exists()
 
     def set_available_to_export_groups(self, force=False):
         not_synced_q = ~Q(status=EnrollWareGroup.STATUS_CHOICES.SYNCED)
