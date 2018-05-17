@@ -480,17 +480,20 @@
       {% endif %}
 
       <!-- UPLOAD FILE -->
+
       {% if request.user.version == request.user.VERSIONS.PRO %}
       <div>
-        <form method="post" action="/dashboard/import_groups/" enctype="multipart/form-data">{% csrf_token %}
-           <input type="file" name="csv_file" required />
-           <input type="submit" value="Upload"/>
+        <form method="post" action="/dashboard/import_groups/" enctype="multipart/form-data">
+           <input class="btn btn-primary" id="dashboard-button" type="file" name="csv_file" required />
+           <input class="btn btn-primary" id="dashboard-button" type="submit" value="Upload"/>
         </form>
       </div>
       {% endif %}
 
+      <!-- /UPLOAD FILE -->
+
       <div class="export-form">
-        <button disabled class="btn btn-primary" id="export-button"
+        <button disabled class="btn btn-primary" id="dashboard-button"
                 onclick="exportGroups()">Export to AHA
         </button>
       </div>
