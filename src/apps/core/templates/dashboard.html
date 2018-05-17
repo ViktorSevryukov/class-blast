@@ -95,7 +95,7 @@
           <td class="td-sm">
             <div class="cell-div">
               <!-- enroll date -->
-              <div>{{ ew_group.get_class_time }}</div>
+              <div>{{ ew_group.get_class_time_date }}</div>
               <!-- /enroll date -->
             </div>
           </td>
@@ -469,18 +469,35 @@
            id="export-loader" class="loader">
     </div>
 
+
     <div id="export-controls">
-      <div class="import-form">
-        <button class="btn btn-primary" id="sync-button"
-                onclick="sync()">Import from Enrollware
-        </button>
+      {% if not request.user.has_enroll_credentials %}
+        <div class="import-form">
+          <button class="btn btn-primary" id="sync-button"
+                  onclick="sync()">Import from Enrollware
+          </button>
+        </div>
+      {% endif %}
+
+      <!-- UPLOAD FILE -->
+
+      {% if request.user.version == request.user.VERSIONS.PRO %}
+      <div>
+        <form method="post" action="/dashboard/import_groups/" enctype="multipart/form-data">{% csrf_token %}
+           <input class="btn btn-primary" id="dashboard-button" type="file" name="csv_file" required />
+           <input class="btn btn-primary" id="dashboard-button" type="submit" value="Upload"/>
+        </form>
       </div>
+      {% endif %}
+
+      <!-- /UPLOAD FILE -->
 
       <div class="export-form">
-        <button disabled class="btn btn-primary" id="export-button"
+        <button disabled class="btn btn-primary" id="dashboard-button"
                 onclick="exportGroups()">Export to AHA
         </button>
       </div>
+
     </div>
   </div>
 
