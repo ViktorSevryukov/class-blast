@@ -158,7 +158,7 @@ th {
     /*transform: scale(1.5);*/
 }
 
-#controls-panel {
+#dashboard-footer {
     position: fixed;
     bottom: 0;
     right: 0;
@@ -167,10 +167,12 @@ th {
     background-color: white;
 }
 
-#export-controls {
-    display: flex;
-    justify-content: center;
-    margin: 2rem;
+#controls-panel-wrapper{
+    height: 100%;
+}
+
+.controls-panel{
+    height: 100%;
 }
 
 #export-controls form {
@@ -277,11 +279,3 @@ input[type="number"] {
 .skip-form {
     margin: 0.5rem 0;
 }
-
-#dashboard-button {
-    text-align: center;
-    display: inline-block;
-    height: 100%;
-    line-height: 27px;
-}
-

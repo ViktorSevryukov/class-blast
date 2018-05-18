@@ -450,7 +450,7 @@
   {% endif %}
 
 
-  <div id="controls-panel">
+  <div id="dashboard-footer">
     <div class="next-page-loading">
       <img src="{% static "img/loader.gif" %}"
            id="infinite-loader" class="loader">
@@ -468,36 +468,48 @@
       <img src="{% static "img/loader.gif" %}"
            id="export-loader" class="loader">
     </div>
-
-
-    <div id="export-controls">
-    
-      <!-- UPLOAD FILE -->
-
-      {% if request.user.version == request.user.VERSIONS.PRO %}
-      <div>
-        <form method="post" action="/dashboard/import_groups/" enctype="multipart/form-data">{% csrf_token %}
-           <input class="btn btn-primary" id="dashboard-button" type="file" name="csv_file" required />
-           <input class="btn btn-primary" id="dashboard-button" type="submit" value="Upload"/>
-        </form>
-      </div>
-      {% endif %}
-
-      <!-- /UPLOAD FILE -->
-      {% if request.user.has_enroll_credentials %}
-        <div class="import-form">
-          <button class="btn btn-primary" id="sync-button"
-                  onclick="sync()">Import from Enrollware
-          </button>
+    <div id="controls-panel-wrapper" class="container-fluid">
+      <div class="controls-panel row align-items-center">
+        <div class="col-4">
+          <div class="export-form">
+            <button disabled id="export-button" class="btn btn-success dashboard-button"
+                    onclick="exportGroups()">Export to AHA
+            </button>
+          </div>
         </div>
-      {% endif %}
-      <div class="export-form">
-        <button disabled class="btn btn-primary" id="dashboard-button"
-                onclick="exportGroups()">Export to AHA
-        </button>
-      </div>
 
+        <div id="import-controls" class="col-8">
+        <div class="container-fluid">
+          <div class="row align-items-center">
+            <!-- IMPORT FROM ENROLLWARE BUTTON -->
+            {% if request.user.has_enroll_credentials %}
+              <div class="import-block col-6">
+                <button class="btn btn-primary" id="sync-button"
+                        onclick="sync()">Import from Enrollware
+                </button>
+              </div>
+            {% endif %}
+            <!-- /IMPORT FROM ENROLLWARE BUTTON -->
+
+            <!-- UPLOAD CSV FILE -->
+            {% if request.user.version == request.user.VERSIONS.PRO %}
+            <div class="import-block col-6">
+              <form class="form-inline" method="post"
+                    action="/dashboard/import_groups/"
+                    enctype="multipart/form-data">
+                {% csrf_token %}
+                 <input class="form-control-file" type="file" name="csv_file" required />
+                 <input class="form-control btn btn-primary" type="submit" value="Upload"/>
+              </form>
+            </div>
+            {% endif %}
+            <!-- /UPLOAD CSV FILE -->
+          </div>
+        </div>
+        </div>
+      </div>
     </div>
+
   </div>
 
 
@@ -513,12 +525,12 @@
           element: $('.infinite-container')[0],
           onBeforePageLoad: function () {
               $('.next-page-loading').show();
-              $('#export-controls').hide();
+              $('#controls-panel-wrapper').hide();
           },
           onAfterPageLoad: function ($items) {
               initWidgets();
               $('.next-page-loading').hide();
-              $('#export-controls').show();
+              $('#controls-panel-wrapper').show();
           }
       });
   </script>
