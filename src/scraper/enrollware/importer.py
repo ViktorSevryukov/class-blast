@@ -178,7 +178,9 @@ class ClassImporter:
         workers = min(self.MAX_WORKERS, len(classes_urls))
         with futures.ThreadPoolExecutor(workers) as executor:
             res = executor.map(self._handle_class, classes_urls)
-        return len(list(res))
+        handled_count = len(list(res))
+        logger.info("Handled classes count: {}".format(handled_count))
+        return handled_count
 
     def _prepare_group(self, group_fields):
         """
@@ -280,7 +282,7 @@ class ClassImporter:
         select_id = 'mainContent_instructorId'
         instructor = self._get_select_value_by_id(self.class_page, select_id)
         if instructor == "--Choose--":
-            logger.info("No instructor, {}, {}".format(self.get_course(), self.get_group_id()))
+            logger.info("No instructor, {}, {}".format(self._get_course(), self._get_group_id()))
             return "No instructor"
 
         logging.info("Instructor: {}".format(instructor))
