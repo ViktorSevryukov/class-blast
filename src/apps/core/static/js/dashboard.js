@@ -28,7 +28,7 @@ $('#aha-form').on('submit', function (e) {
     loginToAHA();
 });
 
-var exportControls = $('#export-controls');
+var controlsWrapper = $('#controls-panel-wrapper');
 var exportButton = $('#export-button');
 var loaderWrapper = $('#loader-wrapper');
 var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
@@ -220,7 +220,7 @@ function exportGroups() {
     if (groups.data.length === 0)
         return alert('Please, select groups to export')
 
-    exportControls.hide();
+    controlsWrapper.hide();
     loaderWrapper.show();
 
     var json_data = JSON.stringify(groups.data)
@@ -240,7 +240,7 @@ function exportGroups() {
 }
 
 function sync() {
-    var elementsToHide = [exportControls];
+    var elementsToHide = [controlsWrapper];
     var elementsToShow = [loaderWrapper];
     importFrom('enroll', elementsToHide, elementsToShow, '', '', 'manage_page')
 }

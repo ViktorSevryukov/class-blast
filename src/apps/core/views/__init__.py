@@ -220,21 +220,12 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
 
     def post(self, request):
         file = request.FILES['csv_file']
-        file_group_id = uuid.uuid4()
 
         if request.FILES:
             decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
             for row in csv.DictReader(io_string, delimiter=','):
-
-            #TODO: Does we need to create new group or update existing
-
-                EnrollClassTime.objects.get_or_create(
-                    group_id=file_group_id,
-                    date=row['Class time date'],
-                    start=row['Class time start'],
-                    end=row['Class time end']
-                    )
+                file_group_id = uuid.uuid4()
 
                 EnrollWareGroup.objects.get_or_create(
                     user=User.objects.get(username=row['User']),
@@ -246,6 +237,13 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
                     status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
                     available_to_export=True
                 )
+
+                EnrollClassTime.objects.get_or_create(
+                    group_id=file_group_id,
+                    date=row['Class time date'],
+                    start=row['Class time start'],
+                    end=row['Class time end']
+                    )
 
         return redirect(
             reverse_lazy('dashboard:manage'))
