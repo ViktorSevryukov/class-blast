@@ -206,20 +206,23 @@ class ClassImporter:
         :param group_id: id of current group
         :return: 
         """
-        start_time = "{}:{} {}".format(
+        start_time = "{} {}:{} {}".format(
+            class_time['date'],
             class_time['from']['hour'],
             class_time['from']['minute'],
             class_time['from']['am_pm']
         )
-        end_time = "{}:{} {}".format(
+        end_time = "{} {}:{} {}".format(
+            class_time['date'],
             class_time['to']['hour'],
             class_time['to']['minute'],
             class_time['to']['am_pm']
         )
 
-        return EnrollClassTime(date=class_time['date'],
-                               start=start_time,
-                               end=end_time,
+        start_time = datetime.strptime(start_time, "%m/%d/%Y %I:%M %p")
+        end_time = datetime.strptime(end_time, "%m/%d/%Y %I:%M %p")
+
+        return EnrollClassTime(start_time=start_time, end_time=end_time,
                                group_id=group_id)
 
     def _save_groups_to_db(self):

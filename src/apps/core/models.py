@@ -52,9 +52,8 @@ class AHAField(TimeStampedModel):
 
 
 class EnrollClassTime(TimeStampedModel):
-    date = models.CharField(_("date"), max_length=10, default="")
-    start = models.CharField(_("start"), max_length=10, default="")
-    end = models.CharField(_("end"), max_length=10, default="")
+    start_time = models.DateTimeField(_("start date"), default=None)
+    end_time = models.DateTimeField(_("end date"), default=None)
     group_id = models.CharField(_("group id"), max_length=128, default="")
 
     class Meta(object):
@@ -63,6 +62,18 @@ class EnrollClassTime(TimeStampedModel):
 
     def __str__(self):
         return "{type}".format(type=self.date)
+
+    @property
+    def date(self):
+        return self.start_time.strftime('%m/%d/%Y')
+
+    @property
+    def start(self):
+        return self.start_time.strftime('%I:%M %p')
+
+    @property
+    def end(self):
+        return self.end_time.strftime('%I:%M %p')
 
 
 class AHAGroup(models.Model):

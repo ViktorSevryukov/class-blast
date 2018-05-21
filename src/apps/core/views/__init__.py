@@ -133,7 +133,14 @@ class DashboardView(LoginRequiredMixin, ListView):
         else:
             q_params &= ~Q(status=self.model.STATUS_CHOICES.SYNCED)
 
-        qs = self.model.objects.filter(q_params).order_by('-modified')
+        user_groups_ids = self.model.objects.filter(q_params).values_list(
+            'group_id', flat=True)
+
+        sorted_ids = EnrollClassTime.objects.filter(
+            group_id__in=user_groups_ids).order_by('start_time').values_list(
+            'group_id', flat=True)
+
+        qs = self.model.objects.filter(group_id__in=sorted_ids)
         return qs
 
     def get_context_data(self, **kwargs):
