@@ -12,7 +12,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from apps.core.models import EnrollWareGroup, EnrollClassTime, AHACredentials, \
+from apps.core.models import EnrollWareGroup, AHACredentials, \
     AHAField, Mapper
 from apps.core.tasks import export_to_aha, import_enroll_groups, \
     update_enroll_credentials, import_aha_fields, update_aha_credentials, User
@@ -111,9 +111,6 @@ def export_group(request):
             return Response({'details': _("Invalid group id")},
                             status=status.HTTP_400_BAD_REQUEST)
 
-        class_time = EnrollClassTime.objects.filter(
-            group_id=enroll_group.group_id).first()
-
         # TODO: use lookups
         aha_auth_data = AHACredentials.objects.filter(user=user).last()
 
@@ -126,9 +123,9 @@ def export_group(request):
             'tc': group['aha_data']['tc'],
             'ts': group['aha_data']['ts'],
             'instructor': group['aha_data']['instructor'],
-            'date': class_time.date,
-            'from': class_time.start,
-            'to': class_time.end,
+            'date': enroll_group.date,
+            'from': enroll_group.start,
+            'to': enroll_group.end,
             'class_description': group['aha_data']['class_description'],
             'roster_limit': group['aha_data']['roster_limit'],
             'cutoff_date': group['aha_data']['cutoff_date'],
