@@ -168,7 +168,9 @@ class ClassImporter:
         self.browser.open(url)
         self.class_page = self.browser.get_current_page()
         fields = self._get_fields()
-        self.classes_data.append(self._prepare_group(fields))
+        class_data = self._prepare_group(fields)
+        if class_data is not None:
+            self.classes_data.append(class_data)
 
     def _handle_classes(self):
         """
@@ -193,7 +195,10 @@ class ClassImporter:
         :param group_fields: 
         :return: 
         """
-        start_time, end_time = self._prepare_class_time(group_fields['class_times'])
+        success, times = self._prepare_class_time(group_fields['class_times'])
+        if not success:
+            return None
+
         return EnrollWareGroup(
             user=self.user,
             group_id=group_fields['group_id'],
@@ -203,8 +208,8 @@ class ClassImporter:
             max_students=group_fields['max_students'],
             status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
             available_to_export=self.user.version == self.user.VERSIONS.PRO,
-            start_time=start_time,
-            end_time=end_time
+            start_time=times['start_time'],
+            end_time=times['end_time']
         )
 
     def _prepare_class_time(self, class_time):
@@ -226,10 +231,14 @@ class ClassImporter:
             class_time['to']['am_pm']
         )
 
-        start_time = datetime.strptime(start_time, "%m/%d/%Y %I:%M %p")
-        end_time = datetime.strptime(end_time, "%m/%d/%Y %I:%M %p")
+        try:
+            start_time = datetime.strptime(start_time, "%m/%d/%Y %I:%M %p")
+            end_time = datetime.strptime(end_time, "%m/%d/%Y %I:%M %p")
+        except Exception as e:
+            logger.info("Date field is incorrect, {}".format(str(e)))
+            return False, None
 
-        return start_time, end_time
+        return True, {'start_time': start_time, 'end_time': end_time}
 
     def _save_groups_to_db(self):
         """
