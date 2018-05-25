@@ -3,11 +3,10 @@ from rangefilter.filter import DateRangeFilter
 
 from apps.core.actions import export_as_csv_action
 from apps.core.filters import RelatedDropdownFilter
-from .models import EnrollWareGroup, EnrollClassTime, EnrollWareCredentials, \
+from .models import EnrollWareGroup, EnrollWareCredentials, \
     AHACredentials, Mapper, AHAField, AHAGroup
 from apps.core.actions import export_as_csv_action
 
-admin.site.register(EnrollClassTime)
 admin.site.register(EnrollWareCredentials)
 admin.site.register(AHACredentials)
 admin.site.register(Mapper)
@@ -30,8 +29,6 @@ class AdminEnrollWareGroup(admin.ModelAdmin):
                                             ('Instructor', 'instructor'),
                                             ('Max students', 'max_students'),
                                             ('Status', 'status'),
-                                            ('Sync date', 'sync_date'),
-                                            ('Class time date', 'get_class_time_date'),
                                             ('Class time start', 'get_class_time_start'),
                                             ('Class time end', 'get_class_time_end')
                                             ])]

@@ -43,7 +43,6 @@ class ClassImporter:
         )
         self.class_page = None
         self.classes_data = []
-        self.classes_times = []
         self.existing_groups = list(EnrollWareGroup.objects.filter(user=user).values_list('group_id', flat=True))
 
     @staticmethod
@@ -162,7 +161,6 @@ class ClassImporter:
         self.browser.open(url)
         self.class_page = self.browser.get_current_page()
         fields = self._get_fields()
-        self.classes_times.append(self._prepare_class_time(fields['class_times'], fields['group_id']))
         self.classes_data.append(self._prepare_group(fields))
 
     def _handle_classes(self):
@@ -188,6 +186,7 @@ class ClassImporter:
         :param group_fields: 
         :return: 
         """
+        start_time, end_time = self._prepare_class_time(group_fields['class_times'])
         return EnrollWareGroup(
             user=self.user,
             group_id=group_fields['group_id'],
@@ -196,42 +195,44 @@ class ClassImporter:
             instructor=group_fields['instructor'],
             max_students=group_fields['max_students'],
             status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
-            available_to_export=self.user.version == self.user.VERSIONS.PRO
+            available_to_export=self.user.version == self.user.VERSIONS.PRO,
+            start_time=start_time,
+            end_time=end_time
         )
 
-    def _prepare_class_time(self, class_time, group_id):
+    def _prepare_class_time(self, class_time):
         """
-        Parse class time from class page
+        Prepare class time from class page
         :param class_time: class time in enrollware format
-        :param group_id: id of current group
-        :return: 
+        :return:
         """
-        start_time = "{}:{} {}".format(
+        start_time = "{} {}:{} {}".format(
+            class_time['date'],
             class_time['from']['hour'],
             class_time['from']['minute'],
             class_time['from']['am_pm']
         )
-        end_time = "{}:{} {}".format(
+        end_time = "{} {}:{} {}".format(
+            class_time['date'],
             class_time['to']['hour'],
             class_time['to']['minute'],
             class_time['to']['am_pm']
         )
 
-        return EnrollClassTime(date=class_time['date'],
-                               start=start_time,
-                               end=end_time,
-                               group_id=group_id)
+        start_time = datetime.strptime(start_time, "%m/%d/%Y %I:%M %p")
+        end_time = datetime.strptime(end_time, "%m/%d/%Y %I:%M %p")
+
+        return start_time, end_time
 
     def _save_groups_to_db(self):
         """
-        Create objects in database (EnrollWareGroups, EnrollClassTime)
+        Create objects in database (EnrollWareGroups)
         :return: 
         """
         logger.info('try to save groups')
 
         if self.classes_data:
             EnrollWareGroup.objects.bulk_create(self.classes_data)
-            EnrollClassTime.objects.bulk_create(self.classes_times)
 
     def _get_fields(self):
         """

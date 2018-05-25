@@ -51,20 +51,6 @@ class AHAField(TimeStampedModel):
         return "{type}".format(type=self.type)
 
 
-class EnrollClassTime(TimeStampedModel):
-    date = models.CharField(_("date"), max_length=10, default="")
-    start = models.CharField(_("start"), max_length=10, default="")
-    end = models.CharField(_("end"), max_length=10, default="")
-    group_id = models.CharField(_("group id"), max_length=128, default="")
-
-    class Meta(object):
-        verbose_name = _("enroll class time")
-        verbose_name_plural = _("enroll class times")
-
-    def __str__(self):
-        return "{type}".format(type=self.date)
-
-
 class AHAGroup(models.Model):
     """
     Model of AHA Group received from AHA service
@@ -136,6 +122,8 @@ class EnrollWareGroup(TimeStampedModel):
     """
     Instance of EnrollWare Group received from EnrollWare service
     """
+
+    DATE_FORMAT = '%m/%d/%Y %I:%M %p'
     STATUS_CHOICES = Choices(
         ('unsynced', 'UNSYNCED', _("Unsynced")),
         ('synced', 'SYNCED', _("Synced")),
@@ -158,6 +146,25 @@ class EnrollWareGroup(TimeStampedModel):
                                               default=False)
 
     sync_date = models.DateTimeField(_("sync date"), null=True)
+
+    # EnrollClassTime
+
+    start_time = models.DateTimeField(_("start date"), default=None)
+    end_time = models.DateTimeField(_("end date"), default=None)
+
+    @property
+    def date(self):
+        return self.start_time.strftime('%m/%d/%Y')
+
+    @property
+    def start(self):
+        time_str = self.start_time.strftime('%I:%M %p')
+        return time_str[1:] if time_str.startswith('0') else time_str
+
+    @property
+    def end(self):
+        time_str = self.end_time.strftime('%I:%M %p')
+        return time_str[1:] if time_str.startswith('0') else time_str
 
     class Meta(object):
         verbose_name = _("enroll group")
@@ -184,45 +191,25 @@ class EnrollWareGroup(TimeStampedModel):
         return cls.objects.distinct('course').values_list('course',
                                                           flat=True)
 
-    @property
-    def class_times(self):
-        """
-        Mapping class time with EnrollWare Group instance
-        """
-        return EnrollClassTime.objects.filter(group_id=self.group_id)
-
     def get_course_title(self):
         return "{}: {}".format(self.course, self.get_class_time_date())
 
     def get_class_time_date(self):
-        class_time = EnrollClassTime.objects.filter(
-            group_id=self.group_id).first()
-        if class_time is None:
-            return ''
-        return "{}".format(class_time.date)
+        return "{}".format(self.date)
 
     def get_class_time_start(self):
-        class_time = EnrollClassTime.objects.filter(
-            group_id=self.group_id).first()
-        if class_time is None:
-            return ''
-        return "{}".format(class_time.start)
+        return "{} {}".format(self.date, self.start)
 
     def get_class_time_end(self):
-        class_time = EnrollClassTime.objects.filter(
-            group_id=self.group_id).first()
-        if class_time is None:
-            return ''
-        return "{}".format(class_time.end)
+        return "{} {}".format(self.date, self.end)
 
     get_class_time_date.short_description = _('Class Time')
 
     def get_cutoff_date(self):
-        obj = self.class_times.first()
-        if obj is None:
+        if self.date is None:
             return None
-        class_time = "{} {}".format(obj.date, obj.start)
-        datetime_object = datetime.strptime(class_time, '%m/%d/%Y %I:%M %p')
+        class_time = "{} {}".format(self.date, self.start)
+        datetime_object = datetime.strptime(class_time, self.DATE_FORMAT)
         day_before = datetime_object - timedelta(days=1)
         return datetime.strftime(day_before, '%m/%d/%Y')
 
@@ -260,11 +247,6 @@ class EnrollWareGroup(TimeStampedModel):
             user=self.user,
             enroll_value=self.course).last()
         return mapper.aha_value if mapper else ""
-
-
-@receiver(post_delete, sender=EnrollWareGroup)
-def delete_times(sender, instance, using, **kwargs):
-    EnrollClassTime.objects.filter(group_id=instance.group_id).delete()
 
 
 class Mapper(TimeStampedModel):

@@ -2,6 +2,7 @@ import codecs
 import csv
 import io
 import uuid
+from datetime import datetime
 
 import stripe
 from django.conf import settings
@@ -15,7 +16,7 @@ from django.db.models import Q
 from apps.auth_core.models import User
 from apps.core.forms import AHALoginForm, EnrollLoginForm
 from apps.core.models import EnrollWareGroup, AHAField, \
-    EnrollWareCredentials, AHACredentials, EnrollClassTime
+    EnrollWareCredentials, AHACredentials
 from apps.core.tasks import import_enroll_groups, update_enroll_credentials, \
     import_aha_fields, update_aha_credentials
 from celery import chain
@@ -133,7 +134,7 @@ class DashboardView(LoginRequiredMixin, ListView):
         else:
             q_params &= ~Q(status=self.model.STATUS_CHOICES.SYNCED)
 
-        qs = self.model.objects.filter(q_params).order_by('-modified')
+        qs = self.model.objects.filter(q_params).order_by('start_time')
         return qs
 
     def get_context_data(self, **kwargs):
@@ -151,7 +152,6 @@ class DashboardView(LoginRequiredMixin, ListView):
         context['selected_course'] = selected_course
         context['enroll_locations'] = EnrollWareGroup.get_locations()
         context['enroll_courses'] = EnrollWareGroup.get_courses()
-
 
         context['aha_fields'] = aha_fields
         if self.request.GET.get('success', None):
@@ -225,25 +225,28 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
             decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
             for row in csv.DictReader(io_string, delimiter=','):
-                file_group_id = uuid.uuid4()
+                try:
+                    start_time = datetime.strptime(row['Class time start'],
+                                                   EnrollWareGroup.DATE_FORMAT)
+                    end_time = datetime.strptime(row['Class time end'],
+                                                 EnrollWareGroup.DATE_FORMAT)
+                except Exception as e:
+                    # TODO: add logger and handler
+                    start_time = None
+                    end_time = None
 
-                EnrollWareGroup.objects.get_or_create(
+                group, created = EnrollWareGroup.objects.get_or_create(
                     user=User.objects.get(username=row['User']),
-                    group_id=file_group_id,
+                    group_id=uuid.uuid4(),
                     course=row['Course'],
                     location=row['Location'],
                     instructor=row['Instructor'],
                     max_students=row['Max students'],
                     status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
-                    available_to_export=True
+                    available_to_export=True,
+                    start_time=start_time,
+                    end_time=end_time
                 )
-
-                EnrollClassTime.objects.get_or_create(
-                    group_id=file_group_id,
-                    date=row['Class time date'],
-                    start=row['Class time start'],
-                    end=row['Class time end']
-                    )
 
         return redirect(
             reverse_lazy('dashboard:manage'))
