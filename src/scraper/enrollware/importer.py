@@ -89,8 +89,15 @@ class ClassImporter:
         try:
             self._handle_classes()
             self._save_groups_to_db()
-        except:
+        except Exception as e:
+            logger.info("Sorry, there is some trouble with import groups: {}".format(str(e)))
             raise Exception("Sorry, there is some trouble with import groups")
+
+        try:
+            self._save_groups_to_db()
+        except Exception as e:
+            logger.info("Sorry, can't save groups: {}".format(str(e)))
+            raise Exception("Sorry, can't save groups")
 
     def _login(self):
         """
@@ -283,7 +290,7 @@ class ClassImporter:
         select_id = 'mainContent_instructorId'
         instructor = self._get_select_value_by_id(self.class_page, select_id)
         if instructor == "--Choose--":
-            logger.info("No instructor, {}, {}".format(self._get_course(), self._get_group_id()))
+            # logger.info("No instructor, {}, {}".format(self._get_course(), self._get_group_id()))
             return "No instructor"
 
         logging.info("Instructor: {}".format(instructor))
