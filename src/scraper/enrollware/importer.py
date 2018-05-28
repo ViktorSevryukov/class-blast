@@ -88,7 +88,7 @@ class ClassImporter:
         # try to get info from classes
         try:
             self._handle_classes()
-            self._save_groups_to_db()
+            # self._save_groups_to_db()
         except Exception as e:
             logger.info("Sorry, there is some trouble with import groups: {}".format(str(e)))
             raise Exception("Sorry, there is some trouble with import groups")
@@ -245,7 +245,7 @@ class ClassImporter:
         Create objects in database (EnrollWareGroups)
         :return: 
         """
-        logger.info('try to save groups')
+        logger.info('try to save {} groups'.format(len(self.classes_data)))
 
         if self.classes_data:
             EnrollWareGroup.objects.bulk_create(self.classes_data)
