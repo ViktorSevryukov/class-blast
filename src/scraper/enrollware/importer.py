@@ -118,7 +118,7 @@ class ClassImporter:
         :param url: current url
         :return: 
         """
-        group_id = int(parse.parse_qs(parse.urlparse(url).query)['id'][0])
+        group_id = parse.parse_qs(parse.urlparse(url).query)['id'][0]
         return group_id
 
     def _get_classes_urls(self):
