@@ -7,8 +7,6 @@ from .models import EnrollWareGroup, EnrollWareCredentials, \
     AHACredentials, Mapper, AHAField, AHAGroup
 from apps.core.actions import export_as_csv_action
 
-admin.site.register(EnrollWareCredentials)
-admin.site.register(AHACredentials)
 admin.site.register(Mapper)
 admin.site.register(AHAField)
 admin.site.register(AHAGroup)
@@ -34,3 +32,19 @@ class AdminEnrollWareGroup(admin.ModelAdmin):
                                             ])]
 
 admin.site.register(EnrollWareGroup, AdminEnrollWareGroup)
+
+
+class AdminAHACredentials(admin.ModelAdmin):
+    list_display = ('username', 'user')
+    readonly_fields = ('username', 'user')
+    search_fields = ('username', 'user')
+
+admin.site.register(AHACredentials, AdminAHACredentials)
+
+
+class AdminEnrollWareCredentials(admin.ModelAdmin):
+    list_display = ('username', 'user')
+    readonly_fields = ('username', 'user')
+    search_fields = ('username', 'user')
+
+admin.site.register(EnrollWareCredentials, AdminEnrollWareCredentials)
