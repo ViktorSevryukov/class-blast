@@ -36,15 +36,11 @@ admin.site.register(EnrollWareGroup, AdminEnrollWareGroup)
 
 class AdminAHACredentials(admin.ModelAdmin):
     list_display = ('username', 'user')
-    readonly_fields = ('username', 'user')
-    search_fields = ('username', 'user')
 
 admin.site.register(AHACredentials, AdminAHACredentials)
 
 
 class AdminEnrollWareCredentials(admin.ModelAdmin):
     list_display = ('username', 'user')
-    readonly_fields = ('username', 'user')
-    search_fields = ('username', 'user')
 
 admin.site.register(EnrollWareCredentials, AdminEnrollWareCredentials)
