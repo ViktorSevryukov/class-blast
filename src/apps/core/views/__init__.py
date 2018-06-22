@@ -26,7 +26,7 @@ from scraper.enrollware.importer import ClassImporter
 
 import logging
 
-logger = logging.getLogger('enroll')
+logger = logging.getLogger('import_csv')
 
 
 class ServicesLoginView(LoginRequiredMixin, View):
@@ -258,7 +258,7 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
                     defaults={'group_id': uuid.uuid4(), 'status': EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
                               'available_to_export': True},
                 )
-                logger.info("Class {} import from Enroll CSV report".format(str(row['Course'])))
+                logger.info("Class {} imported from CSV by {}".format(str(row['Course']), self.request.user))
             messages.success(request, 'Classes successfully imported')
         return redirect(
             reverse_lazy('dashboard:manage'))
