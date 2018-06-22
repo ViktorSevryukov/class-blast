@@ -3,36 +3,62 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet"
-          href="{% static 'libs/bootstrap-4.0.0-dist/css/bootstrap.min.css' %}"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-          crossorigin="anonymous">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet"
+        href="{% static 'libs/bootstrap-4.0.0-dist/css/bootstrap.min.css' %}"
+        integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+        crossorigin="anonymous">
 
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <link rel="stylesheet"
+        href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-    <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    {% block extra_css %}
-    {% endblock %}
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  {% block extra_css %}
+  {% endblock %}
 
-    <title>{% block title %}ClassBlast{% endblock %}</title>
+  <title>{% block title %}ClassBlast{% endblock %}</title>
 </head>
 <body>
 {% block header %}
-    <header id="header">
-        {% if request.user.is_authenticated %}
-            <form class="form-group" method="post" action="{% url 'auth:logout' %}">
-                {% csrf_token %}
-                <button class="btn btn-default" type="submit">Logout</button>
-            </form>
-        {% endif %}
-    </header>
+  <header id="header">
+    {% if request.user.is_authenticated %}
+      <form class="form-group" method="post" action="{% url 'auth:logout' %}">
+        {% csrf_token %}
+        <button class="btn btn-default" type="submit">Logout</button>
+      </form>
+    {% endif %}
+  </header>
 {% endblock %}
+
+{% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+      <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>
+        <div class="alert
+        {% if message.tags == 'error' %}
+         alert-danger
+         {% elif message.tags == 'success' %}
+         alert-success
+         {% else %}
+         alert-secondary
+        {% endif %}
+        alert-dismissible fade show"
+             role="alert">
+          {{ message }}
+          <button type="button" class="close" data-dismiss="alert"
+                  aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+      </li>
+    {% endfor %}
+  </ul>
+{% endif %}
 
 {% block info_message %}
 {% endblock %}
@@ -55,7 +81,7 @@
 <script src="{% static 'libs/jquery-ui-1.12.1/jquery-ui.js' %}"></script>
 
 {% block extra_js %}
-    <script src="{% static 'js/dashboard.js' %}"></script>
+  <script src="{% static 'js/dashboard.js' %}"></script>
 {% endblock %}
 </body>
 </html>

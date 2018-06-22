@@ -6,6 +6,7 @@ from datetime import datetime
 
 import stripe
 from django.conf import settings
+from django.contrib import messages
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from django.views import View
@@ -219,34 +220,45 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
     template_name = 'dashboard.html'
 
     def post(self, request):
+
+        DATE_FORMAT = '%m/%d/%y %H:%M'
+
         file = request.FILES['csv_file']
 
         if request.FILES:
             decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
             for row in csv.DictReader(io_string, delimiter=','):
+                # start time
                 try:
-                    start_time = datetime.strptime(row['Class time start'],
-                                                   EnrollWareGroup.DATE_FORMAT)
-                    end_time = datetime.strptime(row['Class time end'],
-                                                 EnrollWareGroup.DATE_FORMAT)
-                except Exception as e:
-                    # TODO: add logger and handler
-                    start_time = None
-                    end_time = None
+                    start_time = datetime.strptime(row['Start Date / Time'],
+                                                   DATE_FORMAT)
 
+                    end_time = datetime.strptime(row['End Date / Time'],
+                                                 DATE_FORMAT)
+                    max_students = int(row['Students']) + int(row['Seats'])
+
+                except (ValueError, KeyError) as e:
+                    # TODO: add logger and handler
+                    print("Error while processing field: {}".format(str(e)))
+                    messages.error(request, 'File contains invalid fields')
+                    return redirect(reverse_lazy('dashboard:manage'))
+
+                """
+                available_to_export=True, cause this option available only in a
+                PRO-version
+                """
                 group, created = EnrollWareGroup.objects.get_or_create(
-                    user=User.objects.get(username=row['User']),
-                    group_id=uuid.uuid4(),
+                    user=self.request.user,
                     course=row['Course'],
                     location=row['Location'],
                     instructor=row['Instructor'],
-                    max_students=row['Max students'],
-                    status=EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
-                    available_to_export=True,
+                    max_students=max_students,
                     start_time=start_time,
-                    end_time=end_time
+                    end_time=end_time,
+                    defaults={'group_id': uuid.uuid4(), 'status': EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
+                              'available_to_export': True},
                 )
-
+            messages.success(request, 'Classes successfully imported')
         return redirect(
             reverse_lazy('dashboard:manage'))
