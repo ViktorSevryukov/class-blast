@@ -226,9 +226,12 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
         file = request.FILES['csv_file']
 
         if request.FILES:
+            logger.info("{} Import from CSV by {}".format("---> ",
+                                                           self.request.user.username))
             decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
-            for row in csv.DictReader(io_string, delimiter=','):
+            for index, row in enumerate(
+                    csv.DictReader(io_string, delimiter=',')):
                 try:
                     start_time = datetime.strptime(row['Start Date / Time'],
                                                    DATE_FORMAT)
@@ -237,12 +240,21 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
                                                  DATE_FORMAT)
                     max_students = int(row['Students']) + int(row['Seats'])
 
-                except (ValueError, KeyError) as e:
-                    # TODO: add logger and handler
-                    logger.info("Error while processing field: {}".format(str(e)))
-                    messages.error(request, 'File contains invalid fields')
+                except KeyError as e:
+                    logger.info(
+                        "Error while processing field: {}".format(str(e)))
+                    messages.error(request, 'File contains invalid fields: {}'.format(str(e)))
                     return redirect(reverse_lazy('dashboard:manage'))
-
+                except ValueError as e:
+                    msg = "Can not parse value in row {row_number}: " \
+                          "for course {course}: {start_time} - {end_time}".format(
+                        row_number=index + 1, course=row['Course'],
+                        start_time=row['Start Date / Time'],
+                        end_time=row['End Date / Time']
+                    )
+                    logger.info(msg)
+                    messages.error(request, msg)
+                    return redirect(reverse_lazy('dashboard:manage'))
                 """
                 available_to_export=True, cause this option available only in a
                 PRO-version
@@ -255,10 +267,11 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
                     max_students=max_students,
                     start_time=start_time,
                     end_time=end_time,
-                    defaults={'group_id': uuid.uuid4(), 'status': EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
+                    defaults={'group_id': uuid.uuid4(),
+                              'status': EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
                               'available_to_export': True},
                 )
-                logger.info("Class {} imported from CSV by {}".format(str(row['Course']), self.request.user))
+            logger.info("Classes successfully imported from CSV")
             messages.success(request, 'Classes successfully imported')
         return redirect(
             reverse_lazy('dashboard:manage'))
