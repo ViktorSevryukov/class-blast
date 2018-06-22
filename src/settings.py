@@ -183,6 +183,15 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'standard'
         },
+        'import_csv_logfile': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs',
+                                     'import_csv.log'),
+            'maxBytes': 50000,
+            'backupCount': 2,
+            'formatter': 'standard',
+        },
     },
     'loggers': {
         'enroll': {
@@ -200,6 +209,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True
         },
+        'import_csv': {
+            'handlers': ['import_csv_logfile', 'console'],
+            'level': 'DEBUG',
+            'propagate': True
+        }
     },
 }
 

@@ -26,7 +26,7 @@ from scraper.enrollware.importer import ClassImporter
 
 import logging
 
-logger = logging.getLogger('aha_export')
+logger = logging.getLogger('import_csv')
 
 
 class ServicesLoginView(LoginRequiredMixin, View):
@@ -229,7 +229,6 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
             decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
             for row in csv.DictReader(io_string, delimiter=','):
-                # start time
                 try:
                     start_time = datetime.strptime(row['Start Date / Time'],
                                                    DATE_FORMAT)
@@ -240,7 +239,7 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
 
                 except (ValueError, KeyError) as e:
                     # TODO: add logger and handler
-                    print("Error while processing field: {}".format(str(e)))
+                    logger.info("Error while processing field: {}".format(str(e)))
                     messages.error(request, 'File contains invalid fields')
                     return redirect(reverse_lazy('dashboard:manage'))
 
@@ -259,6 +258,7 @@ class ImportGroupsFromCSV(LoginRequiredMixin, View):
                     defaults={'group_id': uuid.uuid4(), 'status': EnrollWareGroup.STATUS_CHOICES.UNSYNCED,
                               'available_to_export': True},
                 )
+                logger.info("Class {} imported from CSV by {}".format(str(row['Course']), self.request.user))
             messages.success(request, 'Classes successfully imported')
         return redirect(
             reverse_lazy('dashboard:manage'))
