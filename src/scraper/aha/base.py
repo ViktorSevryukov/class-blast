@@ -56,11 +56,11 @@ class AHABase():
         :return: 
         """
         # Can uncomment code below for local testing
-        # options = webdriver.ChromeOptions()
-        # options.add_argument('headless')
-        # return webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        return webdriver.Chrome(executable_path=DRIVER_PATH, options=options)
         # TODO: try to use headless Chrome on server, need to install binary
-        return webdriver.PhantomJS()
+        # return webdriver.PhantomJS()
 
     def _login(self):
         """
