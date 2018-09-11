@@ -82,7 +82,8 @@ class ClassImporter:
         try:
             self._login()
             self._check_logged_in()
-        except:
+        except Exception as e:
+            logger.error("Error on login: {}".format(str(e)))
             raise Exception("Sorry, your login data wrong, please try again")
 
         # try to get info from classes

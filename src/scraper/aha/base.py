@@ -7,7 +7,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
 
-
 """Settings for local testing on Linux/Mac with Chrome driver"""
 
 LINUX_PLATFORM = 'linux'
@@ -20,7 +19,8 @@ WEB_DRIVERS = {
 
 CURRENT_PATH = os.path.abspath(os.path.dirname(__file__))
 try:
-    DRIVER_PATH = os.path.join(CURRENT_PATH, '../drivers', WEB_DRIVERS[sys.platform])
+    DRIVER_PATH = os.path.join(CURRENT_PATH, '../drivers',
+                               WEB_DRIVERS[sys.platform])
 except:
     raise Exception
 
@@ -32,7 +32,7 @@ class AHABase():
 
     # Pages to scrap
     URLS = {
-        'login': 'https://sso.heart.org/account.html',
+        'login': 'https://ahasso.heart.org/Login/',
         'add_class': 'https://ahainstructornetwork.americanheart.org/AHAECC/ecc.jsp?pid=ahaecc.addClass',
     }
 
@@ -67,22 +67,24 @@ class AHABase():
         Try to login to AHA site
         :return: 
         """
-        self.logger.info("Try to AHA LogIn with username {}".format(self.username))
+        self.logger.info(
+            "Try to AHA LogIn with username {}".format(self.username))
         self.browser.get(self.URLS['login'])
 
         # wait until JS and DOM elements are loaded
         self.browser.implicitly_wait(10)
 
         login_form = WebDriverWait(self.browser, 10).until(
-        EC.presence_of_element_located((By.ID, "userScreDiv_content")))
-        # paste credentials and try to login
-        username_form = login_form.find_element_by_class_name('gigya-input-text')
-        password_form = login_form.find_element_by_class_name('gigya-input-password')
+            EC.presence_of_element_located(
+                (By.XPATH, "//form[starts-with(@action, '/Login')]")))
+
+        username_form = login_form.find_element_by_id('Email')
+        password_form = login_form.find_element_by_id('Password')
         username_form.send_keys(self.username)
         password_form.send_keys(self.password)
         self.logger.info("LogIn click, username: {}".format(self.username))
         # click on 'login' button
-        login_form.find_element_by_class_name("gigya-input-submit").click()
+        login_form.submit()
 
     def _go_to_add_class_page(self):
         """
@@ -92,6 +94,6 @@ class AHABase():
         self.logger.info("Go to class page")
         self.browser.implicitly_wait(10)  # wait for JS and DOM elements
         WebDriverWait(self.browser, 10).until(
-            EC.text_to_be_present_in_element((By.TAG_NAME, "strong"), "Welcome!"))
+            EC.presence_of_element_located((By.ID, "main")))
         self.browser.get(self.URLS['add_class'])
         self.logger.info("Current URL: {}".format(self.browser.current_url))
