@@ -75,9 +75,9 @@ WSGI_APPLICATION = 'wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'class-blast',
+        'NAME': 'blast',
         'USER': 'postgres',
-        'PASSWORD': 'postgres',
+        'PASSWORD': '',
         'HOST': '127.0.0.1',
         'PORT': '5432'
     }
@@ -130,7 +130,6 @@ USE_TZ = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'var', 'www', 'static')
 MEDIA_ROOT = os.path.join(BASE_DIR, 'var', 'www', 'media')
-
 
 STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
@@ -219,9 +218,3 @@ LOGGING = {
 
 TEST_STRIPE_API_KEY = "sk_test_Utq2YYmvaznN0CcXNYOX4vBV"
 TEST_STRIPE_AMOUNT = 999
-
-AHA_EXPORT_SCREENS_DIR = os.path.join(BASE_DIR, 'src', 'scraper', 'aha',
-                           'export_screenshots')
-
-if not os.path.exists(AHA_EXPORT_SCREENS_DIR):
-    os.makedirs(AHA_EXPORT_SCREENS_DIR)

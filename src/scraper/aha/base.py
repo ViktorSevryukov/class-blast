@@ -46,7 +46,6 @@ class AHABase():
         self.username = username
         self.password = password
         self.browser = self._setup_browser()
-        self.browser.set_window_size("1920", "2560")
         self.logger = logging.getLogger(logger_name)
 
     @staticmethod

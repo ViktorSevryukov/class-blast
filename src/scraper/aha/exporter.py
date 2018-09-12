@@ -52,28 +52,15 @@ class AHAExporter(AHABase):
         Paste all fields to create new class
         :return: 
         """
-        self.browser.save_screenshot(
-            os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
-                         '1.png'))
         self._paste_course()
         self._paste_language()
         self._paste_tc()
         self._paste_ts()
         self._paste_instructor()
-        self.browser.save_screenshot(
-            os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
-                         '2.png'))
         self._paste_location()
-
-        self.browser.save_screenshot(
-            os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
-                         '3.png'))
         self._paste_date()
         self._paste_roster_settings()
         self._paste_notes()
-        self.browser.save_screenshot(
-            os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
-                         '4.png'))
 
     def _paste_course(self):
         """
@@ -237,13 +224,9 @@ class AHAExporter(AHABase):
         :return: 
         """
         try:
-            self.browser.save_screenshot(
-                os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
-                             'success_page.png'))
             alert_div = WebDriverWait(self.browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME,
                                                 "alert-success")))
-            self.logger.info("Export success")
         except:
             alert_div = self.browser.find_element(By.CLASS_NAME,
                                                   "alert-danger")
