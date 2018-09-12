@@ -1,12 +1,13 @@
 import logging
+import os
 
+from django.conf import settings
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from apps.core.models import AHAGroup, EnrollWareGroup
 from scraper.aha.base import AHABase
-
 
 logger = logging.getLogger('aha_export')
 
@@ -51,15 +52,28 @@ class AHAExporter(AHABase):
         Paste all fields to create new class
         :return: 
         """
+        self.browser.save_screenshot(
+            os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
+                         '1.png'))
         self._paste_course()
         self._paste_language()
         self._paste_tc()
         self._paste_ts()
         self._paste_instructor()
+        self.browser.save_screenshot(
+            os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
+                         '2.png'))
         self._paste_location()
+
+        self.browser.save_screenshot(
+            os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
+                         '3.png'))
         self._paste_date()
         self._paste_roster_settings()
         self._paste_notes()
+        self.browser.save_screenshot(
+            os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
+                         '4.png'))
 
     def _paste_course(self):
         """
@@ -121,12 +135,17 @@ class AHAExporter(AHABase):
         WebDriverWait(self.browser, 5).until(
             EC.presence_of_element_located((By.ID, 'instructorId')))
         all_instructor = self.browser.find_element_by_id('instrNames')
+
         options = [x for x in
                    all_instructor.find_elements_by_tag_name('option')]
         for element in options:
             if element.get_attribute('value') == value:
                 element.click()
                 break
+
+        # all_instructor.screenshot(
+        #     os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
+        #                  'instructor.png'))
 
     def _paste_location(self):
         """
@@ -218,6 +237,9 @@ class AHAExporter(AHABase):
         :return: 
         """
         try:
+            self.browser.save_screenshot(
+                os.path.join(settings.AHA_EXPORT_SCREENS_DIR,
+                             'success_page.png'))
             alert_div = WebDriverWait(self.browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME,
                                                 "alert-success")))

@@ -219,3 +219,9 @@ LOGGING = {
 
 TEST_STRIPE_API_KEY = "sk_test_Utq2YYmvaznN0CcXNYOX4vBV"
 TEST_STRIPE_AMOUNT = 999
+
+AHA_EXPORT_SCREENS_DIR = os.path.join(BASE_DIR, 'src', 'scraper', 'aha',
+                           'export_screenshots')
+
+if not os.path.exists(AHA_EXPORT_SCREENS_DIR):
+    os.makedirs(AHA_EXPORT_SCREENS_DIR)
