@@ -221,6 +221,7 @@ class AHAExporter(AHABase):
             alert_div = WebDriverWait(self.browser, 10).until(
                 EC.presence_of_element_located((By.CLASS_NAME,
                                                 "alert-success")))
+            self.logger.info("Export success")
         except:
             alert_div = self.browser.find_element(By.CLASS_NAME,
                                                   "alert-danger")
@@ -255,6 +256,7 @@ class AHAExporter(AHABase):
                 description=self.group_data['class_description'],
                 notes=self.group_data['class_notes']
             )
+            self.logger.info("AHA group successfully created")
 
     def run(self):
         """
